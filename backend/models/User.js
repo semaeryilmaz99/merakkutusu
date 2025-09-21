@@ -9,7 +9,10 @@ const UserSchema = new mongoose.Schema({
     followers: [{type: mongoose.Schema.Types.ObjectId, ref: "User"}],
     following: [{type: mongoose.Schema.Types.ObjectId, ref: "User"}],
     role: {type: String, enum: ["user", "admin"], default: "user"},
-    isVerified: {type: Boolean, default: false}
+    verificationToken: {type: String },
+    isVerified: {type: Boolean, default: false},
+    resetPasswordToken: {type: String},
+    resetPasswordExpires: {type: Date}
 }, {timestamps: true});
 
 //Şifre hashleme
@@ -20,11 +23,11 @@ UserSchema.pre("save", async function (next) {
     next();
 });
 
-//Şifre doğrulama
+//Şifre karşılaştırma
 UserSchema.methods.matchPassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };
 
 
 const User = mongoose.model("User", UserSchema);
-export default mongoose.model("User", UserSchema);
+export default User;
