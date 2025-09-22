@@ -9,13 +9,16 @@ import {
     updateArticle, 
     deleteArticle,
     toggleFavorite,
-    addComment
+    addComment,
+    searchArticles
 } from "../controllers/articleController.js";
 import {protect} from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
 // /api/articles
+router.get("/search", searchArticles);
+
 router.post("/", protect, upload.single("image"), createArticle);
 router.get("/", getArticles);
 
