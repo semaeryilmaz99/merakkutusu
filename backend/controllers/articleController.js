@@ -32,9 +32,14 @@ export const createArticle = async (req, res) => {
     }
 
     // tags gönderildiyse normalize et, yoksa boş array
-    const tagsArray = Array.isArray(req.body.tags)
-      ? req.body.tags.map(tag => tag.trim().toLowerCase())
-      : [];
+    let tagsArray = [];
+    if (req.body.tags) {
+    if (Array.isArray(req.body.tags)) {
+    tagsArray = req.body.tags.map(tag => tag.trim().toLowerCase());
+    } else if (typeof req.body.tags === "string") {
+    tagsArray = req.body.tags.split(",").map(tag => tag.trim().toLowerCase());
+   }
+}
 
     const article = await Article.create({
       title,
