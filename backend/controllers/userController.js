@@ -42,3 +42,22 @@ export const followUser = async (req, res) => {
     res.status(500).json({ message: err.message });
     }
 };
+
+// Kullanıcı arama
+export const searchUsers = async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q) return res.status(400).json({ message: "Arama terimi gerekli" });
+
+    const users = await User.find({
+      $or: [
+        { username: { $regex: q, $options: "i" } },
+        { bio: { $regex: q, $options: "i" } }
+      ]
+    }).select("username bio");
+
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
