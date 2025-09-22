@@ -1,11 +1,15 @@
 import express from "express";
 import upload from "../middlewares/upload.js";
+
 import {
     createArticle, 
-    getArticles, 
+    getArticles,
+    getFeed, 
     getArticleById, 
     updateArticle, 
-    deleteArticle
+    deleteArticle,
+    toggleFavorite,
+    addComment
 } from "../controllers/articleController.js";
 import {protect} from "../middlewares/authMiddleware.js";
 
@@ -14,8 +18,12 @@ const router = express.Router();
 // /api/articles
 router.post("/", protect, upload.single("image"), createArticle);
 router.get("/", getArticles);
-router.get("/:id", getArticleById);
+
 router.put("/:id", protect, updateArticle);
 router.delete("/:id", protect, deleteArticle);
+router.put("/favorite/:id", protect, toggleFavorite);
+router.post("/:id/comment", protect, addComment);
+router.get("/feed", protect, getFeed);
+router.get("/:id", getArticleById);
 
 export default router;
