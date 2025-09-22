@@ -31,11 +31,17 @@ export const createArticle = async (req, res) => {
       imageUrl = result.secure_url;
     }
 
+    // tags gönderildiyse normalize et, yoksa boş array
+    const tagsArray = Array.isArray(req.body.tags)
+      ? req.body.tags.map(tag => tag.trim().toLowerCase())
+      : [];
+
     const article = await Article.create({
       title,
       content,
       image: imageUrl,
-      author: req.user._id
+      author: req.user._id,
+      tags: tagsArray
     });
 
     res.status(201).json(article);
@@ -68,23 +74,57 @@ export const getArticleById = async (req, res) => {
 
 //Makale güncelleme
 export const updateArticle = async (req, res) => {
-    try {
-        const article = await Article.findById(req.params.id);
+  try {
+    const article = await Article.findById(req.params.id);
+    if (!article) return res.status(404).json({ message: "Makale bulunamadı" });
 
-        if (!article) return res.status(404).json({message: "Makale bulunamadı."});
-        if (article.author.toString() !== req.user._id.toString())
-            return res.status(403).json({message: "Bu makaleyi güncelleme yetkiniz yok."});
+    // -----------------------
+    // Title ve Content
+    // -----------------------
+    article.title = req.body.title || article.title;
+    article.content = req.body.content || article.content;
 
-        const {title, content, image} = req.body;
-        article.title = title || article.title;
-        article.content = content|| article.content;
-        article.image = image || article.image;
-
-        const updatedArticle = await article.save();
-        res.json(updatedArticle);
-    } catch (error) {
-        res.status(500).json({message: error.message});
+    // -----------------------
+    // Tags (form-data string veya array)
+    // -----------------------
+    if (req.body.tags) {
+      let tagsArray = [];
+      if (Array.isArray(req.body.tags)) {
+        tagsArray = req.body.tags.map(tag => tag.trim().toLowerCase());
+      } else if (typeof req.body.tags === "string") {
+        tagsArray = req.body.tags.split(",").map(tag => tag.trim().toLowerCase());
+      }
+      article.tags = tagsArray;
     }
+
+    // -----------------------
+    // Image (Cloudinary)
+    // -----------------------
+    if (req.file) {
+      const bufferStream = new Readable();
+      bufferStream.push(req.file.buffer);
+      bufferStream.push(null);
+
+      const result = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: "merakkutusu_articles" },
+          (err, res) => {
+            if (err) return reject(err);
+            resolve(res);
+          }
+        );
+        bufferStream.pipe(stream);
+      });
+
+      article.image = result.secure_url;
+    }
+
+    await article.save();
+    res.json(article);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
 };
 
 // Makale silme
@@ -175,6 +215,49 @@ export const getFeed = async (req, res) => {
       .populate("author", "username email");
 
     res.json(feed);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Article arama ve filtreleme
+export const searchArticles = async (req, res) => {
+  try {
+    const { q, author, tags } = req.query;
+    const filter = {};
+
+    // Başlık veya içerikte arama (case-insensitive)
+    if (q) {
+      filter.$or = [
+        { title: { $regex: q, $options: "i" } },
+        { content: { $regex: q, $options: "i" } }
+      ];
+    }
+
+    // Yazar ID’sine göre filtreleme
+    if (author) {
+      filter.author = author;
+    }
+
+    // Etiketlere göre filtreleme (trim + lowercase)
+    if (tags) {
+      const tagsArray = tags
+        .split(",")
+        .map(tag => tag.trim().toLowerCase())
+        .filter(tag => tag.length > 0); // boş stringleri çıkar
+
+      if (tagsArray.length > 0) {
+        filter.tags = { $in: tagsArray };
+      }
+    }
+
+    // Mongo sorgusu ve populate
+    const articles = await Article.find(filter)
+      .populate("author", "username email")
+      .populate("comments.user", "username")
+      .sort({ createdAt: -1 }); // en yeni makaleler üstte
+
+    res.json(articles);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
