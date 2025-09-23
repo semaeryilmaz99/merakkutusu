@@ -2,9 +2,9 @@ MERAKKUTUSU fullstack web app:
 
 Kullanıcıların birbirleriyle ilginç buldukları veya merak ettikleri konuları makaleler veya daha kısa metinler halinde paylaşabildikleri, 
 
-bu konulara özel olarak birbirleriyle ilgili chat roomlarda mesajlaşabildikleri, 
+bu konulara özel olarak birbirleriyle/topluluk halinde ilgili chat roomlarda mesajlaşabildikleri,
 
-makaleleri favori listelerine ekleyebildikleri, 
+makaleleri kütüphanelerine ekleyebildikleri, 
 
 makalelere veya yazılara yorum yapabildikleri, 
 
@@ -18,7 +18,7 @@ Search & Filter: makale arama, kullanıcı arama yapabildikleri,
 
 Birbirlerini takip edebildikleri,
 
-Ve her kullanıcıya özel olarak takip ettikleri kullanıcıların paylaşımları ile feed oluşturulan bir sosyal paylaşım platformudur. 
+Ve her kullanıcıya özel olarak takip ettikleri kullanıcıların paylaşımları ile feed oluşturulan bir sosyal paylaşım platformudur. (keşfet bölümünde kategoriler halinde, kullanıcıların girmiş olduğu bütün makaleler gösterilir)
 
 Bu platforma mail adresleri ile kayıt olunur, mail adresine üyelik doğrulama maili gönderilir ve onay linkine tıklanınca kullanıcıya özel olarak oluşturulan jwt ile login olunur. 
 
@@ -35,4 +35,4 @@ Bu web uygulamasını fullstack olarak yazacağım. Kullanacağım teknolojiler:
 3) Veritabanı için: mongodb compose ve mongoose   
 
 Eklenebilecek diğer özellikler: 
-1) kullanıcının ilgi alanlarına göre makale filtrelemesi, buna göre feed oluşturulması
+1) kullanıcının ilgi alanlarına göre makale filtrelemesi, buna göre feed oluşturulması (figma ui ekledim, backend kaldı.)
