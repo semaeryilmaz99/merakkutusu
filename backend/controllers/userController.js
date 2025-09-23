@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import Notification from "../models/Notification.js";
+import Article from "../models/Article.js";
 
 export const followUser = async (req, res) => {
     try {
@@ -57,6 +58,46 @@ export const searchUsers = async (req, res) => {
     }).select("username bio");
 
     res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Kütüphaneye makale ekleme
+export const toggleLibrary = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (!user) return res.status(404).json({ message: "Kullanıcı bulunamadı" });
+
+    const articleId = req.params.id;
+
+    // Daha önce eklediyse çıkar
+    if (user.library.includes(articleId)) {
+      user.library = user.library.filter(a => a.toString() !== articleId);
+      await user.save();
+      return res.json({ message: "Makale kütüphaneden çıkarıldı" });
+    }
+
+    // Yoksa ekle
+    user.library.push(articleId);
+    await user.save();
+    res.json({ message: "Makale kütüphaneye eklendi" });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Kullanıcının kütüphanesini getirme
+export const getLibrary = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id)
+      .populate("library", "title content author image createdAt");
+
+    if (!user) return res.status(404).json({ message: "Kullanıcı bulunamadı" });
+
+    res.json(user.library);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
