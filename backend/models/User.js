@@ -12,7 +12,14 @@ const UserSchema = new mongoose.Schema({
     verificationToken: {type: String },
     isVerified: {type: Boolean, default: false},
     resetPasswordToken: {type: String},
-    resetPasswordExpires: {type: Date}
+    resetPasswordExpires: {type: Date},
+    // Yeni ekleme
+    library: [
+    {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Article"
+    }
+]
 }, {timestamps: true});
 
 //Şifre hashleme

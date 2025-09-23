@@ -35,6 +35,5 @@ Bu web uygulamasını fullstack olarak yazacağım. Kullanacağım teknolojiler:
 3) Veritabanı için: mongodb compose ve mongoose   
 
 Eklenebilecek diğer özellikler: 
-1) kullanıcının ilgi alanlarına göre makale filtrelemesi, buna göre feed oluşturulması (figma ui ekledim, backend kaldı.)
-2) keşfette tüm makalelerin kategoriler halinde gösterilmesi. 
-3) kitaplığa makale eklenmesi (kodlar hazır, eklenecek.)
+1) kullanıcının ilgi alanlarına göre makale filtrelemesi, buna göre feed oluşturulması (figma ui ekledim, backend kaldı.) (kullanıcı kendi profilinde ilgi duyduğu tag'leri seçer, makaleler bu taglere göre filtrelenerek her kullanıcıya özel getirilir.)
+2) keşfette tüm makalelerin bütün taglere göre kategoriler halinde gösterilmesi
