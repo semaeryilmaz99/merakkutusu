@@ -2,7 +2,7 @@ MERAKKUTUSU fullstack web app:
 
 Kullanıcıların birbirleriyle ilginç buldukları veya merak ettikleri konuları makaleler veya daha kısa metinler halinde paylaşabildikleri, 
 
-bu konulara özel olarak birbirleriyle/topluluk halinde ilgili chat roomlarda mesajlaşabildikleri,
+bu konulara özel olarak birbirleriyle/topluluk halinde ilgili chat roomlarda mesajlaşabildikleri, (Bir makaleyi kitaplığına ekleyen kullanıcılar bu makalenin sayfasındaki chat roomda konu hakkında konuşabilirler. Dashboard chatte ise genel grup sohbeti yapılır.)
 
 makaleleri kütüphanelerine ekleyebildikleri, 
 
@@ -36,3 +36,5 @@ Bu web uygulamasını fullstack olarak yazacağım. Kullanacağım teknolojiler:
 
 Eklenebilecek diğer özellikler: 
 1) kullanıcının ilgi alanlarına göre makale filtrelemesi, buna göre feed oluşturulması (figma ui ekledim, backend kaldı.)
+2) keşfette tüm makalelerin kategoriler halinde gösterilmesi. 
+3) kitaplığa makale eklenmesi (kodlar hazır, eklenecek.)
