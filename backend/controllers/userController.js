@@ -102,3 +102,27 @@ export const getLibrary = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// Kullanıcının kütüphane görünürlüğünü değiştirme
+export const updateLibraryVisibility = async (req, res) => {
+  try {
+    const {visibility} = req.body;
+
+    if (!["public", "private"].includes(visibility)) {
+      return res.status(400).json({message: "Geçersiz gizlilik değeri. 'public' veya 'private' olmalı"});
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      {libraryVisibility: visibility},
+      {new: true}
+    );
+
+    res.status(200).json({
+      message: `Kütüphane gizliliği '${user.libraryVisibility}' olarak ayarlandı.`,
+      librarysVisibility: user.libraryVisibility
+    });
+  } catch (err) {
+    res.status(500).json({message: err.message});
+  }
+};

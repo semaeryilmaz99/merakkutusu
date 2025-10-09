@@ -8,6 +8,8 @@ const UserSchema = new mongoose.Schema({
     avatar: {type: String}, // Cloudinary url
     followers: [{type: mongoose.Schema.Types.ObjectId, ref: "User"}],
     following: [{type: mongoose.Schema.Types.ObjectId, ref: "User"}],
+    library: [{type: mongoose.Schema.Types.ObjectId, ref: "Article"}],
+    libraryVisibility: {type: String, enum: ["public", "private"], default: "private"},
     role: {type: String, enum: ["user", "admin"], default: "user"},
     verificationToken: {type: String },
     isVerified: {type: Boolean, default: false},

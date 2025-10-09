@@ -1,12 +1,14 @@
 MERAKKUTUSU fullstack web app:
 
-Kullanıcıların birbirleriyle ilginç buldukları veya merak ettikleri konuları makaleler veya daha kısa metinler halinde paylaşabildikleri, 
+Kullanıcıların birbirleriyle ilginç buldukları veya merak ettikleri konuları makaleler halinde paylaşabildikleri, 
 
-bu konulara özel olarak birbirleriyle/topluluk halinde ilgili chat roomlarda mesajlaşabildikleri, (Bir makaleyi kitaplığına ekleyen kullanıcılar bu makalenin sayfasındaki chat roomda konu hakkında konuşabilirler. Dashboard chatte ise genel grup sohbeti yapılır.)
+bu konulara özel olarak birbirleriyle/topluluk halinde ilgili chat roomlarda mesajlaşabildikleri, (Bir makaleyi kitaplığına ekleyen kullanıcılar bu makalenin sayfasındaki chat roomda konu hakkında konuşabilirler. Dashboard chatte ise genel grup sohbeti yapılır. Yazarların kendi sayfasında chat olacak, burada da direkt bireysel olarak yazarla konuşulacak.)
 
-makaleleri kütüphanelerine ekleyebildikleri, 
+makaleleri kütüphanelerine ekleyebildikleri, kütüphanelerinin görünürlüğünü belirledikleri (public/private),
 
-makalelere veya yazılara yorum yapabildikleri, 
+makalelere yorum yapabildikleri, favorilere ekleyebildikleri,
+
+birbirlerini takip edebildikleri,
 
 kendi makalelerini silme/editleme işlemleri yapabildikleri (CRUD), 
 
@@ -18,7 +20,7 @@ Search & Filter: makale arama, kullanıcı arama yapabildikleri,
 
 Birbirlerini takip edebildikleri,
 
-Ve her kullanıcıya özel olarak takip ettikleri kullanıcıların paylaşımları ile feed oluşturulan bir sosyal paylaşım platformudur. (keşfet bölümünde kategoriler halinde, kullanıcıların girmiş olduğu bütün makaleler gösterilir)
+Ve her kullanıcıya özel olarak takip ettikleri kullanıcıların paylaşımları ile feed oluşturulan bir sosyal paylaşım platformudur. (keşfet bölümünde kategoriler halinde, kullanıcıların girmiş olduğu bütün makaleler gösterilir. kategorideki makaleler ayrı bir sayfada açılır)
 
 Bu platforma mail adresleri ile kayıt olunur, mail adresine üyelik doğrulama maili gönderilir ve onay linkine tıklanınca kullanıcıya özel olarak oluşturulan jwt ile login olunur. 
 
