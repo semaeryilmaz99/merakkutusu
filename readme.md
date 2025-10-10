@@ -36,6 +36,80 @@ Bu web uygulamasını fullstack olarak yazacağım. Kullanacağım teknolojiler:
 2) Frontend için: react-javascript-tailwindcss-sass(vanilla css için css preprocessor), 
 3) Veritabanı için: mongodb compose ve mongoose   
 
-Eklenebilecek diğer özellikler: 
+Eklenecek diğer özellikler: 
 1) kullanıcının ilgi alanlarına göre makale filtrelemesi, buna göre feed oluşturulması (figma ui ekledim, backend kaldı.) (kullanıcı kendi profilinde ilgi duyduğu tag'leri seçer, makaleler bu taglere göre filtrelenerek her kullanıcıya özel getirilir.)
 2) keşfette tüm makalelerin bütün taglere göre kategoriler halinde gösterilmesi (figma ui ekledim, backend kaldı.)
+3) Gerçek zamanlı chat / mesajlaşma
+Socket.IO ile makaleye özel veya kullanıcılar arası chat odaları.
+4) Bildirim sistemi frontend entegrasyonu
+Kullanıcıya yeni yorum / takipçi / favori geldiğinde push notification.
+5) Profil sayfası geliştirmeleri
+Kullanıcı biyografisi, avatar, takipçi sayısı, library görünümü.
+6) Admin paneli
+Makale veya kullanıcı silme / düzenleme yetkisi
+Kullanıcıların aktivitelerini izleme
+7) Advanced Feed
+Popüler makaleler, trending tags
+Kişiselleştirilmiş öneriler
+8) Performans ve güvenlik
+Rate limiting, input validation
+Image / file optimizasyonu
+JWT refresh token mekanizması
+
+Backendi tamamlanan özellikler: 
+
+1) Kullanıcı yönetimi
+
+Kayıt / doğrulama maili
+
+Login / JWT ile authentication
+
+Logout ve token blacklist sistemi
+
+Şifre unutma / reset
+
+Logout
+
+2) Makale (Article)
+
+CRUD (Create, Read, Update, Delete)
+
+Favorilere ekleme / çıkarma
+
+Yorum ekleme
+
+Tag bazlı filtreleme
+
+Library’ye ekleme / çıkarma
+
+Feed (takip edilen kullanıcıların makaleleri)
+
+3) Kullanıcılar
+
+Takip etme / takipten çıkarma
+
+Arama (username / bio)
+
+Kendi kütüphanesini görme
+
+Kütüphane gizlilik ayarı (public / private)
+
+4) Bildirimler
+
+Yeni takipçi
+
+Yeni yorum
+
+Favori bildirimi
+
+5) Dosya / resim yükleme
+
+Multer + Cloudinary ile makaleye görsel ekleme
+
+6) Filtreleme & Arama
+
+Makale arama (title / content / tags)
+
+Kullanıcı arama
+
+Tag filtreleme
