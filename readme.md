@@ -16,7 +16,7 @@ Notifications: yeni takipçi, yorum, favori bildirimi aldıkları,
 
 File Upload: makalelere görsel ekleme yapabildikleri (Multer + Cloudinary), 
 
-Search & Filter: makale arama, kullanıcı arama yapabildikleri,
+Search & Filter: makale arama/filtreleme, kullanıcı arama yapabildikleri,
 
 Birbirlerini takip edebildikleri,
 
@@ -38,4 +38,4 @@ Bu web uygulamasını fullstack olarak yazacağım. Kullanacağım teknolojiler:
 
 Eklenebilecek diğer özellikler: 
 1) kullanıcının ilgi alanlarına göre makale filtrelemesi, buna göre feed oluşturulması (figma ui ekledim, backend kaldı.) (kullanıcı kendi profilinde ilgi duyduğu tag'leri seçer, makaleler bu taglere göre filtrelenerek her kullanıcıya özel getirilir.)
-2) keşfette tüm makalelerin bütün taglere göre kategoriler halinde gösterilmesi
+2) keşfette tüm makalelerin bütün taglere göre kategoriler halinde gösterilmesi (figma ui ekledim, backend kaldı.)

@@ -267,3 +267,22 @@ export const searchArticles = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// Makaleleri tag'e göre filtreleme
+export const filterArticlesByTag = async (req, res) => {
+  try {
+    const {tag} = req.query;
+    if (!tag) {
+      return res.status(400).json({message: "Filtreleme için bir tag gereklidir."})
+    }
+
+    // Makaleleri ilgili tag'e göre getir
+    const articles = await Article.find({tags: { $in: [tag]}})
+    .populate("author", "username email")
+    .sort({createdAt: -1}); //en yeni makaleler üstte
+
+    res.json(articles);
+  } catch (err) {
+    res.status(500).json({message: err.message});
+  }
+};

@@ -10,7 +10,8 @@ import {
     deleteArticle,
     toggleFavorite,
     addComment,
-    searchArticles
+    searchArticles,
+    filterArticlesByTag
 } from "../controllers/articleController.js";
 import {protect} from "../middlewares/authMiddleware.js";
 
@@ -18,6 +19,7 @@ const router = express.Router();
 
 // /api/articles
 router.get("/search", searchArticles);
+router.get("/filter", filterArticlesByTag);
 
 router.post("/", protect, upload.single("image"), createArticle);
 router.get("/", getArticles);
