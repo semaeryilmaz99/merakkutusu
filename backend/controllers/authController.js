@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import {sendEmail} from "../config/mailer.js";
+import Blacklist from "../models/Blacklist.js";
 
 import User from "../models/User.js";
 import generateToken from "../utils/generateToken.js";
@@ -125,6 +126,21 @@ export const resetPassword = async (req, res) => {
         await user.save();
 
         res.json({message: "Şifre başarıyla sıfırlandı."});
+    } catch (err) {
+        res.status(500).json({message: err.message});
+    }
+};
+
+// User Logout
+export const logoutUser = async (req, res) => {
+    try {
+        const token = req.header("Authorization")?.replace("Bearer ", "");
+        if (!token) return res.status(400).json({message: "Token bulunamadı."});
+
+        // Token'ı blackliste ekle
+        await Blacklist.create({token});
+
+        res.json({message: "Başarıyla çıkış yapıldı."});
     } catch (err) {
         res.status(500).json({message: err.message});
     }
