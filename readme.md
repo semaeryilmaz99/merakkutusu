@@ -82,7 +82,7 @@ Tag bazlı filtreleme
 
 Library’ye ekleme / çıkarma
 
-Feed (takip edilen kullanıcıların makaleleri)
+Feed (takip edilen kullanıcıların ve signup olurken seçilen favori subjectlerin makaleleri)
 
 3) Kullanıcılar
 
