@@ -300,3 +300,115 @@ export const filterArticlesByTag = async (req, res) => {
     res.status(500).json({message: err.message});
   }
 };
+
+// Popüler makaleleri getirme
+export const getPopularArticles = async (req, res) => {
+  try {
+    const articles = await Article.find()
+      .populate("author", "username email")
+      .populate("tags", "name")
+      .lean();
+
+    const sorted = articles
+      .map(a => ({ ...a, popularity: a.favorites.length * 2 + a.comments.length }))
+      .sort((a, b) => b.popularity - a.popularity)
+      .slice(0, 10);
+
+    res.json(sorted);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Trending tags
+export const getTrendingTags = async (req, res) => {
+  try {
+    const tags = await Tag.aggregate([
+      { 
+        $lookup: {
+          from: "articles",
+          localField: "_id",
+          foreignField: "tags",
+          as: "articles"
+        }
+       },
+       {
+        $project: {
+          name: 1,
+          count: { $size: "$articles" }
+        }
+       },
+       { $sort: { count: -1 }},
+       { $limit: 10 }
+    ]);
+
+    res.json(tags);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Personalized feed
+export const getPersonalizedFeed = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id)
+    .populate("following")
+    .populate("favoriteTags");
+
+    const followingIds = user.following.map(f => f._id);
+
+    // Takip edilen kullanıcıların makaleleri
+    const followingArticles = await Article.find({
+      author: { $in: followingIds }
+    })
+    .populate("author", "username")
+    .populate("tags", "name");
+
+    // Kullanıcının favori tag'lerine göre makaleler
+    const favoriteTagIds = user.favoriteTags.map(t => t._id);
+    const tagArticles = await Article.find({
+      tags: { $in: favoriteTagIds }
+    })
+    .populate("author", "username")
+    .populate("tags", "name");
+
+    // Tekrarlayan makaleleri kaldır
+    const merged = [...followingArticles, ...tagArticles];
+    const uniqueArticles = Array.from(new Set(merged.map(a => a._id.toString()))).map(id =>
+      merged.find(a => a._id.toString() === id)
+    );
+
+    res.json(uniqueArticles);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Tagleri favoriye ekleme
+export const toggleFavoriteTag = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    const tagId = req.params.tagId;
+
+    if (!mongoose.Types.ObjectId.isValid(tagId)) {
+      return res.status(400).json({ message: "Invalid tag ID" });
+    }
+
+    const existingIndex = user.favoriteTags.indexOf(tagId);
+
+    if (existingIndex === -1) {
+      user.favoriteTags.push(tagId);
+    } else {
+      user.favoriteTags.splice(existingIndex, 1);
+    }
+
+    await user.save();
+
+    res.json({
+      message: "Favorite tags updated",
+      favoriteTags: user.favoriteTags,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

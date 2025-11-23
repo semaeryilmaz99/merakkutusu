@@ -126,3 +126,29 @@ export const updateLibraryVisibility = async (req, res) => {
     res.status(500).json({message: err.message});
   }
 };
+
+// Kullanıcının favori taglerini ekleme, çıkarma
+
+export const toggleFavoriteTag = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    const tagId = req.params.tagId;
+
+    const index = user.favoriteTags.indexOf(tagId);
+
+    if (index === -1) {
+      user.favoriteTags.push(tagId);
+    } else {
+      user.favoriteTags.splice(index, 1);
+    }
+
+    await user.save();
+
+    res.json({
+      message: "Favorite tags updated",
+      favoriteTags: user.favoriteTags,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

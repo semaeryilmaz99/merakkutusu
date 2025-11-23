@@ -55,6 +55,7 @@ Kişiselleştirilmiş öneriler
 Rate limiting, input validation
 Image / file optimizasyonu
 JWT refresh token mekanizması
+9) Feed sıralamasını popülerlik veya tarih gibi kriterlere göre iyileştirebiliriz.
 
 Backendi tamamlanan özellikler: 
 
@@ -84,7 +85,7 @@ Library’ye ekleme / çıkarma
 
 Feed (takip edilen kullanıcıların ve signup olurken seçilen favori subjectlerin makaleleri)
 
-1) Kullanıcılar
+3) Kullanıcılar
 
 Takip etme / takipten çıkarma
 
@@ -112,4 +113,6 @@ Makale arama (title / content / tags)
 
 Kullanıcı arama
 
-Tag filtreleme
+Tag filtreleme / tag'leri favorilere ekleme-çıkarma
+
+7) Popüler makaleler (en çok beğeni ve yorum alanlar puana göre sıralanır), kişiselleştirilmiş feed (takip edilen kullanıcı ve favorilenen taglere göre), trending-tags özellikleri eklendi.

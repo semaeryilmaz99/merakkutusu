@@ -11,11 +11,19 @@ import {
     toggleFavorite,
     addComment,
     searchArticles,
-    filterArticlesByTag
+    filterArticlesByTag,
+    getPopularArticles,
+    getTrendingTags,
+    getPersonalizedFeed
 } from "../controllers/articleController.js";
 import {protect} from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
+
+// --- Advanced Feed Routes ---
+router.get("/popular", protect, getPopularArticles);
+router.get("/trending-tags", protect, getTrendingTags);
+router.get("/feed", protect, getPersonalizedFeed);
 
 // /api/articles
 router.get("/search", searchArticles);
