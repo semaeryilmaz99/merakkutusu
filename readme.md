@@ -115,4 +115,4 @@ Kullanıcı arama
 
 Tag filtreleme / tag'leri favorilere ekleme-çıkarma
 
-7) Popüler makaleler (en çok beğeni ve yorum alanlar puana göre sıralanır), kişiselleştirilmiş feed (takip edilen kullanıcı ve favorilenen taglere göre), trending-tags özellikleri eklendi.
+7) Popüler makaleler (en çok beğeni ve yorum alanlar puana göre sıralanır), kişiselleştirilmiş feed (takip edilen kullanıcı ve favorilenen taglere göre), trending-tags ve toggle favorite tags özellikleri eklendi.
