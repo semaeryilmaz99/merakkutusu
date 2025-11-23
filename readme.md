@@ -55,7 +55,6 @@ Kişiselleştirilmiş öneriler
 Rate limiting, input validation
 Image / file optimizasyonu
 JWT refresh token mekanizması
-9) Feed sıralamasını popülerlik veya tarih gibi kriterlere göre iyileştirebiliriz.
 
 Backendi tamamlanan özellikler: 
 
@@ -115,4 +114,4 @@ Kullanıcı arama
 
 Tag filtreleme / tag'leri favorilere ekleme-çıkarma
 
-7) Popüler makaleler (en çok beğeni ve yorum alanlar puana göre sıralanır), kişiselleştirilmiş feed (takip edilen kullanıcı ve favorilenen taglere göre), trending-tags ve toggle favorite tags özellikleri eklendi.
+7) Popüler makaleler (en çok beğeni ve yorum alanlar puana göre sıralanır), kişiselleştirilmiş feed (takip edilen kullanıcı ve favorilenen taglere göre), trending-tags ve makale eklerken seçilen toggle favorite tags özellikleri eklendi. Feed sıralaması popülerliğe göre sıralandı. --> ui'da popüler makaleler ve trending tags ayrı bir bölümde gösterilebilir durumda. 

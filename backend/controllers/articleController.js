@@ -352,37 +352,54 @@ export const getTrendingTags = async (req, res) => {
 export const getPersonalizedFeed = async (req, res) => {
   try {
     const user = await User.findById(req.user._id)
-    .populate("following")
-    .populate("favoriteTags");
+      .populate("following")
+      .populate("favoriteTags");
 
     const followingIds = user.following.map(f => f._id);
 
-    // Takip edilen kullanıcıların makaleleri
+    // Kullanıcının favori tag ID'leri (çünkü populate sonrası objeler oluyor)
+    const favoriteTagIds = user.favoriteTags.map(t => t._id);
+
+    // 1) Takip edilen kullanıcıların makaleleri
     const followingArticles = await Article.find({
       author: { $in: followingIds }
     })
-    .populate("author", "username")
-    .populate("tags", "name");
+      .populate("author", "username")
+      .populate("tags", "name")
+      .lean();
 
-    // Kullanıcının favori tag'lerine göre makaleler
-    const favoriteTagIds = user.favoriteTags.map(t => t._id);
+    // 2) Kullanıcının favori taglerine göre makaleler
     const tagArticles = await Article.find({
       tags: { $in: favoriteTagIds }
     })
-    .populate("author", "username")
-    .populate("tags", "name");
+      .populate("author", "username")
+      .populate("tags", "name")
+      .lean();
 
-    // Tekrarlayan makaleleri kaldır
+    // 3) Tekrarlayan makaleleri kaldır
     const merged = [...followingArticles, ...tagArticles];
-    const uniqueArticles = Array.from(new Set(merged.map(a => a._id.toString()))).map(id =>
-      merged.find(a => a._id.toString() === id)
-    );
+    const uniqueArticles = Array.from(
+      new Set(merged.map(a => a._id.toString()))
+    ).map(id => merged.find(a => a._id.toString() === id));
 
-    res.json(uniqueArticles);
+    // 4) Popülerlik ve tarihe göre sırala
+    const sorted = uniqueArticles
+      .map(a => ({
+        ...a,
+        popularity: a.favorites.length * 2 + a.comments.length
+      }))
+      .sort((a, b) =>
+        b.popularity - a.popularity ||
+        new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+    res.json(sorted);
+
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 // Tagleri favoriye ekleme
 export const toggleFavoriteTag = async (req, res) => {
