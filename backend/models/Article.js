@@ -13,8 +13,9 @@ const ArticleSchema = new mongoose.Schema({
             createdAt: {type: Date, default: Date.now}
         }
     ],
-    tags: [String]
-}, {timestamps: true});
+    tags: [
+    { type: mongoose.Schema.Types.ObjectId, ref: "Tag" }
+]}, {timestamps: true});
 
 const Article = mongoose.model("Article", ArticleSchema);
 export default Article;

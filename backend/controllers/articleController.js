@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import Article from "../models/Article.js";
+import Tag from "../models/Tag.js";
 import Notification from "../models/Notification.js";
 
 import { Readable } from "stream";
@@ -41,12 +42,25 @@ export const createArticle = async (req, res) => {
    }
 }
 
+// Otomatik tag oluşturma ve ID'ye çevirme
+const tagIds = [];
+
+for (const tagName of tagsArray) {
+  let tag = await Tag.findOne({ name: tagName });
+
+  if (!tag) {
+    tag = await Tag.create({ name: tagName });
+  }
+
+  tagIds.push(tag._id);
+}
+
     const article = await Article.create({
       title,
       content,
       image: imageUrl,
       author: req.user._id,
-      tags: tagsArray
+      tags: tagIds
     });
 
     res.status(201).json(article);

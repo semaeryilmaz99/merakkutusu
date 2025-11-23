@@ -37,7 +37,7 @@ Bu web uygulamasını fullstack olarak yazacağım. Kullanacağım teknolojiler:
 3) Veritabanı için: mongodb compose ve mongoose   
 
 Eklenecek diğer özellikler: 
-1) kullanıcının ilgi alanlarına göre makale filtrelemesi, buna göre feed oluşturulması (figma ui ekledim, backend kaldı.) (kullanıcı kendi profilinde ilgi duyduğu tag'leri seçer, makaleler bu taglere göre filtrelenerek her kullanıcıya özel getirilir.)
+1) kullanıcının ilgi alanlarına göre makale filtrelemesi, buna göre feed oluşturulması (figma ui ekledim, backend kaldı.) (kullanıcı kendi profilinde ilgi duyduğu tag'leri seçer, makaleler bu taglere göre filtrelenerek her kullanıcıya özel getirilir.) 
 2) keşfette tüm makalelerin bütün taglere göre kategoriler halinde gösterilmesi (figma ui ekledim, backend kaldı.)
 3) Gerçek zamanlı chat / mesajlaşma
 Socket.IO ile makaleye özel veya kullanıcılar arası chat odaları.
@@ -78,13 +78,13 @@ Favorilere ekleme / çıkarma
 
 Yorum ekleme
 
-Tag bazlı filtreleme
+Tag bazlı filtreleme / ayrıca kullanıcı makale oluştururken yeni tag oluşturabilir.
 
 Library’ye ekleme / çıkarma
 
 Feed (takip edilen kullanıcıların ve signup olurken seçilen favori subjectlerin makaleleri)
 
-3) Kullanıcılar
+1) Kullanıcılar
 
 Takip etme / takipten çıkarma
 
