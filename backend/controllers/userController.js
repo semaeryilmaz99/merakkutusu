@@ -152,3 +152,42 @@ export const toggleFavoriteTag = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// Kullanıcının en çok okuduğu tagleri getirme (tag isimleriyle birlikte)
+export const getMostReadTags = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).populate({
+      path: "readingHistory.article",
+      populate: { path: "tags", select: "name" }
+    });
+
+    if (!user) return res.status(404).json({ message: "Kullanıcı bulunamadı." });
+
+    const tagCount = {};
+
+    // Okunan makaleleri ve taglerini say
+    user.readingHistory.forEach(item => {
+      item.article.tags.forEach(tag => {
+        if (tagCount[tag._id]) {
+          tagCount[tag._id].count += 1;
+        } else {
+          tagCount[tag._id] = { name: tag.name, count: 1 };
+        }
+      });
+    });
+
+    // Sıralama ve top tagleri alma
+    const sortedTags = Object.entries(tagCount)
+      .sort((a, b) => b[1].count - a[1].count)
+      .map(([tagId, info]) => ({
+        tagId,
+        name: info.name,
+        count: info.count
+      }));
+
+    res.json({ mostReadTags: sortedTags });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+};

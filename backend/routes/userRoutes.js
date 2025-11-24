@@ -5,6 +5,7 @@ import { followUser } from "../controllers/userController.js";
 import { searchUsers } from "../controllers/userController.js"
 import { toggleLibrary, getLibrary } from "../controllers/userController.js"
 import { updateLibraryVisibility, toggleFavoriteTag } from "../controllers/userController.js"
+import { getMostReadTags } from "../controllers/userController.js";
 
 const router = express.Router();
 
@@ -16,5 +17,6 @@ router.put("/library/visibility", protect, updateLibraryVisibility); // kütüph
 router.put("/library/:id", protect, toggleLibrary);  // kütüphaneye ekle-çıkar
 router.get("/library", protect, getLibrary); // kütüphaneyi listele
 router.put("/favorite-tag/:tagId", protect, toggleFavoriteTag);
+router.get("/most-read-tags", protect, getMostReadTags); // Kullanıcının en çok okuduğu tagleri getirme
 
 export default router;

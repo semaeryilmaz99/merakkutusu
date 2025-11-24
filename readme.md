@@ -18,8 +18,6 @@ File Upload: makalelere görsel ekleme yapabildikleri (Multer + Cloudinary),
 
 Search & Filter: makale arama/filtreleme, kullanıcı arama yapabildikleri,
 
-Birbirlerini takip edebildikleri,
-
 Ve her kullanıcıya özel olarak takip ettikleri kullanıcıların paylaşımları ile feed oluşturulan bir sosyal paylaşım platformudur. (keşfet bölümünde kategoriler halinde, kullanıcıların girmiş olduğu bütün makaleler gösterilir. kategorideki makaleler ayrı bir sayfada açılır)
 
 Bu platforma mail adresleri ile kayıt olunur, mail adresine üyelik doğrulama maili gönderilir ve onay linkine tıklanınca kullanıcıya özel olarak oluşturulan jwt ile login olunur. 
@@ -85,12 +83,6 @@ Yani normal “popular articles” listesi var ama feed bunu kişiye göre sıra
 
 Makale okuma verileri backend:
 
-1️⃣ Kullanıcının en çok okuduğu tag’leri belirleme
-
-Kullanıcıların okuma geçmişine bakarak hangi tag’leri daha çok okuduğunu çıkartabiliriz.
-
-Bu veri, personalized feed’i geliştirmek için kullanılabilir.
-
 2️⃣ Library’deki makaleler için istatistik
 
 Kullanıcının kütüphanesine eklediği makalelerden kaçını okudu (librarydeki makaleleri okudukça artan puan sistemi güzel fikir olabilir), hangi sıklıkta okudu gibi istatistikler çıkarılabilir.
@@ -105,7 +97,7 @@ Bu, ileride okuma önerileri veya gamification için kullanılabilir.
 
 4️⃣ Okuma geçmişini filtreleme ve sıralama
 
-Kullanıcı geçmişte okuduğu makaleleri tarihe, favori tag’e veya favori yazara göre filtreleyebilir.
+Kullanıcı geçmişte okuduğu makaleleri tarihe, favori tag’e veya favori yazara göre filtreleyebilir. Kullanıcının en son okuduğu 3 makale profilinde gösterilebilir.
 
 5️⃣ Okuma geçmişi tabanlı bildirim
 
@@ -171,4 +163,4 @@ Tag filtreleme / tag'leri favorilere ekleme-çıkarma
 
 7) Popüler makaleler (en çok beğeni ve yorum alanlar puana göre sıralanır), kişiselleştirilmiş feed (takip edilen kullanıcı ve favorilenen taglere göre), trending-tags ve makale eklerken seçilen toggle favorite tags özellikleri eklendi. Feed sıralaması popülerliğe göre sıralandı. --> ui'da popüler makaleler ve trending tags ayrı bir bölümde gösterilebilir durumda. 
 
-8) Makale görüntüleme ve kullanıcının okuma geçmişine ekleme özelliği backend’de çalışıyor. Böylece kullanıcı hangi taglere sahip makaleleri okuyor ise kişiselleştirilmiş feed'i buna göre oluşturulabilir, buna göre makaleler önerilebilir.
+8) Makale görüntüleme ve kullanıcının okuma geçmişine ekleme özelliği backend’de çalışıyor. Böylece kullanıcı hangi taglere sahip makaleleri okuyor ise veritabanına kaydediliyor. Kişiselleştirilmiş feed her kullanıcı için buna göre oluşturulabilir, buna göre makaleler önerilebilir.

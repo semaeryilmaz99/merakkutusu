@@ -371,12 +371,14 @@ export const getPersonalizedFeed = async (req, res) => {
   try {
     const user = await User.findById(req.user._id)
       .populate("following")
-      .populate("favoriteTags");
+      .populate("favoriteTags")
+      .populate({
+        path: "readingHistory.article",
+        populate: { path: "tags", select: "name" }
+      });
 
     const followingIds = user.following.map(f => f._id);
-
-    // Kullanıcının favori tag ID'leri (çünkü populate sonrası objeler oluyor)
-    const favoriteTagIds = user.favoriteTags.map(t => t._id);
+    const favoriteTagIds = user.favoriteTags.map(t => t._id.toString());
 
     // 1) Takip edilen kullanıcıların makaleleri
     const followingArticles = await Article.find({
@@ -394,22 +396,47 @@ export const getPersonalizedFeed = async (req, res) => {
       .populate("tags", "name")
       .lean();
 
-    // 3) Tekrarlayan makaleleri kaldır
-    const merged = [...followingArticles, ...tagArticles];
-    const uniqueArticles = Array.from(
-      new Set(merged.map(a => a._id.toString()))
-    ).map(id => merged.find(a => a._id.toString() === id));
+    // 3) Kullanıcının okuma geçmişinden en çok okunan tagleri belirle
+    const tagCount = {};
+    user.readingHistory.forEach(item => {
+      if (item.article && item.article.tags) {
+        item.article.tags.forEach(tag => {
+          const tagId = tag._id.toString();
+          tagCount[tagId] = (tagCount[tagId] || 0) + 1;
+        });
+      }
+    });
 
-    // 4) Popülerlik ve tarihe göre sırala
-    const sorted = uniqueArticles
-      .map(a => ({
-        ...a,
-        popularity: a.favorites.length * 2 + a.comments.length
-      }))
-      .sort((a, b) =>
-        b.popularity - a.popularity ||
-        new Date(b.createdAt) - new Date(a.createdAt)
-      );
+    const mostReadTagIds = Object.entries(tagCount)
+      .sort((a, b) => b[1] - a[1])
+      .map(([tagId]) => tagId);
+
+    // 4) En çok okunan taglere ait makaleler
+    const mostReadTagArticles = await Article.find({
+      tags: { $in: mostReadTagIds }
+    })
+      .populate("author", "username")
+      .populate("tags", "name")
+      .lean();
+
+    // 5) Tüm makaleleri birleştir ve tekrarları kaldır
+    const merged = [...followingArticles, ...tagArticles, ...mostReadTagArticles];
+    const uniqueArticles = Array.from(new Set(merged.map(a => a._id.toString()))).map(id =>
+      merged.find(a => a._id.toString() === id)
+    );
+
+    // 6) Sıralama: favori tag ve okunan tag ağırlığı + popülerlik
+    const sorted = uniqueArticles.sort((a, b) => {
+      const aScore =
+        a.tags.filter(tag => favoriteTagIds.includes(tag._id.toString())).length * 2 +
+        a.tags.filter(tag => mostReadTagIds.includes(tag._id.toString())).length +
+        a.favorites.length * 2 + a.comments.length;
+      const bScore =
+        b.tags.filter(tag => favoriteTagIds.includes(tag._id.toString())).length * 2 +
+        b.tags.filter(tag => mostReadTagIds.includes(tag._id.toString())).length +
+        b.favorites.length * 2 + b.comments.length;
+      return bScore - aScore;
+    });
 
     res.json(sorted);
 
@@ -417,6 +444,7 @@ export const getPersonalizedFeed = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 
 // Tagleri favoriye ekleme
