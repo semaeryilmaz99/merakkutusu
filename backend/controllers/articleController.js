@@ -83,8 +83,26 @@ export const getArticles = async (req, res) => {
 // Tek makale getirme
 export const getArticleById = async (req, res) => {
     try {
-        const article = await Article.findById(req.params.id).populate("author", "username email");
+        const article = await Article.findById(req.params.id)
+        .populate("author", "username email")
+        .populate("tags", "name");
+
         if (!article) return res.status(404).json({message: "Makale bulunamadı."});
+
+           if (req.user) {
+            // Eğer makale daha önce eklenmişse viewedAt'ı güncelle, yoksa ekle
+            await User.updateOne(
+                { _id: req.user._id, "readingHistory.article": article._id },
+                { $set: { "readingHistory.$.viewedAt": new Date() } }
+            );
+
+            // Eğer makale yoksa push ile ekle
+            await User.updateOne(
+                { _id: req.user._id, "readingHistory.article": { $ne: article._id } },
+                { $push: { readingHistory: { article: article._id, viewedAt: new Date() } } }
+            );
+        }
+        
         res.json(article);
     } catch (err) {
         res.status(500).json({message: err.message});

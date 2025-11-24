@@ -37,6 +37,6 @@ router.delete("/:id", protect, deleteArticle);
 router.put("/favorite/:id", protect, toggleFavorite);
 router.post("/:id/comment", protect, addComment);
 router.get("/feed", protect, getFeed);
-router.get("/:id", getArticleById);
+router.get("/:id", protect, getArticleById);
 
 export default router;

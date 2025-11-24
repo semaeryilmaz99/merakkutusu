@@ -56,6 +56,61 @@ Rate limiting, input validation
 Image / file optimizasyonu
 JWT refresh token mekanizması
 
+2. Tag ağırlıklandırma sistemi (weighted tags)
+
+– Kullanıcı hangi tag’leri daha çok okursa o tag’lere ağırlık verilecek.
+– Örneğin:
+
+ai tag’i %50 okunmuşsa daha çok gösterilecek.
+
+tech %10 okunmuşsa daha az gelecek.
+
+Feed skoru:
+
+score = (tagMatchCount * tagWeight) + recencyBoost + popularityBoost
+
+📌 3. Favorilere alınan makalelerin benzerlerini önerme
+
+Favori makaledeki tag’lere göre benzer içerikler bulma.
+
+“Collaborative filtering” mantığına benzer.
+
+📌 4. Kullanıcının sevdiği yazarlara göre öneri
+
+Kullanıcı bir yazarın makalelerini sık okuyorsa → feed’te o yazarın yeni içeriklerini görür.
+
+📌 5. Trend/popüler içerikleri kişiye göre ağırlıklı sıralama
+
+Yani normal “popular articles” listesi var ama feed bunu kişiye göre sıralayacak.
+
+Makale okuma verileri backend:
+
+1️⃣ Kullanıcının en çok okuduğu tag’leri belirleme
+
+Kullanıcıların okuma geçmişine bakarak hangi tag’leri daha çok okuduğunu çıkartabiliriz.
+
+Bu veri, personalized feed’i geliştirmek için kullanılabilir.
+
+2️⃣ Library’deki makaleler için istatistik
+
+Kullanıcının kütüphanesine eklediği makalelerden kaçını okudu (librarydeki makaleleri okudukça artan puan sistemi güzel fikir olabilir), hangi sıklıkta okudu gibi istatistikler çıkarılabilir.
+
+Örn: libraryReadingProgress alanı ekleyebiliriz.
+
+3️⃣ Makale tamamlanma durumu
+
+Kullanıcı bir makaleyi okuduğunda % kaçını okuduğunu veya okuma süresini tahmin edip kaydedebiliriz.
+
+Bu, ileride okuma önerileri veya gamification için kullanılabilir.
+
+4️⃣ Okuma geçmişini filtreleme ve sıralama
+
+Kullanıcı geçmişte okuduğu makaleleri tarihe, favori tag’e veya favori yazara göre filtreleyebilir.
+
+5️⃣ Okuma geçmişi tabanlı bildirim
+
+Kullanıcının okuduğu makalelere benzer yeni makaleler yayınlandığında push notification veya email gönderebiliriz.
+
 Backendi tamamlanan özellikler: 
 
 1) Kullanıcı yönetimi
@@ -115,3 +170,5 @@ Kullanıcı arama
 Tag filtreleme / tag'leri favorilere ekleme-çıkarma
 
 7) Popüler makaleler (en çok beğeni ve yorum alanlar puana göre sıralanır), kişiselleştirilmiş feed (takip edilen kullanıcı ve favorilenen taglere göre), trending-tags ve makale eklerken seçilen toggle favorite tags özellikleri eklendi. Feed sıralaması popülerliğe göre sıralandı. --> ui'da popüler makaleler ve trending tags ayrı bir bölümde gösterilebilir durumda. 
+
+8) Makale görüntüleme ve kullanıcının okuma geçmişine ekleme özelliği backend’de çalışıyor. Böylece kullanıcı hangi taglere sahip makaleleri okuyor ise kişiselleştirilmiş feed'i buna göre oluşturulabilir, buna göre makaleler önerilebilir.

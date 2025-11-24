@@ -11,19 +11,20 @@ const UserSchema = new mongoose.Schema({
     favoriteTags: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tag" }],
     library: [{type: mongoose.Schema.Types.ObjectId, ref: "Article"}],
     libraryVisibility: {type: String, enum: ["public", "private"], default: "private"},
+    readingHistory: [
+  {
+    article: { type: mongoose.Schema.Types.ObjectId, ref: "Article" },
+    viewedAt: { type: Date, default: Date.now }
+  }
+],
     role: {type: String, enum: ["user", "admin"], default: "user"},
     verificationToken: {type: String },
     isVerified: {type: Boolean, default: false},
     resetPasswordToken: {type: String},
     resetPasswordExpires: {type: Date},
-    // Yeni ekleme
-    library: [
-    {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Article"
-    }
-]
-}, {timestamps: true});
+}, 
+
+{timestamps: true});
 
 //Şifre hashleme
 UserSchema.pre("save", async function (next) {
