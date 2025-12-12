@@ -34,38 +34,38 @@ Bu web uygulamasını fullstack olarak yazacağım. Kullanacağım teknolojiler:
 2) Frontend için: react-javascript-tailwindcss-sass(vanilla css için css preprocessor), 
 3) Veritabanı için: mongodb compose ve mongoose   
 
+
+
 Eklenecek diğer özellikler: 
-1) kullanıcının ilgi alanlarına göre makale filtrelemesi, buna göre feed oluşturulması (figma ui ekledim, backend kaldı.) (kullanıcı kendi profilinde ilgi duyduğu tag'leri seçer, makaleler bu taglere göre filtrelenerek her kullanıcıya özel getirilir.) 
-2) keşfette tüm makalelerin bütün taglere göre kategoriler halinde gösterilmesi (figma ui ekledim, backend kaldı.)
-3) Gerçek zamanlı chat / mesajlaşma
+
+1. Trend Feed Algoritmasını tamamlayalım
+
+(TikTok/Instagram benzeri gerçek bir trending score)
+
+1. User Interests (ilgi alanı ayarları) ekleyelim
+
+Kullanıcı profilinden tag seçebilsin.
+
+4. Explore page için karışık feed
+
+Trend + random + ilgi alanı harmanı.
+1) keşfette tüm makalelerin bütün taglere göre kategoriler halinde gösterilmesi (figma ui ekledim, backend kaldı.)
+2) Gerçek zamanlı chat / mesajlaşma
 Socket.IO ile makaleye özel veya kullanıcılar arası chat odaları.
-4) Bildirim sistemi frontend entegrasyonu
+1) Bildirim sistemi frontend entegrasyonu
 Kullanıcıya yeni yorum / takipçi / favori geldiğinde push notification.
-5) Profil sayfası geliştirmeleri
+1) Profil sayfası geliştirmeleri
 Kullanıcı biyografisi, avatar, takipçi sayısı, library görünümü.
-6) Admin paneli
+1) Admin paneli
 Makale veya kullanıcı silme / düzenleme yetkisi
 Kullanıcıların aktivitelerini izleme
-7) Advanced Feed
+1) Advanced Feed
 Popüler makaleler, trending tags
 Kişiselleştirilmiş öneriler
-8) Performans ve güvenlik
+1) Performans ve güvenlik
 Rate limiting, input validation
 Image / file optimizasyonu
 JWT refresh token mekanizması
-
-2. Tag ağırlıklandırma sistemi (weighted tags)
-
-– Kullanıcı hangi tag’leri daha çok okursa o tag’lere ağırlık verilecek.
-– Örneğin:
-
-ai tag’i %50 okunmuşsa daha çok gösterilecek.
-
-tech %10 okunmuşsa daha az gelecek.
-
-Feed skoru:
-
-score = (tagMatchCount * tagWeight) + recencyBoost + popularityBoost
 
 📌 3. Favorilere alınan makalelerin benzerlerini önerme
 
@@ -102,6 +102,10 @@ Kullanıcı geçmişte okuduğu makaleleri tarihe, favori tag’e veya favori ya
 5️⃣ Okuma geçmişi tabanlı bildirim
 
 Kullanıcının okuduğu makalelere benzer yeni makaleler yayınlandığında push notification veya email gönderebiliriz.
+
+“Cold start” sistemi (hiç okuma geçmişi olmayan kullanıcı için öneriler)
+➤ “Benzer makaleleri öner” (content-based filtering)
+➤ “Benzer kullanıcıların okuduklarını öner” (collaborative filtering)
 
 Backendi tamamlanan özellikler: 
 
@@ -161,6 +165,23 @@ Kullanıcı arama
 
 Tag filtreleme / tag'leri favorilere ekleme-çıkarma
 
-7) Popüler makaleler (en çok beğeni ve yorum alanlar puana göre sıralanır), kişiselleştirilmiş feed (takip edilen kullanıcı ve favorilenen taglere göre), trending-tags ve makale eklerken seçilen toggle favorite tags özellikleri eklendi. Feed sıralaması popülerliğe göre sıralandı. --> ui'da popüler makaleler ve trending tags ayrı bir bölümde gösterilebilir durumda. 
+7) Popüler makaleler (en çok beğeni ve yorum alanlar puana göre sıralanır), kişiselleştirilmiş feed (takip edilen kullanıcıların makaleleri, kullanıcının okuduğu makalelerin tagleri ve favori taglerine göre) özellikleri eklendi.
 
-8) Makale görüntüleme ve kullanıcının okuma geçmişine ekleme özelliği backend’de çalışıyor. Böylece kullanıcı hangi taglere sahip makaleleri okuyor ise veritabanına kaydediliyor. Kişiselleştirilmiş feed her kullanıcı için buna göre oluşturulabilir, buna göre makaleler önerilebilir.
+8) Feed sıralaması -> ui'da popüler makaleler ve trending tags ayrı bir bölümde gösterilebilir durumda. 
+
+9)  Makale görüntüleme ve kullanıcının okuma geçmişine ekleme özelliği backend’de çalışıyor. Böylece kullanıcı hangi taglere sahip makaleleri okuyor ise veritabanına kaydediliyor. Tag ağırlıklandırma sistemi (weighted tags)
+
+– Kullanıcı hangi tag’leri daha çok okursa o tag’lere ağırlık verilecek. Bu sayede kişiselleştirilmiş feed her kullanıcının okuduğu makalelerin taglerine göre oluşturulabiliyor.
+– Örneğin:
+
+ai tag’i %50 okunmuşsa daha çok gösterilecek.
+
+tech %10 okunmuşsa daha az gelecek.
+
+Feed skoru:
+
+score = (tagMatchCount * tagWeight) + recencyBoost + popularityBoost
+
+Kullanıcının ilgi alanlarına göre makalelere score atanması
+Score’a göre sıralanmış personalized feed döndürme
+

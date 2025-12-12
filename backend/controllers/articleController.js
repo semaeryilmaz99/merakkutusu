@@ -2,6 +2,9 @@ import User from "../models/User.js";
 import Article from "../models/Article.js";
 import Tag from "../models/Tag.js";
 import Notification from "../models/Notification.js";
+import calculateTagWeights from "../utils/calculateTagWeights.js";
+import calculateFeedScore from "../utils/calculateFeedScore.js";
+import mongoose from "mongoose";
 
 import { Readable } from "stream";
 import cloudinary from "../config/cloudinary.js";
@@ -377,8 +380,11 @@ export const getPersonalizedFeed = async (req, res) => {
         populate: { path: "tags", select: "name" }
       });
 
+    if (!user) return res.status(404).json({ message: "User not found" });
+
     const followingIds = user.following.map(f => f._id);
-    const favoriteTagIds = user.favoriteTags.map(t => t._id.toString());
+    let favoriteTagIds = user.favoriteTags.map(t => t._id.toString());
+    favoriteTagIds = favoriteTagIds.filter(id => mongoose.Types.ObjectId.isValid(id));
 
     // 1) Takip edilen kullanıcıların makaleleri
     const followingArticles = await Article.find({
@@ -388,7 +394,7 @@ export const getPersonalizedFeed = async (req, res) => {
       .populate("tags", "name")
       .lean();
 
-    // 2) Kullanıcının favori taglerine göre makaleler
+    // 2) Favori tag’lere göre makaleler
     const tagArticles = await Article.find({
       tags: { $in: favoriteTagIds }
     })
@@ -396,22 +402,13 @@ export const getPersonalizedFeed = async (req, res) => {
       .populate("tags", "name")
       .lean();
 
-    // 3) Kullanıcının okuma geçmişinden en çok okunan tagleri belirle
-    const tagCount = {};
-    user.readingHistory.forEach(item => {
-      if (item.article && item.article.tags) {
-        item.article.tags.forEach(tag => {
-          const tagId = tag._id.toString();
-          tagCount[tagId] = (tagCount[tagId] || 0) + 1;
-        });
-      }
-    });
-
-    const mostReadTagIds = Object.entries(tagCount)
-      .sort((a, b) => b[1] - a[1])
-      .map(([tagId]) => tagId);
+    // 3) Kullanıcının okuma geçmişine göre tag ağırlıklarını hesapla
+    const tagWeights = calculateTagWeights(user.readingHistory);
 
     // 4) En çok okunan taglere ait makaleler
+    let mostReadTagIds = Object.keys(tagWeights);
+    mostReadTagIds = mostReadTagIds.filter(id => mongoose.Types.ObjectId.isValid(id));
+
     const mostReadTagArticles = await Article.find({
       tags: { $in: mostReadTagIds }
     })
@@ -419,33 +416,33 @@ export const getPersonalizedFeed = async (req, res) => {
       .populate("tags", "name")
       .lean();
 
-    // 5) Tüm makaleleri birleştir ve tekrarları kaldır
-    const merged = [...followingArticles, ...tagArticles, ...mostReadTagArticles];
-    const uniqueArticles = Array.from(new Set(merged.map(a => a._id.toString()))).map(id =>
-      merged.find(a => a._id.toString() === id)
-    );
+    // 5) Tüm makaleleri birleştir
+    const merged = [
+      ...followingArticles,
+      ...tagArticles,
+      ...mostReadTagArticles
+    ];
 
-    // 6) Sıralama: favori tag ve okunan tag ağırlığı + popülerlik
-    const sorted = uniqueArticles.sort((a, b) => {
-      const aScore =
-        a.tags.filter(tag => favoriteTagIds.includes(tag._id.toString())).length * 2 +
-        a.tags.filter(tag => mostReadTagIds.includes(tag._id.toString())).length +
-        a.favorites.length * 2 + a.comments.length;
-      const bScore =
-        b.tags.filter(tag => favoriteTagIds.includes(tag._id.toString())).length * 2 +
-        b.tags.filter(tag => mostReadTagIds.includes(tag._id.toString())).length +
-        b.favorites.length * 2 + b.comments.length;
-      return bScore - aScore;
+    const uniqueArticles = Array.from(
+      new Set(merged.map(a => a._id.toString()))
+    ).map(id => merged.find(a => a._id.toString() === id));
+
+    // 6) Her makale için score hesapla (tagWeight + popularity + recency)
+    const scoredArticles = uniqueArticles.map(article => {
+      const score = calculateFeedScore(article, tagWeights, favoriteTagIds);
+      return { ...article, score };
     });
 
-    res.json(sorted);
+    // 7) Score’a göre sırala
+    scoredArticles.sort((a, b) => b.score - a.score);
+
+    res.json(scoredArticles);
 
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: err.message });
   }
 };
-
-
 
 // Tagleri favoriye ekleme
 export const toggleFavoriteTag = async (req, res) => {

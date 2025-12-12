@@ -23,7 +23,7 @@ const router = express.Router();
 // --- Advanced Feed Routes ---
 router.get("/popular", protect, getPopularArticles);
 router.get("/trending-tags", protect, getTrendingTags);
-router.get("/feed", protect, getPersonalizedFeed);
+router.get("/feed/personalized", protect, getPersonalizedFeed);
 
 // /api/articles
 router.get("/search", searchArticles);
