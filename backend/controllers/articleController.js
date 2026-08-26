@@ -4,14 +4,16 @@ import Tag from "../models/Tag.js";
 import Notification from "../models/Notification.js";
 import calculateTagWeights from "../utils/calculateTagWeights.js";
 import calculateFeedScore from "../utils/calculateFeedScore.js";
+import calculateTrendingScore from "../utils/calculateTrendingScore.js";
+import shuffleArray from "../utils/shuffleArray.js";
+import asyncHandler from "../utils/asyncHandler.js";
 import mongoose from "mongoose";
 
 import { Readable } from "stream";
 import cloudinary from "../config/cloudinary.js";
 
 // Makale oluşturma
-export const createArticle = async (req, res) => {
-  try {
+export const createArticle = asyncHandler(async (req, res) => {
     const { title, content } = req.body;
     let imageUrl = "";
 
@@ -67,54 +69,45 @@ for (const tagName of tagsArray) {
     });
 
     res.status(201).json(article);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: err.message });
-  }
-};
+});
 
 //Tüm makaleleri getirme
-export const getArticles = async (req, res) => {
-    try {
-        const articles = await Article.find().populate("author", "username email");
-        res.json(articles);
-    } catch (err) {
-        res.status(500).json({message: err.message});
-    }
-};
+export const getArticles = asyncHandler(async (req, res) => {
+    const articles = await Article.find().populate("author", "username email");
+    res.json(articles);
+});
 
 // Tek makale getirme
-export const getArticleById = async (req, res) => {
-    try {
-        const article = await Article.findById(req.params.id)
-        .populate("author", "username email")
-        .populate("tags", "name");
+export const getArticleById = asyncHandler(async (req, res) => {
+    const article = await Article.findById(req.params.id)
+    .populate("author", "username email")
+    .populate("tags", "name");
 
-        if (!article) return res.status(404).json({message: "Makale bulunamadı."});
+    if (!article) return res.status(404).json({message: "Makale bulunamadı."});
 
-           if (req.user) {
-            // Eğer makale daha önce eklenmişse viewedAt'ı güncelle, yoksa ekle
-            await User.updateOne(
-                { _id: req.user._id, "readingHistory.article": article._id },
-                { $set: { "readingHistory.$.viewedAt": new Date() } }
-            );
+    // Görüntülenme sayacı (anonim dahil, her görüntülemede atomik artar)
+    await Article.updateOne({ _id: article._id }, { $inc: { views: 1 } });
+    article.views = (article.views || 0) + 1;
 
-            // Eğer makale yoksa push ile ekle
-            await User.updateOne(
-                { _id: req.user._id, "readingHistory.article": { $ne: article._id } },
-                { $push: { readingHistory: { article: article._id, viewedAt: new Date() } } }
-            );
-        }
-        
-        res.json(article);
-    } catch (err) {
-        res.status(500).json({message: err.message});
+       if (req.user) {
+        // Eğer makale daha önce eklenmişse viewedAt'ı güncelle, yoksa ekle
+        await User.updateOne(
+            { _id: req.user._id, "readingHistory.article": article._id },
+            { $set: { "readingHistory.$.viewedAt": new Date() } }
+        );
+
+        // Eğer makale yoksa push ile ekle
+        await User.updateOne(
+            { _id: req.user._id, "readingHistory.article": { $ne: article._id } },
+            { $push: { readingHistory: { article: article._id, viewedAt: new Date() } } }
+        );
     }
-};
+
+    res.json(article);
+});
 
 //Makale güncelleme
-export const updateArticle = async (req, res) => {
-  try {
+export const updateArticle = asyncHandler(async (req, res) => {
     const article = await Article.findById(req.params.id);
     if (!article) return res.status(404).json({ message: "Makale bulunamadı" });
 
@@ -161,31 +154,22 @@ export const updateArticle = async (req, res) => {
 
     await article.save();
     res.json(article);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: err.message });
-  }
-};
+});
 
 // Makale silme
-export const deleteArticle = async (req, res) => {
-    try {
-        const article = await Article.findById(req.params.id);
+export const deleteArticle = asyncHandler(async (req, res) => {
+    const article = await Article.findById(req.params.id);
 
-        if (!article) return res.status(404).json({message: "Makale bulunamadı."});
-        if (article.author.toString() !== req.user._,deleteArticle.toString())
-            return res.status(403).json({message: "Bu makaleyi silme yetkiniz yok."});
+    if (!article) return res.status(404).json({message: "Makale bulunamadı."});
+    if (article.author.toString() !== req.user._id.toString())
+        return res.status(403).json({message: "Bu makaleyi silme yetkiniz yok."});
 
-        await article.deleteOne();
-        res.json({message: "Makale silindi."});
-    } catch (error) {
-        res.status(500).json({message: error.message});
-    }
-};
+    await article.deleteOne();
+    res.json({message: "Makale silindi."});
+});
 
 // Favori ekle/çıkar
-export const toggleFavorite = async (req, res) => {
-  try {
+export const toggleFavorite = asyncHandler(async (req, res) => {
     const article = await Article.findById(req.params.id);
     if (!article) return res.status(404).json({ message: "Makale bulunamadı" });
 
@@ -209,14 +193,10 @@ export const toggleFavorite = async (req, res) => {
 
     await article.save();
     res.json({ favorites: article.favorites });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
+});
 
 // Yorum ekleme
-export const addComment = async (req, res) => {
-  try {
+export const addComment = asyncHandler(async (req, res) => {
     const article = await Article.findById(req.params.id);
     if (!article) return res.status(404).json({ message: "Makale bulunamadı" });
 
@@ -239,14 +219,10 @@ export const addComment = async (req, res) => {
     }
 
     res.status(201).json(article.comments);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
+});
 
 // Feed oluşturma
-export const getFeed = async (req, res) => {
-  try {
+export const getFeed = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id).populate("following");
     const followingIds = user.following.map(f => f._id);
 
@@ -255,14 +231,10 @@ export const getFeed = async (req, res) => {
       .populate("author", "username email");
 
     res.json(feed);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
+});
 
 // Article arama ve filtreleme
-export const searchArticles = async (req, res) => {
-  try {
+export const searchArticles = asyncHandler(async (req, res) => {
     const { q, author, tags } = req.query;
     const filter = {};
 
@@ -287,7 +259,9 @@ export const searchArticles = async (req, res) => {
         .filter(tag => tag.length > 0); // boş stringleri çıkar
 
       if (tagsArray.length > 0) {
-        filter.tags = { $in: tagsArray };
+        // Article.tags alanı Tag ObjectId'leri tuttuğu için önce isimleri ID'ye çeviriyoruz
+        const matchedTags = await Tag.find({ name: { $in: tagsArray } }).select("_id");
+        filter.tags = { $in: matchedTags.map(t => t._id) };
       }
     }
 
@@ -298,33 +272,28 @@ export const searchArticles = async (req, res) => {
       .sort({ createdAt: -1 }); // en yeni makaleler üstte
 
     res.json(articles);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
+});
 
 // Makaleleri tag'e göre filtreleme
-export const filterArticlesByTag = async (req, res) => {
-  try {
+export const filterArticlesByTag = asyncHandler(async (req, res) => {
     const {tag} = req.query;
     if (!tag) {
       return res.status(400).json({message: "Filtreleme için bir tag gereklidir."})
     }
 
-    // Makaleleri ilgili tag'e göre getir
-    const articles = await Article.find({tags: { $in: [tag]}})
-    .populate("author", "username email")
-    .sort({createdAt: -1}); //en yeni makaleler üstte
+    // tag ismini Tag ObjectId'sine çevir (Article.tags alanı ID tutar, isim değil)
+    const matchedTag = await Tag.findOne({ name: tag.trim().toLowerCase() });
+    const articles = matchedTag
+      ? await Article.find({tags: { $in: [matchedTag._id]}})
+          .populate("author", "username email")
+          .sort({createdAt: -1}) //en yeni makaleler üstte
+      : [];
 
     res.json(articles);
-  } catch (err) {
-    res.status(500).json({message: err.message});
-  }
-};
+});
 
 // Popüler makaleleri getirme
-export const getPopularArticles = async (req, res) => {
-  try {
+export const getPopularArticles = asyncHandler(async (req, res) => {
     const articles = await Article.find()
       .populate("author", "username email")
       .populate("tags", "name")
@@ -336,16 +305,28 @@ export const getPopularArticles = async (req, res) => {
       .slice(0, 10);
 
     res.json(sorted);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
+});
+
+// Trend olan makaleler (zaman-ağırlıklı hot skoru — /popular'dan farklı olarak
+// güncel etkileşimi önceler, tüm-zamanların-en-iyisi değil "şu an yükselenler")
+export const getTrendingArticles = asyncHandler(async (req, res) => {
+    const articles = await Article.find()
+      .populate("author", "username email")
+      .populate("tags", "name")
+      .lean();
+
+    const sorted = articles
+      .map(a => ({ ...a, trendingScore: calculateTrendingScore(a) }))
+      .sort((a, b) => b.trendingScore - a.trendingScore)
+      .slice(0, 10);
+
+    res.json(sorted);
+});
 
 // Trending tags
-export const getTrendingTags = async (req, res) => {
-  try {
+export const getTrendingTags = asyncHandler(async (req, res) => {
     const tags = await Tag.aggregate([
-      { 
+      {
         $lookup: {
           from: "articles",
           localField: "_id",
@@ -364,14 +345,10 @@ export const getTrendingTags = async (req, res) => {
     ]);
 
     res.json(tags);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
+});
 
 // Personalized feed
-export const getPersonalizedFeed = async (req, res) => {
-  try {
+export const getPersonalizedFeed = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id)
       .populate("following")
       .populate("favoriteTags")
@@ -402,8 +379,17 @@ export const getPersonalizedFeed = async (req, res) => {
       .populate("tags", "name")
       .lean();
 
-    // 3) Kullanıcının okuma geçmişine göre tag ağırlıklarını hesapla
-    const tagWeights = calculateTagWeights(user.readingHistory);
+    // 3) Kullanıcının okuma geçmişinden tag başına okuma sayısını çıkar,
+    //    sonra bu sayımlardan tag ağırlıklarını hesapla
+    const tagReadCounts = {};
+    user.readingHistory.forEach(item => {
+      if (!item.article || !item.article.tags) return;
+      item.article.tags.forEach(tag => {
+        const tagId = tag._id.toString();
+        tagReadCounts[tagId] = (tagReadCounts[tagId] || 0) + 1;
+      });
+    });
+    const tagWeights = calculateTagWeights(tagReadCounts);
 
     // 4) En çok okunan taglere ait makaleler
     let mostReadTagIds = Object.keys(tagWeights);
@@ -437,38 +423,64 @@ export const getPersonalizedFeed = async (req, res) => {
     scoredArticles.sort((a, b) => b.score - a.score);
 
     res.json(scoredArticles);
+});
 
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: err.message });
-  }
-};
+// Explore feed: trend + random + ilgi alanı harmanı
+export const getExploreFeed = asyncHandler(async (req, res) => {
+    // 1) Trend havuzu
+    const allArticles = await Article.find()
+      .populate("author", "username email")
+      .populate("tags", "name")
+      .lean();
+    const trendingPool = [...allArticles]
+      .sort((a, b) => calculateTrendingScore(b) - calculateTrendingScore(a))
+      .slice(0, 8);
 
-// Tagleri favoriye ekleme
-export const toggleFavoriteTag = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id);
-    const tagId = req.params.tagId;
+    // 2) Rastgele havuz
+    const randomDocs = await Article.aggregate([{ $sample: { size: 8 } }]);
+    const randomPool = await Article.populate(randomDocs, [
+      { path: "author", select: "username email" },
+      { path: "tags", select: "name" }
+    ]);
 
-    if (!mongoose.Types.ObjectId.isValid(tagId)) {
-      return res.status(400).json({ message: "Invalid tag ID" });
+    // 3) İlgi alanı havuzu (login'se ve favoriteTags varsa)
+    let interestPool = [];
+    if (req.user) {
+      const user = await User.findById(req.user._id).select("favoriteTags");
+      if (user?.favoriteTags?.length) {
+        interestPool = await Article.find({ tags: { $in: user.favoriteTags } })
+          .populate("author", "username email")
+          .populate("tags", "name")
+          .limit(8)
+          .lean();
+      }
     }
 
-    const existingIndex = user.favoriteTags.indexOf(tagId);
+    // 4) Havuzları birleştir, tekilleştir, karıştır
+    const merged = [...trendingPool, ...randomPool, ...interestPool];
+    const uniqueArticles = Array.from(
+      new Map(merged.map(a => [a._id.toString(), a])).values()
+    );
 
-    if (existingIndex === -1) {
-      user.favoriteTags.push(tagId);
-    } else {
-      user.favoriteTags.splice(existingIndex, 1);
-    }
+    res.json(shuffleArray(uniqueArticles).slice(0, 20));
+});
 
-    await user.save();
+// Keşfet: taglere göre gruplanmış kategori önizlemeleri
+export const getExploreCategories = asyncHandler(async (req, res) => {
+    const tags = await Tag.find().sort({ name: 1 });
 
-    res.json({
-      message: "Favorite tags updated",
-      favoriteTags: user.favoriteTags,
-    });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
+    const categories = await Promise.all(
+      tags.map(async (tag) => {
+        const [articles, articleCount] = await Promise.all([
+          Article.find({ tags: tag._id })
+            .populate("author", "username")
+            .sort({ createdAt: -1 })
+            .limit(6),
+          Article.countDocuments({ tags: tag._id })
+        ]);
+        return { tag: { _id: tag._id, name: tag.name }, articleCount, articles };
+      })
+    );
+
+    res.json(categories.filter(c => c.articleCount > 0));
+});

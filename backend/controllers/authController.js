@@ -4,10 +4,10 @@ import Blacklist from "../models/Blacklist.js";
 
 import User from "../models/User.js";
 import generateToken from "../utils/generateToken.js";
+import asyncHandler from "../utils/asyncHandler.js";
 
 //User Register
-export const registerUser = async (req, res) => {
-    try {
+export const registerUser = asyncHandler(async (req, res) => {
         const {username, email, password} = req.body;
         //Bu mail ile kaydolan kullanıcı var mı?
         const userExists = await User.findOne({email});
@@ -34,14 +34,10 @@ export const registerUser = async (req, res) => {
         await sendEmail(user.email, "Email Doğrulama", html);
 
         res.status(201).json({message: "Kayıt başarılı, Doğrulama emaili gönderildi."});
-        } catch (err) {
-        res.status(500).json({message: err.message});
-        }
-};
+});
 
 //User login
-export const loginUser = async (req, res) => {
-    try {
+export const loginUser = asyncHandler(async (req, res) => {
         const {email, password} = req.body;
         const user = await User.findOne({email});
 
@@ -62,14 +58,10 @@ export const loginUser = async (req, res) => {
         } else {
             res.status(401).json({message: "Geçersiz email veya şifre"});
         }
-    } catch (err) {
-        res.status(500).json({message: err.message});
-    }
-};
+});
 
 //Email doğrulama
-export const verifyUser = async (req, res) => {
-    try {
+export const verifyUser = asyncHandler(async (req, res) => {
         const {token} = req.params;
         const user = await User.findOne({verificationToken: token});
 
@@ -80,14 +72,10 @@ export const verifyUser = async (req, res) => {
         await user.save();
 
         res.json({message: "Email doğrulama başarılı."});
-    } catch (err) {
-        res.status(500).json({message: err.message});
-    }
-};
+});
 
 //Şifre sıfırlama
-export const forgotPassword = async (req, res) => {
-    try {
+export const forgotPassword = asyncHandler(async (req, res) => {
         const {email} = req.body;
         const user = await User.findOne({email});
         if (!user) return res.status(400).json({message: "Bu email adresi kayıtlı değil."});
@@ -103,13 +91,9 @@ export const forgotPassword = async (req, res) => {
         await sendEmail(user.email, "Şifre Sıfırlama", html);
 
         res.json({message: "Şifre sıfırlama maili gönderildi."});
-    } catch (err) {
-        res.status(500).json({message: err.message});
-    }
-};
+});
 
-export const resetPassword = async (req, res) => {
-    try {
+export const resetPassword = asyncHandler(async (req, res) => {
         const {token} = req.params;
         const {password} = req.body;
 
@@ -126,14 +110,10 @@ export const resetPassword = async (req, res) => {
         await user.save();
 
         res.json({message: "Şifre başarıyla sıfırlandı."});
-    } catch (err) {
-        res.status(500).json({message: err.message});
-    }
-};
+});
 
 // User Logout
-export const logoutUser = async (req, res) => {
-    try {
+export const logoutUser = asyncHandler(async (req, res) => {
         const token = req.header("Authorization")?.replace("Bearer ", "");
         if (!token) return res.status(400).json({message: "Token bulunamadı."});
 
@@ -141,7 +121,4 @@ export const logoutUser = async (req, res) => {
         await Blacklist.create({token});
 
         res.json({message: "Başarıyla çıkış yapıldı."});
-    } catch (err) {
-        res.status(500).json({message: err.message});
-    }
-};
+});

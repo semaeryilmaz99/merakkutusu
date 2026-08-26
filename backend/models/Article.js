@@ -15,7 +15,9 @@ const ArticleSchema = new mongoose.Schema({
     ],
     tags: [
     { type: mongoose.Schema.Types.ObjectId, ref: "Tag" }
-]}, {timestamps: true});
+    ],
+    views: {type: Number, default: 0}
+}, {timestamps: true});
 
 const Article = mongoose.model("Article", ArticleSchema);
 export default Article;

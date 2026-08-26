@@ -48,3 +48,30 @@ export const protect = async (req, res, next) => {
     // Eğer hiç token yoksa 401 Unauthorized döndürüyoruz
     if (!token) return res.status(401).json({message: "Token gereklidir"})
 };
+
+/**
+ * Token varsa doğrulayıp req.user'ı set eder, token yoksa veya geçersizse
+ * hata döndürmeden isteğe devam eder. Hem giriş yapmış hem anonim kullanıcıların
+ * erişebildiği route'lar (örn. tek makale görüntüleme) için kullanılır.
+ */
+export const optionalAuth = async (req, res, next) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer")) {
+        return next();
+    }
+
+    try {
+        const token = authHeader.split(" ")[1];
+
+        const blacklisted = await Blacklist.findOne({token});
+        if (blacklisted) return next();
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = await User.findById(decoded.id).select("-password");
+    } catch (err) {
+        // Geçersiz/süresi dolmuş token: anonim kullanıcı gibi devam et
+    }
+
+    next();
+};

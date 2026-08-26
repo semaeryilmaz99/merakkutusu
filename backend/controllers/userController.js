@@ -1,9 +1,11 @@
 import User from "../models/User.js";
 import Notification from "../models/Notification.js";
 import Article from "../models/Article.js";
+import Tag from "../models/Tag.js";
+import asyncHandler from "../utils/asyncHandler.js";
+import mongoose from "mongoose";
 
-export const followUser = async (req, res) => {
-    try {
+export const followUser = asyncHandler(async (req, res) => {
       const userId = req.user._id;       // Takip eden
       const targetId = req.params.id;    // Takip edilecek kişi
 
@@ -39,14 +41,10 @@ export const followUser = async (req, res) => {
 });
 
     res.json({ message: "Takip edildi" });
-    } catch (err) {
-    res.status(500).json({ message: err.message });
-    }
-};
+});
 
 // Kullanıcı arama
-export const searchUsers = async (req, res) => {
-  try {
+export const searchUsers = asyncHandler(async (req, res) => {
     const { q } = req.query;
     if (!q) return res.status(400).json({ message: "Arama terimi gerekli" });
 
@@ -58,14 +56,10 @@ export const searchUsers = async (req, res) => {
     }).select("username bio");
 
     res.json(users);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
+});
 
 // Kütüphaneye makale ekleme
-export const toggleLibrary = async (req, res) => {
-  try {
+export const toggleLibrary = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id);
 
     if (!user) return res.status(404).json({ message: "Kullanıcı bulunamadı" });
@@ -83,29 +77,20 @@ export const toggleLibrary = async (req, res) => {
     user.library.push(articleId);
     await user.save();
     res.json({ message: "Makale kütüphaneye eklendi" });
-
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
+});
 
 // Kullanıcının kütüphanesini getirme
-export const getLibrary = async (req, res) => {
-  try {
+export const getLibrary = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id)
       .populate("library", "title content author image createdAt");
 
     if (!user) return res.status(404).json({ message: "Kullanıcı bulunamadı" });
 
     res.json(user.library);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
+});
 
 // Kullanıcının kütüphane görünürlüğünü değiştirme
-export const updateLibraryVisibility = async (req, res) => {
-  try {
+export const updateLibraryVisibility = asyncHandler(async (req, res) => {
     const {visibility} = req.body;
 
     if (!["public", "private"].includes(visibility)) {
@@ -122,17 +107,22 @@ export const updateLibraryVisibility = async (req, res) => {
       message: `Kütüphane gizliliği '${user.libraryVisibility}' olarak ayarlandı.`,
       librarysVisibility: user.libraryVisibility
     });
-  } catch (err) {
-    res.status(500).json({message: err.message});
-  }
-};
+});
 
 // Kullanıcının favori taglerini ekleme, çıkarma
 
-export const toggleFavoriteTag = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id);
+export const toggleFavoriteTag = asyncHandler(async (req, res) => {
     const tagId = req.params.tagId;
+
+    if (!mongoose.Types.ObjectId.isValid(tagId)) {
+      return res.status(400).json({ message: "Geçersiz tag ID" });
+    }
+    const tagExists = await Tag.exists({ _id: tagId });
+    if (!tagExists) {
+      return res.status(404).json({ message: "Tag bulunamadı" });
+    }
+
+    const user = await User.findById(req.user._id);
 
     const index = user.favoriteTags.indexOf(tagId);
 
@@ -148,14 +138,10 @@ export const toggleFavoriteTag = async (req, res) => {
       message: "Favorite tags updated",
       favoriteTags: user.favoriteTags,
     });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
+});
 
 // Kullanıcının en çok okuduğu tagleri getirme (tag isimleriyle birlikte)
-export const getMostReadTags = async (req, res) => {
-  try {
+export const getMostReadTags = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id).populate({
       path: "readingHistory.article",
       populate: { path: "tags", select: "name" }
@@ -186,8 +172,34 @@ export const getMostReadTags = async (req, res) => {
       }));
 
     res.json({ mostReadTags: sortedTags });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: err.message });
-  }
-};
+});
+
+// Kendi profilini getirme
+export const getMe = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id)
+      .select("-password -verificationToken -resetPasswordToken -resetPasswordExpires")
+      .populate("favoriteTags", "name");
+
+    res.json(user);
+});
+
+// İlgi alanlarını toplu ayarlama (mevcut favoriteTags setini komple değiştirir)
+export const setInterests = asyncHandler(async (req, res) => {
+    const { tagIds } = req.body;
+
+    if (!Array.isArray(tagIds)) {
+      return res.status(400).json({ message: "tagIds bir dizi olmalı" });
+    }
+
+    const validIds = tagIds.filter(id => mongoose.Types.ObjectId.isValid(id));
+    const existingTags = await Tag.find({ _id: { $in: validIds } }).select("_id");
+    const existingIds = existingTags.map(t => t._id);
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { favoriteTags: existingIds },
+      { new: true }
+    ).populate("favoriteTags", "name");
+
+    res.json({ message: "İlgi alanları güncellendi", favoriteTags: user.favoriteTags });
+});

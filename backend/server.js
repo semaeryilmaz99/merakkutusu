@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
@@ -6,6 +7,8 @@ import userRoutes from "./routes/userRoutes.js";
 import cors from "cors";
 import articleRoutes from "./routes/articleRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import tagRoutes from "./routes/tagRoutes.js";
+import { notFound, errorHandler } from "./middlewares/errorHandlerMiddleware.js";
 
 dotenv.config();
 connectDB();
@@ -20,6 +23,10 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/articles", articleRoutes);
+app.use("/api/tags", tagRoutes);
+
+app.use(notFound);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
