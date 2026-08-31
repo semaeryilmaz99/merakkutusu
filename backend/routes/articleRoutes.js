@@ -20,6 +20,7 @@ import {
     getExploreCategories
 } from "../controllers/articleController.js";
 import {protect, optionalAuth} from "../middlewares/authMiddleware.js";
+import { createArticleValidator, addCommentValidator, handleValidationErrors } from "../middlewares/validators.js";
 
 const router = express.Router();
 
@@ -35,13 +36,13 @@ router.get("/categories", getExploreCategories);
 router.get("/search", searchArticles);
 router.get("/filter", filterArticlesByTag);
 
-router.post("/", protect, upload.single("image"), createArticle);
+router.post("/", protect, upload.single("image"), createArticleValidator, handleValidationErrors, createArticle);
 router.get("/", getArticles);
 
 router.put("/:id", protect, upload.single("image"), updateArticle);
 router.delete("/:id", protect, deleteArticle);
 router.put("/favorite/:id", protect, toggleFavorite);
-router.post("/:id/comment", protect, addComment);
+router.post("/:id/comment", protect, addCommentValidator, handleValidationErrors, addComment);
 router.get("/feed", protect, getFeed);
 router.get("/:id", optionalAuth, getArticleById);
 

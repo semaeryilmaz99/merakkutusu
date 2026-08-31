@@ -75,3 +75,13 @@ export const optionalAuth = async (req, res, next) => {
 
     next();
 };
+
+/**
+ * protect'ten sonra kullanılır. Kullanıcı admin değilse 403 döner.
+ */
+export const requireAdmin = (req, res, next) => {
+    if (req.user?.role !== "admin") {
+        return res.status(403).json({ message: "Bu işlem için admin yetkisi gerekiyor." });
+    }
+    next();
+};

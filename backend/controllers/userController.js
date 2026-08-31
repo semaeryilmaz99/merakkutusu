@@ -4,6 +4,8 @@ import Article from "../models/Article.js";
 import Tag from "../models/Tag.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import mongoose from "mongoose";
+import { Readable } from "stream";
+import cloudinary from "../config/cloudinary.js";
 
 export const followUser = asyncHandler(async (req, res) => {
       const userId = req.user._id;       // Takip eden
@@ -202,4 +204,77 @@ export const setInterests = asyncHandler(async (req, res) => {
     ).populate("favoriteTags", "name");
 
     res.json({ message: "İlgi alanları güncellendi", favoriteTags: user.favoriteTags });
+});
+
+// Başka bir kullanıcının herkese açık profilini getirme
+export const getPublicProfile = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.params.id)
+      .select("username bio avatar followers following createdAt");
+
+    if (!user) return res.status(404).json({ message: "Kullanıcı bulunamadı" });
+
+    const profile = {
+      _id: user._id,
+      username: user.username,
+      bio: user.bio,
+      avatar: user.avatar,
+      followersCount: user.followers.length,
+      followingCount: user.following.length,
+      createdAt: user.createdAt
+    };
+
+    if (req.user) {
+      profile.isFollowing = user.followers.some(id => id.toString() === req.user._id.toString());
+    }
+
+    res.json(profile);
+});
+
+// Kendi profilini güncelleme (bio ve/veya avatar)
+export const updateProfile = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: "Kullanıcı bulunamadı" });
+
+    if (req.body.bio !== undefined) {
+      user.bio = req.body.bio;
+    }
+
+    if (req.file) {
+      const bufferStream = new Readable();
+      bufferStream.push(req.file.buffer);
+      bufferStream.push(null);
+
+      const result = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: "merakkutusu_avatars", quality: "auto", fetch_format: "auto" },
+          (err, res) => {
+            if (err) return reject(err);
+            resolve(res);
+          }
+        );
+        bufferStream.pipe(stream);
+      });
+
+      user.avatar = result.secure_url;
+    }
+
+    await user.save();
+
+    res.json({ message: "Profil güncellendi", bio: user.bio, avatar: user.avatar });
+});
+
+// Başka bir kullanıcının kütüphanesini görüntüleme (görünürlük kontrolüyle)
+export const getUserLibrary = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.params.id)
+      .populate("library", "title content author image createdAt");
+
+    if (!user) return res.status(404).json({ message: "Kullanıcı bulunamadı" });
+
+    const isOwner = req.user && req.user._id.toString() === user._id.toString();
+
+    if (user.libraryVisibility !== "public" && !isOwner) {
+      return res.status(403).json({ message: "Bu kütüphane gizli" });
+    }
+
+    res.json(user.library);
 });

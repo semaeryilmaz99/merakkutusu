@@ -2,8 +2,9 @@ import crypto from "crypto";
 import {sendEmail} from "../config/mailer.js";
 import Blacklist from "../models/Blacklist.js";
 
+import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import generateToken from "../utils/generateToken.js";
+import generateToken, { generateRefreshToken } from "../utils/generateToken.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 //User Register
@@ -49,15 +50,47 @@ export const loginUser = asyncHandler(async (req, res) => {
             return res.status(401).json({ message: "Lütfen emailinizi doğrulayın." });
 
         if (user && (await user.matchPassword(password))) {
+            const refreshToken = generateRefreshToken(user._id);
+            user.refreshToken = refreshToken;
+            await user.save();
+
             res.json({
                 _id: user._id,
                 username: user.username,
                 email: user.email,
-                token: generateToken(user._id, user.role)
+                token: generateToken(user._id, user.role),
+                refreshToken
             });
         } else {
             res.status(401).json({message: "Geçersiz email veya şifre"});
         }
+});
+
+// Access token'ı refresh token ile yenileme (rotation)
+export const refreshAccessToken = asyncHandler(async (req, res) => {
+        const {refreshToken} = req.body;
+        if (!refreshToken) return res.status(400).json({message: "Refresh token gereklidir."});
+
+        let decoded;
+        try {
+            decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+        } catch (err) {
+            return res.status(401).json({message: "Refresh token geçersiz veya süresi dolmuş."});
+        }
+
+        const user = await User.findById(decoded.id);
+        if (!user || user.refreshToken !== refreshToken) {
+            return res.status(401).json({message: "Refresh token geçersiz."});
+        }
+
+        const newRefreshToken = generateRefreshToken(user._id);
+        user.refreshToken = newRefreshToken;
+        await user.save();
+
+        res.json({
+            token: generateToken(user._id, user.role),
+            refreshToken: newRefreshToken
+        });
 });
 
 //Email doğrulama
@@ -119,6 +152,14 @@ export const logoutUser = asyncHandler(async (req, res) => {
 
         // Token'ı blackliste ekle
         await Blacklist.create({token});
+
+        // Geçerliyse, kullanıcının refresh token'ını da geçersiz kıl
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            await User.findByIdAndUpdate(decoded.id, { refreshToken: undefined });
+        } catch (err) {
+            // Token zaten geçersiz/süresi dolmuşsa refresh token temizliğine gerek yok
+        }
 
         res.json({message: "Başarıyla çıkış yapıldı."});
 });

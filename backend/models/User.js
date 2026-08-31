@@ -6,6 +6,7 @@ const UserSchema = new mongoose.Schema({
     email: {type: String, required: true, unique: true},
     password: {type: String, required: true},
     avatar: {type: String}, // Cloudinary url
+    bio: {type: String, default: "", maxlength: 300},
     followers: [{type: mongoose.Schema.Types.ObjectId, ref: "User"}],
     following: [{type: mongoose.Schema.Types.ObjectId, ref: "User"}],
     favoriteTags: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tag" }],
@@ -22,6 +23,7 @@ const UserSchema = new mongoose.Schema({
     isVerified: {type: Boolean, default: false},
     resetPasswordToken: {type: String},
     resetPasswordExpires: {type: Date},
+    refreshToken: {type: String},
 }, 
 
 {timestamps: true});

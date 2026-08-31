@@ -25,7 +25,7 @@ export const createArticle = asyncHandler(async (req, res) => {
 
       const result = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { folder: "merakkutusu_articles" },
+          { folder: "merakkutusu_articles", quality: "auto", fetch_format: "auto" },
           (err, res) => {
             if (err) return reject(err);
             resolve(res);
@@ -111,6 +111,10 @@ export const updateArticle = asyncHandler(async (req, res) => {
     const article = await Article.findById(req.params.id);
     if (!article) return res.status(404).json({ message: "Makale bulunamadı" });
 
+    if (article.author.toString() !== req.user._id.toString() && req.user.role !== "admin") {
+      return res.status(403).json({ message: "Bu makaleyi düzenleme yetkiniz yok." });
+    }
+
     // -----------------------
     // Title ve Content
     // -----------------------
@@ -140,7 +144,7 @@ export const updateArticle = asyncHandler(async (req, res) => {
 
       const result = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { folder: "merakkutusu_articles" },
+          { folder: "merakkutusu_articles", quality: "auto", fetch_format: "auto" },
           (err, res) => {
             if (err) return reject(err);
             resolve(res);
@@ -161,7 +165,7 @@ export const deleteArticle = asyncHandler(async (req, res) => {
     const article = await Article.findById(req.params.id);
 
     if (!article) return res.status(404).json({message: "Makale bulunamadı."});
-    if (article.author.toString() !== req.user._id.toString())
+    if (article.author.toString() !== req.user._id.toString() && req.user.role !== "admin")
         return res.status(403).json({message: "Bu makaleyi silme yetkiniz yok."});
 
     await article.deleteOne();
