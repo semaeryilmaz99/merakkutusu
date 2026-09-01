@@ -180,9 +180,15 @@ export const getMostReadTags = asyncHandler(async (req, res) => {
 export const getMe = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id)
       .select("-password -verificationToken -resetPasswordToken -resetPasswordExpires")
-      .populate("favoriteTags", "name");
+      .populate("favoriteTags", "name")
+      .populate("following", "username avatar");
 
-    res.json(user);
+    const [articlesCount, favoritesCount] = await Promise.all([
+      Article.countDocuments({ author: req.user._id }),
+      Article.countDocuments({ favorites: req.user._id })
+    ]);
+
+    res.json({ ...user.toObject(), articlesCount, favoritesCount });
 });
 
 // İlgi alanlarını toplu ayarlama (mevcut favoriteTags setini komple değiştirir)
@@ -213,6 +219,11 @@ export const getPublicProfile = asyncHandler(async (req, res) => {
 
     if (!user) return res.status(404).json({ message: "Kullanıcı bulunamadı" });
 
+    const [articlesCount, favoritesCount] = await Promise.all([
+      Article.countDocuments({ author: user._id }),
+      Article.countDocuments({ favorites: user._id })
+    ]);
+
     const profile = {
       _id: user._id,
       username: user.username,
@@ -220,6 +231,8 @@ export const getPublicProfile = asyncHandler(async (req, res) => {
       avatar: user.avatar,
       followersCount: user.followers.length,
       followingCount: user.following.length,
+      articlesCount,
+      favoritesCount,
       createdAt: user.createdAt
     };
 

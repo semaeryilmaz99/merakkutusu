@@ -81,7 +81,8 @@ export const getArticles = asyncHandler(async (req, res) => {
 export const getArticleById = asyncHandler(async (req, res) => {
     const article = await Article.findById(req.params.id)
     .populate("author", "username email")
-    .populate("tags", "name");
+    .populate("tags", "name")
+    .populate("comments.user", "username");
 
     if (!article) return res.status(404).json({message: "Makale bulunamadı."});
 
@@ -273,6 +274,7 @@ export const searchArticles = asyncHandler(async (req, res) => {
     const articles = await Article.find(filter)
       .populate("author", "username email")
       .populate("comments.user", "username")
+      .populate("tags", "name")
       .sort({ createdAt: -1 }); // en yeni makaleler üstte
 
     res.json(articles);
@@ -290,6 +292,7 @@ export const filterArticlesByTag = asyncHandler(async (req, res) => {
     const articles = matchedTag
       ? await Article.find({tags: { $in: [matchedTag._id]}})
           .populate("author", "username email")
+          .populate("tags", "name")
           .sort({createdAt: -1}) //en yeni makaleler üstte
       : [];
 
@@ -478,6 +481,7 @@ export const getExploreCategories = asyncHandler(async (req, res) => {
         const [articles, articleCount] = await Promise.all([
           Article.find({ tags: tag._id })
             .populate("author", "username")
+            .populate("tags", "name")
             .sort({ createdAt: -1 })
             .limit(6),
           Article.countDocuments({ tags: tag._id })
@@ -487,4 +491,14 @@ export const getExploreCategories = asyncHandler(async (req, res) => {
     );
 
     res.json(categories.filter(c => c.articleCount > 0));
+});
+
+// Belirli bir yazarın makaleleri (profil sayfaları için — hem kendi hem başkasının)
+export const getArticlesByAuthor = asyncHandler(async (req, res) => {
+    const articles = await Article.find({ author: req.params.id })
+      .populate("author", "username email")
+      .populate("tags", "name")
+      .sort({ createdAt: -1 });
+
+    res.json(articles);
 });

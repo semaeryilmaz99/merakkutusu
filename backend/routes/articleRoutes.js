@@ -17,7 +17,8 @@ import {
     getTrendingTags,
     getPersonalizedFeed,
     getExploreFeed,
-    getExploreCategories
+    getExploreCategories,
+    getArticlesByAuthor
 } from "../controllers/articleController.js";
 import {protect, optionalAuth} from "../middlewares/authMiddleware.js";
 import { createArticleValidator, addCommentValidator, handleValidationErrors } from "../middlewares/validators.js";
@@ -35,6 +36,7 @@ router.get("/categories", getExploreCategories);
 // /api/articles
 router.get("/search", searchArticles);
 router.get("/filter", filterArticlesByTag);
+router.get("/author/:id", getArticlesByAuthor);
 
 router.post("/", protect, upload.single("image"), createArticleValidator, handleValidationErrors, createArticle);
 router.get("/", getArticles);

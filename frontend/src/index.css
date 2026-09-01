@@ -1,3 +1,18 @@
 @import "tailwindcss";
-@import "tailwindcss/preflight";
-@import "tailwindcss/utilities";
+
+@theme {
+  --color-brand-900: #003B5C;
+  --color-brand-800: #005C8C;
+  --color-brand-700: #1C6EA4;
+  --color-brand-600: #008CBA;
+  --color-brand-500: #4B9CD3;
+  --color-brand-400: #00B8E2;
+
+  --color-teal-900: #007C92;
+  --color-teal-700: #009B77;
+  --color-teal-500: #00C4B4;
+  --color-teal-200: #A7E3D0;
+
+  --color-accent-gold: #F2B05C;
+  --color-accent-coral: #F2615B;
+}

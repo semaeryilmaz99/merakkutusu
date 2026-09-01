@@ -40,10 +40,15 @@ export const registerUser = asyncHandler(async (req, res) => {
 //User login
 export const loginUser = asyncHandler(async (req, res) => {
         const {email, password} = req.body;
-        const user = await User.findOne({email});
+        // "email" alanı Figma'daki tek "Username/Email" giriş alanına karşılık geliyor —
+        // kullanıcı adı veya email adresi olabilir.
+        const identifier = email.trim();
+        const user = await User.findOne({
+            $or: [{ email: identifier.toLowerCase() }, { username: identifier }]
+        });
 
         if (!user)
-            return res.status(401).json({ message: "Geçersiz email veya şifre" });
+            return res.status(401).json({ message: "Geçersiz kullanıcı adı/email veya şifre" });
 
          // Eğer kullanıcı email doğrulamadıysa
         if (!user.isVerified)
@@ -62,7 +67,7 @@ export const loginUser = asyncHandler(async (req, res) => {
                 refreshToken
             });
         } else {
-            res.status(401).json({message: "Geçersiz email veya şifre"});
+            res.status(401).json({message: "Geçersiz kullanıcı adı/email veya şifre"});
         }
 });
 

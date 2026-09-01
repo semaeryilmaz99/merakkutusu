@@ -19,8 +19,10 @@ export const registerValidator = [
   body("password").isLength({ min: 6 }).withMessage("Şifre en az 6 karakter olmalı")
 ];
 
+// Figma'daki login formu "Username/Email" tek alanı kullanıyor, bu yüzden
+// isEmail() zorunlu kılınmıyor — hem kullanıcı adı hem email kabul edilir.
 export const loginValidator = [
-  body("email").trim().isEmail().withMessage("Geçerli bir email adresi girin").normalizeEmail(),
+  body("email").trim().notEmpty().withMessage("Kullanıcı adı veya email gereklidir"),
   body("password").notEmpty().withMessage("Şifre gereklidir")
 ];
 
