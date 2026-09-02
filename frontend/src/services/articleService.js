@@ -37,3 +37,6 @@ export const filterByTag = (tag) =>
 
 export const getArticlesByAuthor = (id) =>
   api.get(`/articles/author/${id}`).then((res) => res.data);
+
+export const deleteArticle = (id) =>
+  api.delete(`/articles/${id}`).then((res) => res.data);

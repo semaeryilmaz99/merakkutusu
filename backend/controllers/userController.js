@@ -84,7 +84,11 @@ export const toggleLibrary = asyncHandler(async (req, res) => {
 // Kullanıcının kütüphanesini getirme
 export const getLibrary = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id)
-      .populate("library", "title content author image createdAt");
+      .populate({
+        path: "library",
+        select: "title content author image createdAt",
+        populate: { path: "author", select: "username avatar" }
+      });
 
     if (!user) return res.status(404).json({ message: "Kullanıcı bulunamadı" });
 
@@ -279,7 +283,11 @@ export const updateProfile = asyncHandler(async (req, res) => {
 // Başka bir kullanıcının kütüphanesini görüntüleme (görünürlük kontrolüyle)
 export const getUserLibrary = asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id)
-      .populate("library", "title content author image createdAt");
+      .populate({
+        path: "library",
+        select: "title content author image createdAt",
+        populate: { path: "author", select: "username avatar" }
+      });
 
     if (!user) return res.status(404).json({ message: "Kullanıcı bulunamadı" });
 

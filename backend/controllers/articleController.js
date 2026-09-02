@@ -73,14 +73,14 @@ for (const tagName of tagsArray) {
 
 //Tüm makaleleri getirme
 export const getArticles = asyncHandler(async (req, res) => {
-    const articles = await Article.find().populate("author", "username email");
+    const articles = await Article.find().populate("author", "username email avatar");
     res.json(articles);
 });
 
 // Tek makale getirme
 export const getArticleById = asyncHandler(async (req, res) => {
     const article = await Article.findById(req.params.id)
-    .populate("author", "username email")
+    .populate("author", "username email avatar")
     .populate("tags", "name")
     .populate("comments.user", "username");
 
@@ -233,7 +233,7 @@ export const getFeed = asyncHandler(async (req, res) => {
 
     const feed = await Article.find({ author: { $in: followingIds } })
       .sort({ createdAt: -1 })
-      .populate("author", "username email");
+      .populate("author", "username email avatar");
 
     res.json(feed);
 });
@@ -272,7 +272,7 @@ export const searchArticles = asyncHandler(async (req, res) => {
 
     // Mongo sorgusu ve populate
     const articles = await Article.find(filter)
-      .populate("author", "username email")
+      .populate("author", "username email avatar")
       .populate("comments.user", "username")
       .populate("tags", "name")
       .sort({ createdAt: -1 }); // en yeni makaleler üstte
@@ -291,7 +291,7 @@ export const filterArticlesByTag = asyncHandler(async (req, res) => {
     const matchedTag = await Tag.findOne({ name: tag.trim().toLowerCase() });
     const articles = matchedTag
       ? await Article.find({tags: { $in: [matchedTag._id]}})
-          .populate("author", "username email")
+          .populate("author", "username email avatar")
           .populate("tags", "name")
           .sort({createdAt: -1}) //en yeni makaleler üstte
       : [];
@@ -302,7 +302,7 @@ export const filterArticlesByTag = asyncHandler(async (req, res) => {
 // Popüler makaleleri getirme
 export const getPopularArticles = asyncHandler(async (req, res) => {
     const articles = await Article.find()
-      .populate("author", "username email")
+      .populate("author", "username email avatar")
       .populate("tags", "name")
       .lean();
 
@@ -318,7 +318,7 @@ export const getPopularArticles = asyncHandler(async (req, res) => {
 // güncel etkileşimi önceler, tüm-zamanların-en-iyisi değil "şu an yükselenler")
 export const getTrendingArticles = asyncHandler(async (req, res) => {
     const articles = await Article.find()
-      .populate("author", "username email")
+      .populate("author", "username email avatar")
       .populate("tags", "name")
       .lean();
 
@@ -374,7 +374,7 @@ export const getPersonalizedFeed = asyncHandler(async (req, res) => {
     const followingArticles = await Article.find({
       author: { $in: followingIds }
     })
-      .populate("author", "username")
+      .populate("author", "username avatar")
       .populate("tags", "name")
       .lean();
 
@@ -382,7 +382,7 @@ export const getPersonalizedFeed = asyncHandler(async (req, res) => {
     const tagArticles = await Article.find({
       tags: { $in: favoriteTagIds }
     })
-      .populate("author", "username")
+      .populate("author", "username avatar")
       .populate("tags", "name")
       .lean();
 
@@ -405,7 +405,7 @@ export const getPersonalizedFeed = asyncHandler(async (req, res) => {
     const mostReadTagArticles = await Article.find({
       tags: { $in: mostReadTagIds }
     })
-      .populate("author", "username")
+      .populate("author", "username avatar")
       .populate("tags", "name")
       .lean();
 
@@ -436,7 +436,7 @@ export const getPersonalizedFeed = asyncHandler(async (req, res) => {
 export const getExploreFeed = asyncHandler(async (req, res) => {
     // 1) Trend havuzu
     const allArticles = await Article.find()
-      .populate("author", "username email")
+      .populate("author", "username email avatar")
       .populate("tags", "name")
       .lean();
     const trendingPool = [...allArticles]
@@ -456,7 +456,7 @@ export const getExploreFeed = asyncHandler(async (req, res) => {
       const user = await User.findById(req.user._id).select("favoriteTags");
       if (user?.favoriteTags?.length) {
         interestPool = await Article.find({ tags: { $in: user.favoriteTags } })
-          .populate("author", "username email")
+          .populate("author", "username email avatar")
           .populate("tags", "name")
           .limit(8)
           .lean();
@@ -480,7 +480,7 @@ export const getExploreCategories = asyncHandler(async (req, res) => {
       tags.map(async (tag) => {
         const [articles, articleCount] = await Promise.all([
           Article.find({ tags: tag._id })
-            .populate("author", "username")
+            .populate("author", "username avatar")
             .populate("tags", "name")
             .sort({ createdAt: -1 })
             .limit(6),
@@ -496,7 +496,7 @@ export const getExploreCategories = asyncHandler(async (req, res) => {
 // Belirli bir yazarın makaleleri (profil sayfaları için — hem kendi hem başkasının)
 export const getArticlesByAuthor = asyncHandler(async (req, res) => {
     const articles = await Article.find({ author: req.params.id })
-      .populate("author", "username email")
+      .populate("author", "username email avatar")
       .populate("tags", "name")
       .sort({ createdAt: -1 });
 

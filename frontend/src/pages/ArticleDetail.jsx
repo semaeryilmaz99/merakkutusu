@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { Heart, Library, Send } from "lucide-react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { Heart, Library, Send, Trash2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import {
   getArticleById,
@@ -8,11 +8,15 @@ import {
   toggleLibrary,
   addComment,
   getMyLibrary,
+  deleteArticle,
 } from "../services/articleService";
+import { formatFullDate } from "../utils/formatDate";
+import SproutCelebration from "../components/SproutCelebration";
 
 export default function ArticleDetail() {
   const { id } = useParams();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [article, setArticle] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -20,6 +24,9 @@ export default function ArticleDetail() {
   const [isInLibrary, setIsInLibrary] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [readProgress, setReadProgress] = useState(0);
 
   useEffect(() => {
     setIsLoading(true);
@@ -56,6 +63,35 @@ export default function ArticleDetail() {
     }
   };
 
+  // İçerik artık kendi içinde scroll etmiyor, sayfanın kaydırma alanı olan
+  // Layout.jsx'teki <main> takip ediliyor — makale ne kadar uzun olursa olsun
+  // container aşağı doğru genişliyor, ilerleme sayfa scroll'undan hesaplanıyor.
+  useEffect(() => {
+    if (!article) return;
+    const mainEl = document.querySelector("main");
+    if (!mainEl) return;
+
+    const handleScroll = () => {
+      const scrollable = mainEl.scrollHeight - mainEl.clientHeight;
+      const progress = scrollable <= 0 ? 100 : Math.min(100, Math.round((mainEl.scrollTop / scrollable) * 100));
+      setReadProgress(progress);
+    };
+
+    handleScroll();
+    mainEl.addEventListener("scroll", handleScroll);
+    return () => mainEl.removeEventListener("scroll", handleScroll);
+  }, [article]);
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteArticle(id);
+      navigate("/userpage", { replace: true });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (isLoading) {
     return <p className="text-sm text-gray-500">Yükleniyor...</p>;
   }
@@ -64,26 +100,53 @@ export default function ArticleDetail() {
     return <p className="text-sm text-accent-coral">Makale bulunamadı.</p>;
   }
 
+  const isOwner = user && article.author?._id === user._id;
+
   return (
     <div className="mx-auto max-w-3xl">
+      <div className="fixed left-8 top-20 z-20 hidden w-24 flex-col items-center gap-2 lg:flex">
+        {Array.from({ length: 18 }).map((_, i) => {
+          const size = 22 - i * 1;
+          return (
+            <span
+              key={i}
+              style={{ width: size, height: size }}
+              className={`flex-none rounded-full transition-colors duration-200 ${
+                i < Math.round((readProgress / 100) * 18) ? "bg-accent-gold" : "bg-gray-200"
+              }`}
+            />
+          );
+        })}
+        {readProgress >= 100 && <SproutCelebration />}
+      </div>
+
       <div className="overflow-hidden rounded-2xl border-2 border-teal-500 bg-white">
         <div className="flex items-center justify-between gap-3 bg-gray-100 px-4 py-3">
           <h1 className="truncate text-lg font-semibold text-brand-900">{article.title}</h1>
           <Link
             to={`/users/${article.author?._id}`}
-            className="flex-none rounded-full bg-white px-3 py-1 text-xs font-medium text-brand-700 hover:underline"
+            className="flex flex-none items-center gap-2 rounded-full bg-white py-1 pl-1 pr-3 text-xs font-medium text-brand-700 hover:underline"
           >
+            <span className="flex h-6 w-6 flex-none items-center justify-center overflow-hidden rounded-full bg-teal-500 text-[10px] font-bold text-white">
+              {article.author?.avatar ? (
+                <img src={article.author.avatar} alt="" className="h-full w-full object-cover" />
+              ) : (
+                article.author?.username?.[0]?.toUpperCase()
+              )}
+            </span>
             {article.author?.username}
           </Link>
         </div>
+
+        <p className="border-b border-gray-100 px-4 py-2 text-xs text-gray-400">
+          {formatFullDate(article.createdAt)}
+        </p>
 
         {article.image && (
           <img src={article.image} alt={article.title} className="max-h-96 w-full object-cover" />
         )}
 
-        <div className="max-h-96 overflow-y-auto whitespace-pre-wrap p-4 text-sm text-brand-900">
-          {article.content}
-        </div>
+        <div className="whitespace-pre-wrap p-4 text-sm text-brand-900">{article.content}</div>
 
         <div className="flex items-center justify-between gap-2 border-t border-gray-100 p-4">
           <div className="flex flex-wrap gap-2">
@@ -97,7 +160,7 @@ export default function ArticleDetail() {
             ))}
           </div>
 
-          <div className="flex flex-none gap-2">
+          <div className="flex flex-none items-center gap-2">
             <button
               onClick={handleToggleLibrary}
               aria-label="Kütüphaneye ekle/çıkar"
@@ -116,6 +179,35 @@ export default function ArticleDetail() {
             >
               <Heart size={16} fill={isFavorite ? "currentColor" : "none"} />
             </button>
+
+            {isOwner && (
+              isConfirmingDelete ? (
+                <div className="flex items-center gap-1 rounded-full bg-gray-100 py-1 pl-3 pr-1">
+                  <span className="text-xs text-brand-900">Silinsin mi?</span>
+                  <button
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    className="rounded-full bg-accent-coral px-2 py-1 text-xs font-semibold text-white disabled:opacity-60"
+                  >
+                    {isDeleting ? "..." : "Evet, sil"}
+                  </button>
+                  <button
+                    onClick={() => setIsConfirmingDelete(false)}
+                    className="rounded-full bg-gray-200 px-2 py-1 text-xs text-brand-900"
+                  >
+                    Vazgeç
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setIsConfirmingDelete(true)}
+                  aria-label="Makaleyi sil"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-brand-700 hover:bg-accent-coral hover:text-white"
+                >
+                  <Trash2 size={16} />
+                </button>
+              )
+            )}
           </div>
         </div>
       </div>
