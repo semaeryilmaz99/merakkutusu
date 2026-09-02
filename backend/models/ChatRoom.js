@@ -11,7 +11,8 @@ const ChatRoomSchema = new mongoose.Schema({
     messages: [
         {
             sender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-            text: { type: String, required: true },
+            text: { type: String, default: "" },
+            image: { type: String }, // Cloudinary url — görsel/GIF mesajları
             createdAt: { type: Date, default: Date.now }
         }
     ]

@@ -6,13 +6,25 @@ import RightPanel from "./RightPanel";
 import BottomBar from "./BottomBar";
 import CreateArticleModal from "./CreateArticleModal";
 import NotificationsModal from "./NotificationsModal";
+import IncomingMessageToast from "./IncomingMessageToast";
 import { getNotifications } from "../services/notificationService";
 
 export default function Layout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeModal, setActiveModal] = useState(null); // "createArticle" | "notifications" | null
   const [unreadCount, setUnreadCount] = useState(0);
-  const isArticlePage = useMatch("/articles/:id");
+  const isHome = useMatch("/");
+  const articleMatch = useMatch("/articles/:id");
+  const profileMatch = useMatch("/users/:id");
+
+  let rightPanelProps = { variant: "library" };
+  if (articleMatch) {
+    rightPanelProps = { variant: "chat", roomRequest: { type: "article", articleId: articleMatch.params.id } };
+  } else if (profileMatch) {
+    rightPanelProps = { variant: "chat", roomRequest: { type: "direct", targetUserId: profileMatch.params.id } };
+  } else if (isHome) {
+    rightPanelProps = { variant: "libraryWithChat" };
+  }
 
   useEffect(() => {
     getNotifications().then((data) => {
@@ -44,7 +56,7 @@ export default function Layout() {
           <Outlet />
         </main>
 
-        <RightPanel variant={isArticlePage ? "chat" : "library"} />
+        <RightPanel {...rightPanelProps} />
       </div>
 
       <BottomBar
@@ -58,6 +70,8 @@ export default function Layout() {
       {activeModal === "notifications" && (
         <NotificationsModal onClose={closeModal} onSeen={() => setUnreadCount(0)} />
       )}
+
+      <IncomingMessageToast />
     </div>
   );
 }

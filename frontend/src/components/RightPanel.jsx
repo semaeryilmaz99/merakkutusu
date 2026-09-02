@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getMyLibrary } from "../services/articleService";
+import ChatPanel from "./ChatPanel";
 
 function LibraryPanel() {
   const [library, setLibrary] = useState([]);
@@ -23,7 +24,7 @@ function LibraryPanel() {
       ) : library.length === 0 ? (
         <p className="text-center text-sm text-white/70">Kütüphaneniz boş — beğendiğiniz makaleleri ekleyin.</p>
       ) : (
-        <div className="flex flex-col gap-3 overflow-y-auto">
+        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
           {library.map((article) => (
             <Link
               key={article._id}
@@ -49,22 +50,41 @@ function LibraryPanel() {
   );
 }
 
-export default function RightPanel({ variant = "library" }) {
+function LibraryWithChat() {
+  const [showChat, setShowChat] = useState(false);
+
   return (
-    <aside className="hidden w-80 flex-col bg-brand-700 p-4 text-white lg:flex">
-      {variant === "chat" ? (
-        <>
-          <div className="mb-4 flex items-center justify-between rounded-full bg-white px-4 py-2 text-sm font-medium text-brand-900">
-            <span>author username</span>
-            <span className="h-6 w-6 rounded-full bg-teal-500" />
-          </div>
-          <div className="flex flex-1 items-center justify-center text-sm text-white/70">
-            Sohbet yakında burada olacak
-          </div>
-        </>
-      ) : (
-        <LibraryPanel />
-      )}
+    <>
+      <div className="mb-4 flex gap-2">
+        <button
+          onClick={() => setShowChat(false)}
+          className={`flex-1 rounded-full px-3 py-2 text-xs font-medium ${
+            !showChat ? "bg-white text-brand-900" : "bg-white/10 text-white/80"
+          }`}
+        >
+          Kütüphane
+        </button>
+        <button
+          onClick={() => setShowChat(true)}
+          className={`flex-1 rounded-full px-3 py-2 text-xs font-medium ${
+            showChat ? "bg-white text-brand-900" : "bg-white/10 text-white/80"
+          }`}
+        >
+          Sohbet
+        </button>
+      </div>
+
+      {showChat ? <ChatPanel roomRequest={{ type: "dashboard" }} /> : <LibraryPanel />}
+    </>
+  );
+}
+
+export default function RightPanel({ variant = "library", roomRequest }) {
+  return (
+    <aside className="hidden w-80 flex-col overflow-hidden bg-teal-900 p-4 text-white lg:flex">
+      {variant === "chat" && <ChatPanel roomRequest={roomRequest} />}
+      {variant === "libraryWithChat" && <LibraryWithChat />}
+      {variant === "library" && <LibraryPanel />}
     </aside>
   );
 }
