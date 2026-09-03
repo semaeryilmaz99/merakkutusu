@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ShieldCheck, Trash2 } from "lucide-react";
+import { ShieldCheck, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { getAllUsers, deleteUser, getUserActivity } from "../services/adminService";
 import Modal from "../components/UI/Modal";
@@ -8,16 +8,24 @@ export default function AdminPanel() {
   const { user: currentUser } = useAuth();
 
   const [users, setUsers] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [confirmingId, setConfirmingId] = useState(null);
   const [activityUserId, setActivityUserId] = useState(null);
 
   useEffect(() => {
     if (currentUser?.role !== "admin") return;
-    getAllUsers()
-      .then(setUsers)
+    setIsLoading(true);
+    getAllUsers(page)
+      .then((data) => {
+        setUsers(data.users);
+        setTotalPages(data.totalPages);
+        setTotalCount(data.totalCount);
+      })
       .finally(() => setIsLoading(false));
-  }, [currentUser?.role]);
+  }, [currentUser?.role, page]);
 
   const handleDelete = async (id) => {
     await deleteUser(id);
@@ -37,7 +45,9 @@ export default function AdminPanel() {
     <div className="overflow-hidden rounded-2xl border-2 border-teal-500 bg-white">
       <div className="flex items-center gap-2 bg-gray-100 px-4 py-3">
         <ShieldCheck size={18} className="text-brand-700" />
-        <h1 className="text-lg font-semibold text-brand-900">Admin Paneli — Kullanıcılar</h1>
+        <h1 className="text-lg font-semibold text-brand-900">
+          Admin Paneli — Kullanıcılar <span className="text-sm font-normal text-gray-400">({totalCount})</span>
+        </h1>
       </div>
 
       <div className="overflow-x-auto">
@@ -110,6 +120,30 @@ export default function AdminPanel() {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3 border-t border-gray-100 px-4 py-3">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            aria-label="Önceki sayfa"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-brand-700 disabled:opacity-40"
+          >
+            <ChevronLeft size={16} />
+          </button>
+          <span className="text-xs text-gray-500">
+            Sayfa {page} / {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            aria-label="Sonraki sayfa"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-brand-700 disabled:opacity-40"
+          >
+            <ChevronRight size={16} />
+          </button>
+        </div>
+      )}
 
       {activityUserId && (
         <UserActivityModal userId={activityUserId} onClose={() => setActivityUserId(null)} />

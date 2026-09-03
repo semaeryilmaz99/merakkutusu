@@ -4,6 +4,7 @@ import User from "../models/User.js";
 import Blacklist from "../models/Blacklist.js";
 import ChatRoom from "../models/ChatRoom.js";
 import resolveChatRoom from "../utils/resolveChatRoom.js";
+import allowedOrigins from "../config/allowedOrigins.js";
 
 let ioInstance;
 
@@ -13,7 +14,7 @@ export const getIo = () => ioInstance;
 
 export default function initChatSocket(httpServer) {
   const io = new Server(httpServer, {
-    cors: { origin: "*" }
+    cors: { origin: allowedOrigins }
   });
   ioInstance = io;
 

@@ -1,14 +1,27 @@
 import User from "../models/User.js";
 import Article from "../models/Article.js";
 import asyncHandler from "../utils/asyncHandler.js";
+import parsePagination from "../utils/parsePagination.js";
 
-// Tüm kullanıcıları listeleme
+// Tüm kullanıcıları sayfalı listeleme
 export const getAllUsers = asyncHandler(async (req, res) => {
-    const users = await User.find()
-      .select("username email role isVerified createdAt")
-      .sort({ createdAt: -1 });
+    const { page, limit, skip } = parsePagination(req.query, { defaultLimit: 25 });
 
-    res.json(users);
+    const [users, totalCount] = await Promise.all([
+      User.find()
+        .select("username email role isVerified createdAt")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      User.countDocuments()
+    ]);
+
+    res.json({
+      users,
+      page,
+      totalPages: Math.ceil(totalCount / limit),
+      totalCount
+    });
 });
 
 // Bir kullanıcıyı silme

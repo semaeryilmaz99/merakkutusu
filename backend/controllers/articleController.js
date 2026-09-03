@@ -12,6 +12,7 @@ import mongoose from "mongoose";
 import { Readable } from "stream";
 import cloudinary from "../config/cloudinary.js";
 import { getIo } from "../socket/chatSocket.js";
+import parsePagination from "../utils/parsePagination.js";
 
 // Makale oluşturma
 export const createArticle = asyncHandler(async (req, res) => {
@@ -74,7 +75,12 @@ for (const tagName of tagsArray) {
 
 //Tüm makaleleri getirme
 export const getArticles = asyncHandler(async (req, res) => {
-    const articles = await Article.find().populate("author", "username email avatar");
+    const { skip, limit } = parsePagination(req.query);
+    const articles = await Article.find()
+      .populate("author", "username email avatar")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
     res.json(articles);
 });
 
@@ -328,11 +334,14 @@ export const searchArticles = asyncHandler(async (req, res) => {
     }
 
     // Mongo sorgusu ve populate
+    const { skip, limit } = parsePagination(req.query);
     const articles = await Article.find(filter)
       .populate("author", "username email avatar")
       .populate("comments.user", "username")
       .populate("tags", "name")
-      .sort({ createdAt: -1 }); // en yeni makaleler üstte
+      .sort({ createdAt: -1 }) // en yeni makaleler üstte
+      .skip(skip)
+      .limit(limit);
 
     res.json(articles);
 });
@@ -345,12 +354,15 @@ export const filterArticlesByTag = asyncHandler(async (req, res) => {
     }
 
     // tag ismini Tag ObjectId'sine çevir (Article.tags alanı ID tutar, isim değil)
+    const { skip, limit } = parsePagination(req.query);
     const matchedTag = await Tag.findOne({ name: tag.trim().toLowerCase() });
     const articles = matchedTag
       ? await Article.find({tags: { $in: [matchedTag._id]}})
           .populate("author", "username email avatar")
           .populate("tags", "name")
           .sort({createdAt: -1}) //en yeni makaleler üstte
+          .skip(skip)
+          .limit(limit)
       : [];
 
     res.json(articles);
@@ -427,12 +439,19 @@ export const getPersonalizedFeed = asyncHandler(async (req, res) => {
     let favoriteTagIds = user.favoriteTags.map(t => t._id.toString());
     favoriteTagIds = favoriteTagIds.filter(id => mongoose.Types.ObjectId.isValid(id));
 
+    // Her havuz kendi içinde en yeni 100 makaleyle sınırlanıyor — kullanıcı çok
+    // sayıda kişi takip ediyorsa/çok ilgi alanı seçmişse bile bellekte puanlanacak
+    // aday sayısı sınırsız büyümesin diye.
+    const POOL_LIMIT = 100;
+
     // 1) Takip edilen kullanıcıların makaleleri
     const followingArticles = await Article.find({
       author: { $in: followingIds }
     })
       .populate("author", "username avatar")
       .populate("tags", "name")
+      .sort({ createdAt: -1 })
+      .limit(POOL_LIMIT)
       .lean();
 
     // 2) Favori tag’lere göre makaleler
@@ -441,6 +460,8 @@ export const getPersonalizedFeed = asyncHandler(async (req, res) => {
     })
       .populate("author", "username avatar")
       .populate("tags", "name")
+      .sort({ createdAt: -1 })
+      .limit(POOL_LIMIT)
       .lean();
 
     // 3) Kullanıcının okuma geçmişinden tag başına okuma sayısını çıkar,
@@ -464,6 +485,8 @@ export const getPersonalizedFeed = asyncHandler(async (req, res) => {
     })
       .populate("author", "username avatar")
       .populate("tags", "name")
+      .sort({ createdAt: -1 })
+      .limit(POOL_LIMIT)
       .lean();
 
     // 5) Tüm makaleleri birleştir
@@ -486,7 +509,8 @@ export const getPersonalizedFeed = asyncHandler(async (req, res) => {
     // 7) Score’a göre sırala
     scoredArticles.sort((a, b) => b.score - a.score);
 
-    res.json(scoredArticles);
+    const { skip, limit } = parsePagination(req.query, { defaultLimit: 30 });
+    res.json(scoredArticles.slice(skip, skip + limit));
 });
 
 // Explore feed: trend + random + ilgi alanı harmanı
@@ -552,10 +576,13 @@ export const getExploreCategories = asyncHandler(async (req, res) => {
 
 // Belirli bir yazarın makaleleri (profil sayfaları için — hem kendi hem başkasının)
 export const getArticlesByAuthor = asyncHandler(async (req, res) => {
+    const { skip, limit } = parsePagination(req.query, { defaultLimit: 50 });
     const articles = await Article.find({ author: req.params.id })
       .populate("author", "username email avatar")
       .populate("tags", "name")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
     res.json(articles);
 });
