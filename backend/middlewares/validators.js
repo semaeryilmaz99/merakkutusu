@@ -34,6 +34,11 @@ export const resetPasswordValidator = [
   body("password").isLength({ min: 6 }).withMessage("Şifre en az 6 karakter olmalı")
 ];
 
+export const changePasswordValidator = [
+  body("currentPassword").notEmpty().withMessage("Mevcut şifre gereklidir"),
+  body("newPassword").isLength({ min: 6 }).withMessage("Yeni şifre en az 6 karakter olmalı")
+];
+
 export const createArticleValidator = [
   body("title").trim().notEmpty().withMessage("Başlık gereklidir")
     .isLength({ max: 200 }).withMessage("Başlık en fazla 200 karakter olabilir"),

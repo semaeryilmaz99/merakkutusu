@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { getMyLibrary } from "../services/articleService";
 import ChatPanel from "./ChatPanel";
@@ -6,12 +6,41 @@ import ChatPanel from "./ChatPanel";
 function LibraryPanel() {
   const [library, setLibrary] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [highlightedId, setHighlightedId] = useState(null);
+  const scrollRef = useRef(null);
+  const shouldScrollRef = useRef(false);
 
   useEffect(() => {
     getMyLibrary()
       .then(setLibrary)
       .finally(() => setIsLoading(false));
   }, []);
+
+  // ArticleCard/ArticleDetail kütüphane toggle'ı başarılı olunca bu event'i yayınlıyor
+  // (Faz 22'de chat aktivasyonu için eklenmişti) — panel sayfa yenilenmeden güncellensin diye.
+  useEffect(() => {
+    const handleLibraryChange = (e) => {
+      if (e.detail.isInLibrary) {
+        shouldScrollRef.current = true;
+        setHighlightedId(e.detail.articleId);
+        setTimeout(() => {
+          setHighlightedId((prev) => (prev === e.detail.articleId ? null : prev));
+        }, 2500);
+      }
+      getMyLibrary().then(setLibrary);
+    };
+    window.addEventListener("library:changed", handleLibraryChange);
+    return () => window.removeEventListener("library:changed", handleLibraryChange);
+  }, []);
+
+  // Yeni eklenen makale liste sonuna ekleniyor (backend push ile ekliyor) — eklendiğinde
+  // scroll'u en alta kaydırıp yeni makaleyi görünür yapıyoruz.
+  useEffect(() => {
+    if (shouldScrollRef.current && scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      shouldScrollRef.current = false;
+    }
+  }, [library]);
 
   return (
     <>
@@ -24,12 +53,16 @@ function LibraryPanel() {
       ) : library.length === 0 ? (
         <p className="text-center text-sm text-white/70">Kütüphaneniz boş — beğendiğiniz makaleleri ekleyin.</p>
       ) : (
-        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
+        <div ref={scrollRef} className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
           {library.map((article) => (
             <Link
               key={article._id}
               to={`/articles/${article._id}`}
-              className="flex items-center gap-3 rounded-xl bg-white/10 p-2 hover:bg-white/20"
+              className={`flex items-center gap-3 rounded-xl p-2 transition-all duration-1000 ${
+                article._id === highlightedId
+                  ? "bg-white/50 shadow-[0_0_20px_6px_rgba(255,255,255,0.55)]"
+                  : "bg-white/10 shadow-none hover:bg-white/20"
+              }`}
             >
               <div className="h-12 w-12 flex-none overflow-hidden rounded-lg bg-teal-500">
                 {article.image && (

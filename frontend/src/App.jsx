@@ -15,6 +15,7 @@ import Explore from "./pages/Explore";
 import CategoryDetail from "./pages/CategoryDetail";
 import Library from "./pages/Library";
 import AdminPanel from "./pages/AdminPanel";
+import WriteArticle from "./pages/WriteArticle";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
             <Route path="/explore/:tagName" element={<CategoryDetail />} />
             <Route path="/library" element={<Library />} />
             <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/write" element={<WriteArticle />} />
           </Route>
         </Route>
       </Routes>

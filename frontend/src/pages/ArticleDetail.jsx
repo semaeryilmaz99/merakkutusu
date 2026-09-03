@@ -9,6 +9,8 @@ import {
   toggleFavorite,
   toggleLibrary,
   addComment,
+  updateComment,
+  deleteComment,
   getMyLibrary,
   deleteArticle,
 } from "../services/articleService";
@@ -32,6 +34,8 @@ export default function ArticleDetail() {
   const [isEditingArticle, setIsEditingArticle] = useState(false);
   const [readProgress, setReadProgress] = useState(0);
   const [actionError, setActionError] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingCommentText, setEditingCommentText] = useState("");
 
   useEffect(() => {
     setIsLoading(true);
@@ -85,6 +89,31 @@ export default function ArticleDetail() {
       setCommentText("");
     } finally {
       setIsSubmittingComment(false);
+    }
+  };
+
+  const handleStartEditComment = (comment) => {
+    setEditingCommentId(comment._id);
+    setEditingCommentText(comment.text);
+  };
+
+  const handleSaveComment = async (commentId) => {
+    if (!editingCommentText.trim()) return;
+    try {
+      const comments = await updateComment(id, commentId, editingCommentText.trim());
+      setArticle((prev) => ({ ...prev, comments }));
+      setEditingCommentId(null);
+    } catch (err) {
+      setActionError(err.response?.data?.message || "Yorum güncellenemedi.");
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      const comments = await deleteComment(id, commentId);
+      setArticle((prev) => ({ ...prev, comments }));
+    } catch (err) {
+      setActionError(err.response?.data?.message || "Yorum silinemedi.");
     }
   };
 
@@ -284,19 +313,74 @@ export default function ArticleDetail() {
         {(article.comments || []).length === 0 ? (
           <p className="text-sm text-white/70">Henüz yorum yok.</p>
         ) : (
-          [...article.comments].reverse().map((comment) => (
-            <div key={comment._id} className="flex items-start gap-3">
-              <div className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-accent-gold text-xs font-bold text-brand-900">
-                {comment.user?.username?.[0]?.toUpperCase() || "?"}
+          [...article.comments].reverse().map((comment) => {
+            const isCommentOwner = comment.user?._id === user?._id;
+            const canDelete = isCommentOwner || isOwner;
+            const isEditingThis = editingCommentId === comment._id;
+
+            return (
+              <div key={comment._id} className="flex items-start gap-3">
+                <div className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-accent-gold text-xs font-bold text-brand-900">
+                  {comment.user?.username?.[0]?.toUpperCase() || "?"}
+                </div>
+                <div className="min-w-0 flex-1 rounded-xl bg-white px-3 py-2 text-sm text-brand-900">
+                  <div className="mb-1 flex items-center justify-between gap-2">
+                    <p className="text-xs font-semibold text-brand-700">
+                      {comment.user?.username || "kullanıcı"}
+                    </p>
+                    {!isEditingThis && (isCommentOwner || canDelete) && (
+                      <div className="flex flex-none items-center gap-1">
+                        {isCommentOwner && (
+                          <button
+                            onClick={() => handleStartEditComment(comment)}
+                            aria-label="Yorumu düzenle"
+                            className="text-gray-400 hover:text-brand-700"
+                          >
+                            <Pencil size={12} />
+                          </button>
+                        )}
+                        {canDelete && (
+                          <button
+                            onClick={() => handleDeleteComment(comment._id)}
+                            aria-label="Yorumu sil"
+                            className="text-gray-400 hover:text-accent-coral"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {isEditingThis ? (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={editingCommentText}
+                        onChange={(e) => setEditingCommentText(e.target.value)}
+                        className="flex-1 rounded-full bg-gray-100 px-3 py-1 text-sm text-brand-900 outline-none"
+                        autoFocus
+                      />
+                      <button
+                        onClick={() => handleSaveComment(comment._id)}
+                        className="rounded-full bg-brand-600 px-2 py-1 text-xs font-semibold text-white"
+                      >
+                        Kaydet
+                      </button>
+                      <button
+                        onClick={() => setEditingCommentId(null)}
+                        className="rounded-full bg-gray-200 px-2 py-1 text-xs text-brand-900"
+                      >
+                        Vazgeç
+                      </button>
+                    </div>
+                  ) : (
+                    comment.text
+                  )}
+                </div>
               </div>
-              <div className="rounded-xl bg-white px-3 py-2 text-sm text-brand-900">
-                <p className="mb-1 text-xs font-semibold text-brand-700">
-                  {comment.user?.username || "kullanıcı"}
-                </p>
-                {comment.text}
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 

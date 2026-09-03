@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Image as ImageIcon, Send, X } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { Image as ImageIcon, Send } from "lucide-react";
 import { createArticle, updateArticle } from "../services/articleService";
 import Input from "./UI/Input";
 import Modal from "./UI/Modal";
+import TagInput from "./TagInput";
 
 export default function ArticleFormModal({ onClose, article, onSaved }) {
   const navigate = useNavigate();
@@ -11,33 +12,11 @@ export default function ArticleFormModal({ onClose, article, onSaved }) {
 
   const [title, setTitle] = useState(article?.title || "");
   const [content, setContent] = useState(article?.content || "");
-  const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState((article?.tags || []).map((tag) => tag.name || tag));
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(article?.image || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-
-  const addTag = () => {
-    const next = tagInput.trim();
-    if (!next || tags.includes(next)) {
-      setTagInput("");
-      return;
-    }
-    setTags((prev) => [...prev, next]);
-    setTagInput("");
-  };
-
-  const handleTagKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      addTag();
-    }
-  };
-
-  const handleRemoveTag = (tag) => {
-    setTags((prev) => prev.filter((t) => t !== tag));
-  };
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
@@ -114,48 +93,30 @@ export default function ArticleFormModal({ onClose, article, onSaved }) {
           <img src={imagePreview} alt="" className="h-32 w-full rounded-xl object-cover" />
         )}
 
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
-            onKeyDown={handleTagKeyDown}
-            placeholder="Tag ekle ve Enter'a bas..."
-            className="flex-1 rounded-full bg-white/10 px-4 py-2 text-sm text-white placeholder-white/50 outline-none"
-          />
-        </div>
-
-        {tags.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {tags.map((tag) => (
-              <span
-                key={tag}
-                className="flex items-center gap-2 rounded-full bg-accent-gold px-3 py-1 text-xs font-medium text-brand-900"
-              >
-                #{tag}
-                <button
-                  type="button"
-                  onClick={() => handleRemoveTag(tag)}
-                  aria-label={`${tag} etiketini kaldır`}
-                  className="rounded-full hover:bg-brand-900/10"
-                >
-                  <X size={12} />
-                </button>
-              </span>
-            ))}
-          </div>
-        )}
+        <TagInput tags={tags} onChange={setTags} />
 
         {error && <p className="text-center text-sm text-accent-coral">{error}</p>}
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          aria-label={isEditing ? "Değişiklikleri kaydet" : "Makaleyi yayınla"}
-          className="flex h-10 w-10 items-center justify-center self-end rounded-full bg-accent-gold text-brand-900 hover:brightness-95 disabled:opacity-60"
-        >
-          <Send size={18} />
-        </button>
+        <div className="flex items-center justify-between gap-2">
+          {!isEditing && (
+            <Link
+              to="/write"
+              onClick={onClose}
+              className="text-xs text-white/60 hover:text-white hover:underline"
+            >
+              Daha büyük bir alanda mı yazmak istersin? Tam sayfa editöre geç →
+            </Link>
+          )}
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            aria-label={isEditing ? "Değişiklikleri kaydet" : "Makaleyi yayınla"}
+            className="ml-auto flex h-10 w-10 flex-none items-center justify-center rounded-full bg-accent-gold text-brand-900 hover:brightness-95 disabled:opacity-60"
+          >
+            <Send size={18} />
+          </button>
+        </div>
       </form>
     </Modal>
   );

@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import Notification from "../models/Notification.js";
 import Article from "../models/Article.js";
 import Tag from "../models/Tag.js";
+import Blacklist from "../models/Blacklist.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import mongoose from "mongoose";
 import { Readable } from "stream";
@@ -281,6 +282,42 @@ export const updateProfile = asyncHandler(async (req, res) => {
     await user.save();
 
     res.json({ message: "Profil güncellendi", bio: user.bio, avatar: user.avatar });
+});
+
+// Giriş yapmış kullanıcının kendi şifresini değiştirmesi (forgot-password akışından
+// farklı — burada mevcut şifre bilinip doğrulanıyor)
+export const changePassword = asyncHandler(async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: "Kullanıcı bulunamadı" });
+
+    const isMatch = await user.matchPassword(currentPassword);
+    if (!isMatch) return res.status(400).json({ message: "Mevcut şifre yanlış." });
+
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ message: "Şifre başarıyla değiştirildi." });
+});
+
+// Kullanıcının kendi hesabını silmesi (admin'in başkasını silmesinden ayrı —
+// burada şifre onayı isteniyor). Faz 8'deki admin silme kararıyla tutarlı olarak
+// makaleleri cascade silmiyor, yazar referansı sahipsiz kalıyor.
+export const deleteMyAccount = asyncHandler(async (req, res) => {
+    const { password } = req.body;
+
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: "Kullanıcı bulunamadı" });
+
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) return res.status(400).json({ message: "Şifre yanlış." });
+
+    const token = req.header("Authorization")?.replace("Bearer ", "");
+    if (token) await Blacklist.create({ token });
+
+    await user.deleteOne();
+    res.json({ message: "Hesabınız silindi." });
 });
 
 // Başka bir kullanıcının kütüphanesini görüntüleme (görünürlük kontrolüyle)

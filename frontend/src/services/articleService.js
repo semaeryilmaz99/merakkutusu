@@ -26,6 +26,12 @@ export const toggleLibrary = (id) =>
 export const addComment = (id, text) =>
   api.post(`/articles/${id}/comment`, { text }).then((res) => res.data);
 
+export const updateComment = (id, commentId, text) =>
+  api.put(`/articles/${id}/comment/${commentId}`, { text }).then((res) => res.data);
+
+export const deleteComment = (id, commentId) =>
+  api.delete(`/articles/${id}/comment/${commentId}`).then((res) => res.data);
+
 export const getExploreFeed = () =>
   api.get("/articles/explore").then((res) => res.data);
 

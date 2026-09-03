@@ -239,7 +239,48 @@ export const addComment = asyncHandler(async (req, res) => {
       getIo()?.to(`user:${article.author}`).emit("notification:new");
     }
 
+    await article.populate("comments.user", "username");
     res.status(201).json(article.comments);
+});
+
+// Yorum düzenleme (sadece yorumu yazan kişi)
+export const updateComment = asyncHandler(async (req, res) => {
+    const article = await Article.findById(req.params.id);
+    if (!article) return res.status(404).json({ message: "Makale bulunamadı" });
+
+    const comment = article.comments.id(req.params.commentId);
+    if (!comment) return res.status(404).json({ message: "Yorum bulunamadı" });
+
+    if (comment.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Bu yorumu düzenleme yetkiniz yok." });
+    }
+
+    comment.text = req.body.text;
+    await article.save();
+    await article.populate("comments.user", "username");
+
+    res.json(article.comments);
+});
+
+// Yorum silme (yorumu yazan kişi, makale sahibi veya admin)
+export const deleteComment = asyncHandler(async (req, res) => {
+    const article = await Article.findById(req.params.id);
+    if (!article) return res.status(404).json({ message: "Makale bulunamadı" });
+
+    const comment = article.comments.id(req.params.commentId);
+    if (!comment) return res.status(404).json({ message: "Yorum bulunamadı" });
+
+    const isCommentOwner = comment.user.toString() === req.user._id.toString();
+    const isArticleOwner = article.author.toString() === req.user._id.toString();
+    if (!isCommentOwner && !isArticleOwner && req.user.role !== "admin") {
+      return res.status(403).json({ message: "Bu yorumu silme yetkiniz yok." });
+    }
+
+    comment.deleteOne();
+    await article.save();
+    await article.populate("comments.user", "username");
+
+    res.json(article.comments);
 });
 
 // Feed oluşturma

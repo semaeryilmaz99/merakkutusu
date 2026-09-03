@@ -1,16 +1,23 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { getArticlesByAuthor } from "../services/articleService";
-import { updateProfile, updateLibraryVisibility, toggleFavoriteTag } from "../services/userService";
+import {
+  updateProfile,
+  updateLibraryVisibility,
+  toggleFavoriteTag,
+  changePassword,
+  deleteMyAccount,
+} from "../services/userService";
 import ArticleCard from "../components/ArticleCard";
 import Modal from "../components/UI/Modal";
 import Button from "../components/UI/Button";
 import StatPill from "../components/UI/StatPill";
 
 export default function UserPage() {
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, logout } = useAuth();
+  const navigate = useNavigate();
 
   const [articles, setArticles] = useState([]);
   const [isLoadingArticles, setIsLoadingArticles] = useState(true);
@@ -91,6 +98,10 @@ export default function UserPage() {
           user={user}
           onClose={() => setIsEditOpen(false)}
           onSaved={refreshUser}
+          onAccountDeleted={async () => {
+            await logout();
+            navigate("/login", { replace: true });
+          }}
         />
       )}
 
@@ -181,13 +192,24 @@ function FollowersModal({ followers, onClose }) {
   );
 }
 
-function EditProfileModal({ user, onClose, onSaved }) {
+function EditProfileModal({ user, onClose, onSaved, onAccountDeleted }) {
   const [bio, setBio] = useState(user.bio || "");
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(user.avatar || "");
   const [visibility, setVisibility] = useState(user.libraryVisibility || "private");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
+
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState("");
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteError, setDeleteError] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0];
@@ -215,6 +237,35 @@ function EditProfileModal({ user, onClose, onSaved }) {
       setError(err.response?.data?.message || "Profil güncellenemedi, tekrar deneyin.");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    setIsChangingPassword(true);
+    setPasswordError("");
+    setPasswordSuccess("");
+    try {
+      await changePassword(currentPassword, newPassword);
+      setPasswordSuccess("Şifre değiştirildi.");
+      setCurrentPassword("");
+      setNewPassword("");
+    } catch (err) {
+      setPasswordError(err.response?.data?.message || "Şifre değiştirilemedi.");
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
+    setDeleteError("");
+    try {
+      await deleteMyAccount(deletePassword);
+      await onAccountDeleted();
+    } catch (err) {
+      setDeleteError(err.response?.data?.message || "Hesap silinemedi.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -271,6 +322,77 @@ function EditProfileModal({ user, onClose, onSaved }) {
         <Button variant="gold" onClick={handleSave} disabled={isSaving}>
           {isSaving ? "Kaydediliyor..." : "Değişiklikleri Kaydet"}
         </Button>
+
+        <div className="w-full border-t border-white/20 pt-4">
+          <p className="mb-2 text-xs font-semibold text-white/80">Şifre Değiştir</p>
+          <input
+            type="password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            placeholder="Mevcut şifre"
+            autoComplete="current-password"
+            className="mb-2 w-full rounded-full bg-white/10 px-4 py-2 text-sm text-white placeholder-white/50 outline-none"
+          />
+          <input
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder="Yeni şifre"
+            autoComplete="new-password"
+            className="w-full rounded-full bg-white/10 px-4 py-2 text-sm text-white placeholder-white/50 outline-none"
+          />
+          {passwordError && <p className="mt-2 text-center text-xs text-accent-coral">{passwordError}</p>}
+          {passwordSuccess && <p className="mt-2 text-center text-xs text-teal-500">{passwordSuccess}</p>}
+          <Button
+            variant="light"
+            onClick={handleChangePassword}
+            disabled={isChangingPassword || !currentPassword || !newPassword}
+            className="mt-2"
+          >
+            {isChangingPassword ? "Değiştiriliyor..." : "Şifreyi Değiştir"}
+          </Button>
+        </div>
+
+        <div className="w-full border-t border-white/20 pt-4">
+          {isConfirmingDelete ? (
+            <div className="flex flex-col gap-2">
+              <p className="text-center text-xs text-accent-coral">
+                Hesabın kalıcı olarak silinecek. Onaylamak için şifreni gir.
+              </p>
+              <input
+                type="password"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                placeholder="Şifren"
+                autoComplete="current-password"
+                className="w-full rounded-full bg-white/10 px-4 py-2 text-sm text-white placeholder-white/50 outline-none"
+              />
+              {deleteError && <p className="text-center text-xs text-accent-coral">{deleteError}</p>}
+              <div className="flex gap-2">
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={isDeleting || !deletePassword}
+                  className="flex-1 rounded-full bg-accent-coral px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
+                >
+                  {isDeleting ? "Siliniyor..." : "Evet, hesabımı sil"}
+                </button>
+                <button
+                  onClick={() => setIsConfirmingDelete(false)}
+                  className="flex-1 rounded-full bg-white/10 px-4 py-2 text-xs text-white"
+                >
+                  Vazgeç
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => setIsConfirmingDelete(true)}
+              className="w-full text-center text-xs text-white/50 hover:text-accent-coral"
+            >
+              Hesabımı sil
+            </button>
+          )}
+        </div>
       </div>
     </Modal>
   );

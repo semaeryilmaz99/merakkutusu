@@ -10,6 +10,8 @@ import {
     deleteArticle,
     toggleFavorite,
     addComment,
+    updateComment,
+    deleteComment,
     searchArticles,
     filterArticlesByTag,
     getPopularArticles,
@@ -45,6 +47,8 @@ router.put("/:id", protect, upload.single("image"), updateArticle);
 router.delete("/:id", protect, deleteArticle);
 router.put("/favorite/:id", protect, toggleFavorite);
 router.post("/:id/comment", protect, addCommentValidator, handleValidationErrors, addComment);
+router.put("/:id/comment/:commentId", protect, addCommentValidator, handleValidationErrors, updateComment);
+router.delete("/:id/comment/:commentId", protect, deleteComment);
 router.get("/feed", protect, getFeed);
 router.get("/:id", optionalAuth, getArticleById);
 

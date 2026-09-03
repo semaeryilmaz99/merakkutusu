@@ -7,6 +7,7 @@ import BottomBar from "./BottomBar";
 import ArticleFormModal from "./ArticleFormModal";
 import NotificationsModal from "./NotificationsModal";
 import IncomingMessageToast from "./IncomingMessageToast";
+import LibraryToast from "./LibraryToast";
 import Modal from "./UI/Modal";
 import ChatPanel from "./ChatPanel";
 import { getNotifications } from "../services/notificationService";
@@ -103,6 +104,7 @@ export default function Layout() {
       )}
 
       <IncomingMessageToast />
+      <LibraryToast />
     </div>
   );
 }

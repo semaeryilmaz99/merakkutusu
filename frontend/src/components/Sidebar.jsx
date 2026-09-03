@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { User, Home, Compass, Library, PenSquare, Bell, LogOut, ShieldCheck } from "lucide-react";
+import { User, Home, Compass, Library, PenSquare, NotebookPen, Bell, LogOut, ShieldCheck } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 const linkClass =
@@ -50,6 +50,9 @@ export default function Sidebar({ isOpen, onClose, onOpenCreateArticle, onOpenNo
           <button onClick={onOpenCreateArticle} className={linkClass}>
             <PenSquare size={18} /> Makale Oluştur
           </button>
+          <Link to="/write" onClick={onClose} className={linkClass}>
+            <NotebookPen size={18} /> Detaylı Editör
+          </Link>
           <button onClick={onOpenNotifications} className={linkClass}>
             <Bell size={18} /> Bildirimler
           </button>

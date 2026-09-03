@@ -22,3 +22,9 @@ export const toggleFavoriteTag = (tagId) =>
 
 export const searchUsers = (q) =>
   api.get("/users/search", { params: { q } }).then((res) => res.data);
+
+export const changePassword = (currentPassword, newPassword) =>
+  api.put("/users/change-password", { currentPassword, newPassword }).then((res) => res.data);
+
+export const deleteMyAccount = (password) =>
+  api.delete("/users/me", { data: { password } }).then((res) => res.data);

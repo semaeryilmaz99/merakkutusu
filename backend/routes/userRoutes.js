@@ -8,13 +8,21 @@ import { updateLibraryVisibility, toggleFavoriteTag } from "../controllers/userC
 import { getMostReadTags } from "../controllers/userController.js";
 import { getMe, setInterests } from "../controllers/userController.js";
 import { getPublicProfile, updateProfile, getUserLibrary } from "../controllers/userController.js";
-import { updateProfileValidator, setInterestsValidator, handleValidationErrors } from "../middlewares/validators.js";
+import { changePassword, deleteMyAccount } from "../controllers/userController.js";
+import {
+  updateProfileValidator,
+  setInterestsValidator,
+  changePasswordValidator,
+  handleValidationErrors
+} from "../middlewares/validators.js";
 
 const router = express.Router();
 
 router.get("/me", protect, getMe);
 router.put("/interests", protect, setInterestsValidator, handleValidationErrors, setInterests);
 router.put("/profile", protect, upload.single("avatar"), updateProfileValidator, handleValidationErrors, updateProfile);
+router.put("/change-password", protect, changePasswordValidator, handleValidationErrors, changePassword);
+router.delete("/me", protect, deleteMyAccount);
 router.put("/follow/:id", protect, followUser);
 router.get("/search", searchUsers);
 router.put("/library/visibility", protect, updateLibraryVisibility);
