@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { getPersonalizedFeed, searchArticles } from "../services/articleService";
@@ -6,59 +6,112 @@ import { searchUsers } from "../services/userService";
 import api from "../services/api";
 import ArticleCard from "../components/ArticleCard";
 
+const PAGE_SIZE = 12;
+
 export default function Home() {
   const [articles, setArticles] = useState([]);
   const [matchedUsers, setMatchedUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
   const [query, setQuery] = useState("");
   const [tags, setTags] = useState([]);
   const [selectedTag, setSelectedTag] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const isFiltering = query.trim() !== "" || selectedTag !== "";
+  const debounceRef = useRef(null);
+  const didMountRef = useRef(false);
+  // Aynı anda birden fazla arama isteği havada olabilir (kullanıcı yazarken
+  // ara ara duraklarsa her duraklama bir istek başlatır) ve bunlar network'te
+  // farklı sürede dönebilir — geç gelen eski bir cevap, daha yeni ve doğru
+  // sonucun üzerine yazmasın diye her isteğe bir sıra numarası veriyoruz,
+  // sadece "hâlâ en son istek benim" olan cevap state'e uygulanıyor.
+  const requestIdRef = useRef(0);
 
-  useEffect(() => {
-    getPersonalizedFeed()
-      .then(setArticles)
-      .finally(() => setIsLoading(false));
+  // Şu an aktif olan sorguyu (feed ya da arama) tekrar üretmek için —
+  // hem ilk yüklemede hem "daha fazla yükle"de aynı mantığı kullanmak için tek yerde tutuluyor.
+  const fetchPage = (targetPage, q, tag) =>
+    q?.trim() || tag
+      ? searchArticles({ q: q || undefined, tags: tag || undefined, page: targetPage, limit: PAGE_SIZE })
+      : getPersonalizedFeed(targetPage, PAGE_SIZE);
 
-    api.get("/tags").then(({ data }) => setTags(data));
-  }, []);
-
-  const runSearch = async (q, tag) => {
+  const loadArticles = async (q, tag) => {
+    const requestId = ++requestIdRef.current;
     setIsLoading(true);
     try {
       const [results, users] = await Promise.all([
-        searchArticles({ q: q || undefined, tags: tag || undefined }),
+        fetchPage(1, q, tag),
         q?.trim() ? searchUsers(q.trim()) : Promise.resolve([]),
       ]);
+      if (requestId !== requestIdRef.current) return; // daha yeni bir istek başladı, bu cevap eskidi
       setArticles(results);
       setMatchedUsers(users);
+      setHasMore(results.length === PAGE_SIZE);
+      setPage(1);
     } finally {
-      setIsLoading(false);
+      if (requestId === requestIdRef.current) setIsLoading(false);
     }
   };
 
+  useEffect(() => {
+    loadArticles("", "");
+    api.get("/tags").then(({ data }) => setTags(data));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Kullanıcı yazarken her tuşta backend'e istek atmamak için (regex arama
+  // her seferinde tüm koleksiyonu tarıyor) — yazma durunca 350ms bekleyip
+  // sonra arıyoruz. İlk mount'ta zaten yukarıdaki efekt feed'i çekiyor,
+  // bu yüzden ilk render'ı atlıyoruz.
+  useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      loadArticles(query, selectedTag);
+    }, 350);
+    return () => clearTimeout(debounceRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    runSearch(query, selectedTag);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    loadArticles(query, selectedTag);
   };
 
   const handleSelectTag = (tagName) => {
     const next = selectedTag === tagName ? "" : tagName;
     setSelectedTag(next);
     setIsFilterOpen(false);
-    runSearch(query, next);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    loadArticles(query, next);
   };
 
   const clearFilters = () => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     setQuery("");
     setSelectedTag("");
-    setMatchedUsers([]);
-    setIsLoading(true);
-    getPersonalizedFeed()
-      .then(setArticles)
-      .finally(() => setIsLoading(false));
+    loadArticles("", "");
+  };
+
+  const loadMore = async () => {
+    const requestId = requestIdRef.current;
+    setIsLoadingMore(true);
+    try {
+      const nextPage = page + 1;
+      const results = await fetchPage(nextPage, query, selectedTag);
+      if (requestId !== requestIdRef.current) return; // bu arada yeni bir arama/filtre başladı
+      setArticles((prev) => [...prev, ...results]);
+      setHasMore(results.length === PAGE_SIZE);
+      setPage(nextPage);
+    } finally {
+      if (requestId === requestIdRef.current) setIsLoadingMore(false);
+    }
   };
 
   return (
@@ -147,11 +200,26 @@ export default function Home() {
             : "Henüz feed'inizde makale yok — ilgi alanı seçin veya birilerini takip edin."}
         </p>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {articles.map((article) => (
-            <ArticleCard key={article._id} article={article} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {articles.map((article) => (
+              <ArticleCard key={article._id} article={article} />
+            ))}
+          </div>
+
+          {hasMore && (
+            <div className="mt-6 flex justify-center">
+              <button
+                type="button"
+                onClick={loadMore}
+                disabled={isLoadingMore}
+                className="rounded-full bg-brand-700 px-6 py-2 text-sm font-medium text-white hover:bg-brand-800 disabled:opacity-50"
+              >
+                {isLoadingMore ? "Yükleniyor..." : "Daha Fazla Yükle"}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

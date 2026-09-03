@@ -5,11 +5,11 @@ export const createArticle = (formData) =>
     .post("/articles", formData, { headers: { "Content-Type": "multipart/form-data" } })
     .then((res) => res.data);
 
-export const getPersonalizedFeed = () =>
-  api.get("/articles/feed/personalized").then((res) => res.data);
+export const getPersonalizedFeed = (page = 1, limit = 12) =>
+  api.get("/articles/feed/personalized", { params: { page, limit } }).then((res) => res.data);
 
-export const searchArticles = ({ q, tags } = {}) =>
-  api.get("/articles/search", { params: { q, tags } }).then((res) => res.data);
+export const searchArticles = ({ q, tags, page = 1, limit = 12 } = {}) =>
+  api.get("/articles/search", { params: { q, tags, page, limit } }).then((res) => res.data);
 
 export const getMyLibrary = () =>
   api.get("/users/library").then((res) => res.data);
