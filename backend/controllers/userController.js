@@ -6,6 +6,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import mongoose from "mongoose";
 import { Readable } from "stream";
 import cloudinary from "../config/cloudinary.js";
+import { getIo } from "../socket/chatSocket.js";
 
 export const followUser = asyncHandler(async (req, res) => {
       const userId = req.user._id;       // Takip eden
@@ -41,6 +42,7 @@ export const followUser = asyncHandler(async (req, res) => {
     type: "follow",
     fromUser: userId
 });
+    getIo()?.to(`user:${targetId}`).emit("notification:new");
 
     res.json({ message: "Takip edildi" });
 });
@@ -185,7 +187,8 @@ export const getMe = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id)
       .select("-password -verificationToken -resetPasswordToken -resetPasswordExpires")
       .populate("favoriteTags", "name")
-      .populate("following", "username avatar");
+      .populate("following", "username avatar")
+      .populate("followers", "username avatar");
 
     const [articlesCount, favoritesCount] = await Promise.all([
       Article.countDocuments({ author: req.user._id }),

@@ -7,6 +7,7 @@ import { updateProfile, updateLibraryVisibility, toggleFavoriteTag } from "../se
 import ArticleCard from "../components/ArticleCard";
 import Modal from "../components/UI/Modal";
 import Button from "../components/UI/Button";
+import StatPill from "../components/UI/StatPill";
 
 export default function UserPage() {
   const { user, refreshUser } = useAuth();
@@ -15,6 +16,7 @@ export default function UserPage() {
   const [isLoadingArticles, setIsLoadingArticles] = useState(true);
   const [favoriteTags, setFavoriteTags] = useState(user?.favoriteTags || []);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isFollowersOpen, setIsFollowersOpen] = useState(false);
 
   useEffect(() => {
     if (!user?._id) return;
@@ -39,6 +41,7 @@ export default function UserPage() {
       <ProfilePanel
         user={user}
         onOpenEdit={() => setIsEditOpen(true)}
+        onOpenFollowers={() => setIsFollowersOpen(true)}
       />
 
       <div className="flex-1">
@@ -90,11 +93,15 @@ export default function UserPage() {
           onSaved={refreshUser}
         />
       )}
+
+      {isFollowersOpen && (
+        <FollowersModal followers={user.followers || []} onClose={() => setIsFollowersOpen(false)} />
+      )}
     </div>
   );
 }
 
-function ProfilePanel({ user, onOpenEdit }) {
+function ProfilePanel({ user, onOpenEdit, onOpenFollowers }) {
   return (
     <div className="flex w-full flex-none flex-col items-center gap-3 rounded-2xl bg-white p-6 text-center lg:w-72">
       <div className="h-20 w-20 overflow-hidden rounded-full bg-brand-400">
@@ -110,7 +117,7 @@ function ProfilePanel({ user, onOpenEdit }) {
       </p>
 
       <div className="flex gap-2">
-        <StatPill label="takipçi" value={user.followers?.length ?? 0} />
+        <StatPill label="takipçi" value={user.followers?.length ?? 0} onClick={onOpenFollowers} />
         <StatPill label="favori" value={user.favoritesCount ?? 0} />
         <StatPill label="makale" value={user.articlesCount ?? 0} />
       </div>
@@ -144,12 +151,33 @@ function ProfilePanel({ user, onOpenEdit }) {
   );
 }
 
-function StatPill({ label, value }) {
+function FollowersModal({ followers, onClose }) {
   return (
-    <div className="flex h-14 w-14 flex-none flex-col items-center justify-center rounded-full bg-brand-700 text-white">
-      <span className="text-sm font-bold">{value}</span>
-      <span className="text-[10px]">{label}</span>
-    </div>
+    <Modal title="Takipçiler" onClose={onClose}>
+      {followers.length === 0 ? (
+        <p className="text-center text-sm text-white/70">Henüz takipçin yok.</p>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {followers.map((follower) => (
+            <Link
+              key={follower._id}
+              to={`/users/${follower._id}`}
+              onClick={onClose}
+              className="flex items-center gap-3 rounded-xl bg-white/10 p-2 hover:bg-white/20"
+            >
+              <div className="flex h-9 w-9 flex-none items-center justify-center overflow-hidden rounded-full bg-brand-600 text-xs font-semibold text-white">
+                {follower.avatar ? (
+                  <img src={follower.avatar} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  follower.username?.[0]?.toUpperCase()
+                )}
+              </div>
+              <p className="text-sm font-medium text-white">{follower.username}</p>
+            </Link>
+          ))}
+        </div>
+      )}
+    </Modal>
   );
 }
 
@@ -214,6 +242,7 @@ function EditProfileModal({ user, onClose, onSaved }) {
           placeholder="Biyografi"
           className="w-full rounded-xl bg-white/10 p-3 text-sm text-white placeholder-white/50 outline-none"
         />
+        <p className="w-full px-2 text-right text-[10px] text-white/50">{bio.length}/300</p>
 
         <div className="flex w-full items-center justify-between gap-2">
           <span className="text-xs text-white/80">Kütüphane görünürlüğü</span>

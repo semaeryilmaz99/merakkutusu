@@ -45,7 +45,7 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="mt-8">
           <Input
-            label="Username/Email"
+            label="Kullanıcı Adı/Email"
             type="text"
             required
             value={email}
@@ -53,7 +53,7 @@ export default function Login() {
             autoComplete="email"
           />
           <Input
-            label="Password"
+            label="Şifre"
             type="password"
             required
             value={password}
@@ -64,14 +64,14 @@ export default function Login() {
           {error && <p className="mb-4 text-center text-sm text-accent-coral">{error}</p>}
 
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Giriş yapılıyor..." : "Login"}
+            {isSubmitting ? "Giriş yapılıyor..." : "Giriş Yap"}
           </Button>
 
           <Link
             to="/forgot-password"
             className="mt-3 block rounded-full bg-gray-200 px-4 py-2 text-center text-xs text-brand-800 hover:bg-gray-300"
           >
-            forgot your password?
+            şifreni mi unuttun?
           </Link>
 
           <p className="mt-4 text-center text-xs text-gray-500">

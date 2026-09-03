@@ -14,6 +14,7 @@ import PublicProfile from "./pages/PublicProfile";
 import Explore from "./pages/Explore";
 import CategoryDetail from "./pages/CategoryDetail";
 import Library from "./pages/Library";
+import AdminPanel from "./pages/AdminPanel";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
             <Route path="/explore" element={<Explore />} />
             <Route path="/explore/:tagName" element={<CategoryDetail />} />
             <Route path="/library" element={<Library />} />
+            <Route path="/admin" element={<AdminPanel />} />
           </Route>
         </Route>
       </Routes>

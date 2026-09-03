@@ -53,7 +53,7 @@ export default function ForgotPassword() {
         )}
 
         <Link to="/login" className="mt-4 block text-center text-sm font-semibold text-brand-700 hover:underline">
-          Login sayfasına dön
+          Giriş sayfasına dön
         </Link>
       </div>
     </div>

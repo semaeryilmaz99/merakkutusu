@@ -5,6 +5,7 @@ import { getArticlesByAuthor } from "../services/articleService";
 import { getPublicProfile, followUser, getUserLibrary } from "../services/userService";
 import ArticleCard from "../components/ArticleCard";
 import Button from "../components/UI/Button";
+import StatPill from "../components/UI/StatPill";
 
 export default function PublicProfile() {
   const { id } = useParams();
@@ -15,6 +16,7 @@ export default function PublicProfile() {
   const [library, setLibrary] = useState(null);
   const [libraryError, setLibraryError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [followError, setFollowError] = useState("");
 
   useEffect(() => {
     setIsLoading(true);
@@ -31,12 +33,23 @@ export default function PublicProfile() {
   }, [id]);
 
   const handleToggleFollow = async () => {
+    const wasFollowing = profile.isFollowing;
     setProfile((prev) => ({
       ...prev,
-      isFollowing: !prev.isFollowing,
-      followersCount: prev.followersCount + (prev.isFollowing ? -1 : 1),
+      isFollowing: !wasFollowing,
+      followersCount: prev.followersCount + (wasFollowing ? -1 : 1),
     }));
-    await followUser(id);
+    try {
+      await followUser(id);
+    } catch {
+      setProfile((prev) => ({
+        ...prev,
+        isFollowing: wasFollowing,
+        followersCount: prev.followersCount + (wasFollowing ? 1 : -1),
+      }));
+      setFollowError("İşlem başarısız, tekrar dene.");
+      setTimeout(() => setFollowError(""), 3000);
+    }
   };
 
   if (isLoading) {
@@ -71,13 +84,16 @@ export default function PublicProfile() {
         </div>
 
         {!isOwnProfile && (
-          <Button
-            variant={profile.isFollowing ? "light" : "gold"}
-            onClick={handleToggleFollow}
-            className="mt-2"
-          >
-            {profile.isFollowing ? "Takibi Bırak" : "Takip Et"}
-          </Button>
+          <>
+            <Button
+              variant={profile.isFollowing ? "light" : "gold"}
+              onClick={handleToggleFollow}
+              className="mt-2"
+            >
+              {profile.isFollowing ? "Takibi Bırak" : "Takip Et"}
+            </Button>
+            {followError && <p className="text-xs text-accent-coral">{followError}</p>}
+          </>
         )}
       </div>
 
@@ -106,15 +122,6 @@ export default function PublicProfile() {
           </div>
         )}
       </div>
-    </div>
-  );
-}
-
-function StatPill({ label, value }) {
-  return (
-    <div className="flex h-14 w-14 flex-none flex-col items-center justify-center rounded-full bg-brand-700 text-white">
-      <span className="text-sm font-bold">{value}</span>
-      <span className="text-[10px]">{label}</span>
     </div>
   );
 }

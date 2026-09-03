@@ -45,7 +45,7 @@ export default function Register() {
             Giriş yapabilmek için mailinizdeki linke tıklayın.
           </p>
           <Link to="/login" className="mt-4 inline-block text-sm font-semibold text-brand-700 hover:underline">
-            Login sayfasına dön
+            Giriş sayfasına dön
           </Link>
         </div>
       </div>
@@ -54,11 +54,11 @@ export default function Register() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-brand-500 p-4">
-      <div className="relative w-full max-w-sm rounded-2xl bg-brand-800 p-6 shadow-xl">
+      <div className="relative w-full max-w-sm rounded-2xl bg-gray-50 p-6 shadow-xl">
         <Link
           to="/"
           aria-label="Kapat"
-          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white text-brand-900 hover:bg-gray-100"
+          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-accent-gold text-brand-900 hover:brightness-95"
         >
           <X size={16} />
         </Link>
@@ -74,7 +74,7 @@ export default function Register() {
             autoComplete="email"
           />
           <Input
-            label="Username"
+            label="Kullanıcı Adı"
             type="text"
             required
             value={form.username}
@@ -83,7 +83,7 @@ export default function Register() {
             autoComplete="username"
           />
           <Input
-            label="Password"
+            label="Şifre"
             type="password"
             required
             value={form.password}
@@ -96,13 +96,13 @@ export default function Register() {
             <p className="mb-4 text-center text-sm text-accent-coral">{error}</p>
           )}
 
-          <Button type="submit" variant="light" disabled={isSubmitting}>
-            {isSubmitting ? "Kaydediliyor..." : "Signup"}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Kaydediliyor..." : "Kayıt Ol"}
           </Button>
 
-          <p className="mt-4 rounded-full bg-white/10 px-4 py-2 text-center text-xs text-white">
+          <p className="mt-4 text-center text-xs text-gray-500">
             Zaten hesabınız var mı?{" "}
-            <Link to="/login" className="font-semibold text-accent-gold hover:underline">
+            <Link to="/login" className="font-semibold text-brand-700 hover:underline">
               Giriş yapın
             </Link>
           </p>

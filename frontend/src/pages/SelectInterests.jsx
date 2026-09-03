@@ -39,7 +39,7 @@ export default function SelectInterests() {
     <div className="flex min-h-screen items-center justify-center bg-brand-500 p-4">
       <div className="w-full max-w-2xl rounded-2xl bg-brand-700 p-6 shadow-xl">
         <div className="mb-6 rounded-full bg-gray-100 px-4 py-2 text-center text-sm font-semibold text-brand-900">
-          Select your favorite subjects
+          İlgi alanlarını seç
         </div>
 
         {isLoading ? (
@@ -68,7 +68,7 @@ export default function SelectInterests() {
 
         <div className="mt-6">
           <Button variant="light" onClick={handleSubmit} disabled={isSubmitting || isLoading}>
-            {isSubmitting ? "Kaydediliyor..." : "Create Your Personal Feed"}
+            {isSubmitting ? "Kaydediliyor..." : "Kişisel Feed'ini Oluştur"}
           </Button>
         </div>
       </div>

@@ -10,7 +10,12 @@ export default function ArticleCard({ article, onLibraryChange }) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const tags = (article.tags || []).slice(0, 2);
-  const excerpt = (article.content || "").replace(/\s+/g, " ").trim();
+  const excerpt = (article.content || "")
+    .replace(/```[\s\S]*?```/g, " ") // kod blokları
+    .replace(/[#>*_~`]/g, "") // markdown biçim karakterleri
+    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, "$1") // [link metni](url) / ![alt](url)
+    .replace(/\s+/g, " ")
+    .trim();
   const readingMinutes = getReadingMinutes(article.content);
 
   const [isFavorite, setIsFavorite] = useState((article.favorites || []).includes(user?._id));
@@ -21,23 +26,43 @@ export default function ArticleCard({ article, onLibraryChange }) {
 
   const handleToggleFavorite = async (e) => {
     e.stopPropagation();
+    const previouslyFavorite = isFavorite;
     setIsFavorite((prev) => !prev);
-    setFavoritesCount((prev) => prev + (isFavorite ? -1 : 1));
-    await toggleFavorite(article._id);
+    setFavoritesCount((prev) => prev + (previouslyFavorite ? -1 : 1));
+    try {
+      await toggleFavorite(article._id);
+    } catch {
+      setIsFavorite(previouslyFavorite);
+      setFavoritesCount((prev) => prev + (previouslyFavorite ? 1 : -1));
+    }
   };
 
   const handleToggleLibrary = async (e) => {
     e.stopPropagation();
-    const next = !isInLibrary;
+    const previouslyInLibrary = isInLibrary;
+    const next = !previouslyInLibrary;
     setIsInLibrary(next);
     onLibraryChange?.(article._id, next);
-    await toggleLibrary(article._id);
+    try {
+      await toggleLibrary(article._id);
+      window.dispatchEvent(
+        new CustomEvent("library:changed", { detail: { articleId: article._id, isInLibrary: next } })
+      );
+    } catch {
+      setIsInLibrary(previouslyInLibrary);
+      onLibraryChange?.(article._id, previouslyInLibrary);
+    }
   };
 
   return (
     <div
       onClick={openArticle}
-      onKeyDown={(e) => e.key === "Enter" && openArticle()}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openArticle();
+        }
+      }}
       role="button"
       tabIndex={0}
       className="flex cursor-pointer flex-col overflow-hidden rounded-2xl border-2 border-teal-500 bg-white shadow-sm transition hover:shadow-md"

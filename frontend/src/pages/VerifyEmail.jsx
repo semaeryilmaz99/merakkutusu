@@ -47,7 +47,7 @@ export default function VerifyEmail() {
           <>
             <p className="text-accent-coral">{message}</p>
             <Link to="/login" className="mt-4 inline-block text-sm font-semibold text-brand-700 hover:underline">
-              Login sayfasına dön
+              Giriş sayfasına dön
             </Link>
           </>
         )}

@@ -4,26 +4,37 @@ import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import RightPanel from "./RightPanel";
 import BottomBar from "./BottomBar";
-import CreateArticleModal from "./CreateArticleModal";
+import ArticleFormModal from "./ArticleFormModal";
 import NotificationsModal from "./NotificationsModal";
 import IncomingMessageToast from "./IncomingMessageToast";
+import Modal from "./UI/Modal";
+import ChatPanel from "./ChatPanel";
 import { getNotifications } from "../services/notificationService";
+import { useSocket } from "../context/SocketContext";
 
 export default function Layout() {
+  const socket = useSocket();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeModal, setActiveModal] = useState(null); // "createArticle" | "notifications" | null
+  const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const isHome = useMatch("/");
   const articleMatch = useMatch("/articles/:id");
   const profileMatch = useMatch("/users/:id");
 
   let rightPanelProps = { variant: "library" };
+  let mobileChatRoomRequest = null;
   if (articleMatch) {
-    rightPanelProps = { variant: "chat", roomRequest: { type: "article", articleId: articleMatch.params.id } };
+    const roomRequest = { type: "article", articleId: articleMatch.params.id };
+    rightPanelProps = { variant: "chat", roomRequest };
+    mobileChatRoomRequest = roomRequest;
   } else if (profileMatch) {
-    rightPanelProps = { variant: "chat", roomRequest: { type: "direct", targetUserId: profileMatch.params.id } };
+    const roomRequest = { type: "direct", targetUserId: profileMatch.params.id };
+    rightPanelProps = { variant: "chat", roomRequest };
+    mobileChatRoomRequest = roomRequest;
   } else if (isHome) {
     rightPanelProps = { variant: "libraryWithChat" };
+    mobileChatRoomRequest = { type: "dashboard" };
   }
 
   useEffect(() => {
@@ -31,6 +42,16 @@ export default function Layout() {
       setUnreadCount(data.filter((n) => !n.isRead).length);
     });
   }, []);
+
+  // Favori/yorum/takip bildirimleri artık kişisel soket odasına da yayınlanıyor
+  // (backend: getIo()?.to(`user:<id>`).emit("notification:new")) — rozet sayfa
+  // yenilenmeden canlı güncellensin diye.
+  useEffect(() => {
+    if (!socket) return;
+    const handleNewNotification = () => setUnreadCount((prev) => prev + 1);
+    socket.on("notification:new", handleNewNotification);
+    return () => socket.off("notification:new", handleNewNotification);
+  }, [socket]);
 
   const closeModal = () => setActiveModal(null);
 
@@ -63,12 +84,22 @@ export default function Layout() {
         unreadCount={unreadCount}
         onOpenCreateArticle={() => setActiveModal("createArticle")}
         onOpenNotifications={() => setActiveModal("notifications")}
+        onOpenChat={() => setIsMobileChatOpen(true)}
+        showChat={Boolean(mobileChatRoomRequest)}
       />
 
-      {activeModal === "createArticle" && <CreateArticleModal onClose={closeModal} />}
+      {activeModal === "createArticle" && <ArticleFormModal onClose={closeModal} />}
 
       {activeModal === "notifications" && (
         <NotificationsModal onClose={closeModal} onSeen={() => setUnreadCount(0)} />
+      )}
+
+      {isMobileChatOpen && mobileChatRoomRequest && (
+        <Modal title="Sohbet" onClose={() => setIsMobileChatOpen(false)}>
+          <div className="flex h-[70vh] flex-col">
+            <ChatPanel roomRequest={mobileChatRoomRequest} />
+          </div>
+        </Modal>
       )}
 
       <IncomingMessageToast />

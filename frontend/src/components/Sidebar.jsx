@@ -1,12 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
-import { User, Home, Compass, Library, PenSquare, Bell, LogOut } from "lucide-react";
+import { User, Home, Compass, Library, PenSquare, Bell, LogOut, ShieldCheck } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 const linkClass =
   "flex items-center gap-3 rounded-full bg-white px-4 py-3 text-sm font-medium text-brand-900 hover:bg-accent-gold transition-colors";
 
 export default function Sidebar({ isOpen, onClose, onOpenCreateArticle, onOpenNotifications }) {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -53,6 +53,15 @@ export default function Sidebar({ isOpen, onClose, onOpenCreateArticle, onOpenNo
           <button onClick={onOpenNotifications} className={linkClass}>
             <Bell size={18} /> Bildirimler
           </button>
+
+          {user?.role === "admin" && (
+            <>
+              <div className="my-2 border-t border-white/20" />
+              <Link to="/admin" onClick={onClose} className={linkClass}>
+                <ShieldCheck size={18} /> Admin Paneli
+              </Link>
+            </>
+          )}
 
           <div className="my-2 border-t border-white/20" />
 

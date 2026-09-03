@@ -1,7 +1,13 @@
 import { Link } from "react-router-dom";
-import { Plus, Bell } from "lucide-react";
+import { Plus, Bell, MessageCircle } from "lucide-react";
 
-export default function BottomBar({ unreadCount = 0, onOpenCreateArticle, onOpenNotifications }) {
+export default function BottomBar({
+  unreadCount = 0,
+  onOpenCreateArticle,
+  onOpenNotifications,
+  onOpenChat,
+  showChat = false,
+}) {
   return (
     <footer className="flex h-16 items-center justify-between bg-brand-700 px-4 sm:px-6">
       <Link
@@ -12,6 +18,15 @@ export default function BottomBar({ unreadCount = 0, onOpenCreateArticle, onOpen
       </Link>
 
       <div className="flex items-center gap-3">
+        {showChat && (
+          <button
+            onClick={onOpenChat}
+            aria-label="Sohbet"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-teal-900 text-white hover:brightness-110 transition-[filter] lg:hidden"
+          >
+            <MessageCircle size={20} />
+          </button>
+        )}
         <button
           onClick={onOpenCreateArticle}
           aria-label="Makale oluştur"

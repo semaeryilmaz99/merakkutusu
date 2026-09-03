@@ -1,19 +1,20 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Image as ImageIcon, Send, X } from "lucide-react";
-import { createArticle } from "../services/articleService";
+import { createArticle, updateArticle } from "../services/articleService";
 import Input from "./UI/Input";
 import Modal from "./UI/Modal";
 
-export default function CreateArticleModal({ onClose }) {
+export default function ArticleFormModal({ onClose, article, onSaved }) {
   const navigate = useNavigate();
+  const isEditing = Boolean(article);
 
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [title, setTitle] = useState(article?.title || "");
+  const [content, setContent] = useState(article?.content || "");
   const [tagInput, setTagInput] = useState("");
-  const [tags, setTags] = useState([]);
+  const [tags, setTags] = useState((article?.tags || []).map((tag) => tag.name || tag));
   const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState("");
+  const [imagePreview, setImagePreview] = useState(article?.image || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -47,7 +48,10 @@ export default function CreateArticleModal({ onClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title.trim() || !content.trim()) return;
+    if (!title.trim() || !content.trim()) {
+      setError("Başlık ve içerik boş olamaz.");
+      return;
+    }
 
     setIsSubmitting(true);
     setError("");
@@ -55,21 +59,27 @@ export default function CreateArticleModal({ onClose }) {
       const formData = new FormData();
       formData.append("title", title.trim());
       formData.append("content", content.trim());
-      if (tags.length > 0) formData.append("tags", tags.join(","));
+      formData.append("tags", tags.join(","));
       if (imageFile) formData.append("image", imageFile);
 
-      const article = await createArticle(formData);
-      onClose();
-      navigate(`/articles/${article._id}`);
+      if (isEditing) {
+        const updated = await updateArticle(article._id, formData);
+        onSaved?.(updated);
+        onClose();
+      } else {
+        const created = await createArticle(formData);
+        onClose();
+        navigate(`/articles/${created._id}`);
+      }
     } catch (err) {
-      setError(err.response?.data?.message || "Makale oluşturulamadı, tekrar deneyin.");
+      setError(err.response?.data?.message || "Makale kaydedilemedi, tekrar deneyin.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Modal title="Makale Oluştur" onClose={onClose}>
+    <Modal title={isEditing ? "Makaleyi Düzenle" : "Makale Oluştur"} onClose={onClose}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <Input
           label="Başlık"
@@ -85,13 +95,18 @@ export default function CreateArticleModal({ onClose }) {
           onChange={(e) => setContent(e.target.value)}
           placeholder="Makale içeriği..."
           rows={8}
+          maxLength={20000}
           required
           className="w-full rounded-xl bg-white p-3 text-sm text-brand-900 outline-none"
         />
+        <div className="mt-1 flex items-center justify-between px-2 text-[10px] text-white/60">
+          <span>Markdown desteklenir: **kalın**, # başlık, - liste, [link](url), ```kod```</span>
+          <span className="flex-none">{content.length}/20000</span>
+        </div>
 
         <label className="flex w-fit cursor-pointer items-center gap-2 rounded-full bg-white/10 px-3 py-2 text-xs text-white/80 hover:bg-white/20">
           <ImageIcon size={14} />
-          {imageFile ? imageFile.name : "Görsel Ekle (opsiyonel)"}
+          {imageFile ? imageFile.name : isEditing ? "Görseli Değiştir (opsiyonel)" : "Görsel Ekle (opsiyonel)"}
           <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
         </label>
 
@@ -136,7 +151,7 @@ export default function CreateArticleModal({ onClose }) {
         <button
           type="submit"
           disabled={isSubmitting}
-          aria-label="Makaleyi yayınla"
+          aria-label={isEditing ? "Değişiklikleri kaydet" : "Makaleyi yayınla"}
           className="flex h-10 w-10 items-center justify-center self-end rounded-full bg-accent-gold text-brand-900 hover:brightness-95 disabled:opacity-60"
         >
           <Send size={18} />

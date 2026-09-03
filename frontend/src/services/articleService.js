@@ -40,3 +40,14 @@ export const getArticlesByAuthor = (id) =>
 
 export const deleteArticle = (id) =>
   api.delete(`/articles/${id}`).then((res) => res.data);
+
+export const updateArticle = (id, formData) =>
+  api
+    .put(`/articles/${id}`, formData, { headers: { "Content-Type": "multipart/form-data" } })
+    .then((res) => res.data);
+
+export const getTrendingArticles = () =>
+  api.get("/articles/trending").then((res) => res.data);
+
+export const getTrendingTags = () =>
+  api.get("/articles/trending-tags").then((res) => res.data);

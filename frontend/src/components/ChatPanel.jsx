@@ -38,11 +38,14 @@ export default function ChatPanel({ roomRequest }) {
   const [typingUsers, setTypingUsers] = useState({});
   const [isEmojiOpen, setIsEmojiOpen] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
+  const [justActivatedMessage, setJustActivatedMessage] = useState("");
 
   const cleanupRef = useRef(null);
   const messagesEndRef = useRef(null);
   const typingTimeoutsRef = useRef({});
   const lastTypingEmitRef = useRef(0);
+  const hadErrorRef = useRef(false);
 
   useEffect(() => {
     if (!socket) return;
@@ -84,6 +87,13 @@ export default function ChatPanel({ roomRequest }) {
         setRoomId(roomRes.roomId);
         setMessages(history);
 
+        if (hadErrorRef.current) {
+          hadErrorRef.current = false;
+          setJustActivatedMessage(
+            roomRequest.type === "article" ? "Artık bu yazarla mesajlaşabilirsiniz." : "Sohbet aktif."
+          );
+        }
+
         socket.emit("join_room", roomRequest, () => {});
 
         const handler = (data) => {
@@ -112,7 +122,10 @@ export default function ChatPanel({ roomRequest }) {
           socket.off("typing", typingHandler);
         };
       } catch (err) {
-        if (!cancelled) setError(err.response?.data?.message || "Sohbet yüklenemedi.");
+        if (!cancelled) {
+          hadErrorRef.current = true;
+          setError(err.response?.data?.message || "Sohbet yüklenemedi.");
+        }
       } finally {
         if (!cancelled) setIsLoading(false);
       }
@@ -125,7 +138,28 @@ export default function ChatPanel({ roomRequest }) {
       cleanupRef.current?.();
       Object.values(typingTimeoutsRef.current).forEach(clearTimeout);
     };
-  }, [socket, roomRequest.type, roomRequest.articleId, roomRequest.targetUserId]);
+  }, [socket, roomRequest.type, roomRequest.articleId, roomRequest.targetUserId, retryKey]);
+
+  // Bir makale kütüphaneye eklenince (ArticleCard/ArticleDetail toggle'ı bu event'i
+  // yayınlıyor) o makalenin chat'i bu component'i yeniden mount etmeden aktifleşsin diye
+  useEffect(() => {
+    if (roomRequest.type !== "article") return;
+
+    const handleLibraryChange = (e) => {
+      if (e.detail.articleId === roomRequest.articleId && e.detail.isInLibrary) {
+        setRetryKey((prev) => prev + 1);
+      }
+    };
+
+    window.addEventListener("library:changed", handleLibraryChange);
+    return () => window.removeEventListener("library:changed", handleLibraryChange);
+  }, [roomRequest.type, roomRequest.articleId]);
+
+  useEffect(() => {
+    if (!justActivatedMessage) return;
+    const timeout = setTimeout(() => setJustActivatedMessage(""), 4000);
+    return () => clearTimeout(timeout);
+  }, [justActivatedMessage]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -195,6 +229,12 @@ export default function ChatPanel({ roomRequest }) {
         <p className="flex-1 text-center text-sm text-white/70">{error}</p>
       ) : (
         <>
+          {justActivatedMessage && (
+            <p className="mb-2 rounded-full bg-teal-700 px-3 py-1.5 text-center text-xs font-medium text-white">
+              {justActivatedMessage}
+            </p>
+          )}
+
           <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
             {messages.length === 0 ? (
               <p className="text-center text-sm text-white/60">Henüz mesaj yok, ilk mesajı sen gönder.</p>

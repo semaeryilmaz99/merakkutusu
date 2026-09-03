@@ -5,10 +5,17 @@ import Blacklist from "../models/Blacklist.js";
 import ChatRoom from "../models/ChatRoom.js";
 import resolveChatRoom from "../utils/resolveChatRoom.js";
 
+let ioInstance;
+
+// REST controller'ların (article/userController) bildirim oluşturduktan sonra
+// aynı Socket.IO instance'ına erişip canlı bir event yayınlayabilmesi için.
+export const getIo = () => ioInstance;
+
 export default function initChatSocket(httpServer) {
   const io = new Server(httpServer, {
     cors: { origin: "*" }
   });
+  ioInstance = io;
 
   // protect middleware'inin JWT doğrulama mantığına paralel socket auth
   io.use(async (socket, next) => {

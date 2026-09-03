@@ -11,6 +11,7 @@ import mongoose from "mongoose";
 
 import { Readable } from "stream";
 import cloudinary from "../config/cloudinary.js";
+import { getIo } from "../socket/chatSocket.js";
 
 // Makale oluşturma
 export const createArticle = asyncHandler(async (req, res) => {
@@ -123,7 +124,8 @@ export const updateArticle = asyncHandler(async (req, res) => {
     article.content = req.body.content || article.content;
 
     // -----------------------
-    // Tags (form-data string veya array)
+    // Tags (form-data string veya array) — createArticle'daki gibi isimden
+    // Tag ObjectId'sine çevrilir, olmayan tag'ler otomatik oluşturulur
     // -----------------------
     if (req.body.tags) {
       let tagsArray = [];
@@ -132,7 +134,14 @@ export const updateArticle = asyncHandler(async (req, res) => {
       } else if (typeof req.body.tags === "string") {
         tagsArray = req.body.tags.split(",").map(tag => tag.trim().toLowerCase());
       }
-      article.tags = tagsArray;
+
+      const tagIds = [];
+      for (const tagName of tagsArray) {
+        let tag = await Tag.findOne({ name: tagName });
+        if (!tag) tag = await Tag.create({ name: tagName });
+        tagIds.push(tag._id);
+      }
+      article.tags = tagIds;
     }
 
     // -----------------------
@@ -158,6 +167,11 @@ export const updateArticle = asyncHandler(async (req, res) => {
     }
 
     await article.save();
+    await article.populate([
+      { path: "author", select: "username email avatar" },
+      { path: "tags", select: "name" },
+      { path: "comments.user", select: "username" }
+    ]);
     res.json(article);
 });
 
@@ -193,6 +207,7 @@ export const toggleFavorite = asyncHandler(async (req, res) => {
           fromUser: req.user._id,
           article: article._id
         });
+        getIo()?.to(`user:${article.author}`).emit("notification:new");
       }
     }
 
@@ -221,6 +236,7 @@ export const addComment = asyncHandler(async (req, res) => {
         fromUser: req.user._id,
         article: article._id
       });
+      getIo()?.to(`user:${article.author}`).emit("notification:new");
     }
 
     res.status(201).json(article.comments);

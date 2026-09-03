@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Heart, Library, Send, Trash2 } from "lucide-react";
+import { Heart, Library, Pencil, Send, Trash2 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useAuth } from "../context/AuthContext";
 import {
   getArticleById,
@@ -12,6 +14,7 @@ import {
 } from "../services/articleService";
 import { formatFullDate } from "../utils/formatDate";
 import SproutCelebration from "../components/SproutCelebration";
+import ArticleFormModal from "../components/ArticleFormModal";
 
 export default function ArticleDetail() {
   const { id } = useParams();
@@ -26,7 +29,9 @@ export default function ArticleDetail() {
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditingArticle, setIsEditingArticle] = useState(false);
   const [readProgress, setReadProgress] = useState(0);
+  const [actionError, setActionError] = useState("");
 
   useEffect(() => {
     setIsLoading(true);
@@ -39,14 +44,34 @@ export default function ArticleDetail() {
       .finally(() => setIsLoading(false));
   }, [id, user?._id]);
 
+  useEffect(() => {
+    if (!actionError) return;
+    const timeout = setTimeout(() => setActionError(""), 3000);
+    return () => clearTimeout(timeout);
+  }, [actionError]);
+
   const handleToggleFavorite = async () => {
-    setIsFavorite((prev) => !prev);
-    await toggleFavorite(id);
+    const previouslyFavorite = isFavorite;
+    setIsFavorite(!previouslyFavorite);
+    try {
+      await toggleFavorite(id);
+    } catch {
+      setIsFavorite(previouslyFavorite);
+      setActionError("Favori durumu güncellenemedi, tekrar dene.");
+    }
   };
 
   const handleToggleLibrary = async () => {
-    setIsInLibrary((prev) => !prev);
-    await toggleLibrary(id);
+    const previouslyInLibrary = isInLibrary;
+    const next = !previouslyInLibrary;
+    setIsInLibrary(next);
+    try {
+      await toggleLibrary(id);
+      window.dispatchEvent(new CustomEvent("library:changed", { detail: { articleId: id, isInLibrary: next } }));
+    } catch {
+      setIsInLibrary(previouslyInLibrary);
+      setActionError("Kütüphane durumu güncellenemedi, tekrar dene.");
+    }
   };
 
   const handleAddComment = async (e) => {
@@ -104,6 +129,15 @@ export default function ArticleDetail() {
 
   return (
     <div className="mx-auto max-w-3xl">
+      {/* Mobilde nokta sütunu için yatay boşluk yok — BottomBar'ın hemen üstünde
+          yatay bir ilerleme çubuğu gösteriliyor, büyük ekranda gizli. */}
+      <div className="fixed inset-x-0 bottom-16 z-20 h-1.5 bg-gray-200 lg:hidden">
+        <div
+          className="h-full bg-accent-gold transition-[width] duration-150"
+          style={{ width: `${readProgress}%` }}
+        />
+      </div>
+
       <div className="fixed left-8 top-20 z-20 hidden w-24 flex-col items-center gap-2 lg:flex">
         {Array.from({ length: 18 }).map((_, i) => {
           const size = 22 - i * 1;
@@ -146,7 +180,13 @@ export default function ArticleDetail() {
           <img src={article.image} alt={article.title} className="max-h-96 w-full object-cover" />
         )}
 
-        <div className="whitespace-pre-wrap p-4 text-sm text-brand-900">{article.content}</div>
+        <div className="prose prose-sm max-w-none p-4 prose-headings:text-brand-900 prose-a:text-brand-700 prose-strong:text-brand-900 prose-code:text-teal-900">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{article.content}</ReactMarkdown>
+        </div>
+
+        {actionError && (
+          <p className="px-4 pt-2 text-center text-xs text-accent-coral">{actionError}</p>
+        )}
 
         <div className="flex items-center justify-between gap-2 border-t border-gray-100 p-4">
           <div className="flex flex-wrap gap-2">
@@ -179,6 +219,16 @@ export default function ArticleDetail() {
             >
               <Heart size={16} fill={isFavorite ? "currentColor" : "none"} />
             </button>
+
+            {isOwner && (
+              <button
+                onClick={() => setIsEditingArticle(true)}
+                aria-label="Makaleyi düzenle"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-brand-700 hover:bg-brand-600 hover:text-white"
+              >
+                <Pencil size={16} />
+              </button>
+            )}
 
             {isOwner && (
               isConfirmingDelete ? (
@@ -217,7 +267,7 @@ export default function ArticleDetail() {
           type="text"
           value={commentText}
           onChange={(e) => setCommentText(e.target.value)}
-          placeholder="Add your comment in this area..."
+          placeholder="Yorumunu buraya yaz..."
           className="flex-1 rounded-full bg-white px-4 py-2 text-sm text-brand-900 outline-none"
         />
         <button
@@ -249,6 +299,14 @@ export default function ArticleDetail() {
           ))
         )}
       </div>
+
+      {isEditingArticle && (
+        <ArticleFormModal
+          article={article}
+          onClose={() => setIsEditingArticle(false)}
+          onSaved={(updated) => setArticle((prev) => ({ ...prev, ...updated }))}
+        />
+      )}
     </div>
   );
 }
