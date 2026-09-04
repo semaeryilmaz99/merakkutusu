@@ -5,4 +5,10 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss(),],
+  test: {
+    environment: "jsdom",
+    setupFiles: "./src/test/setup.js",
+    // @testing-library/jest-dom setup'ı vitest'in global expect'ini bekliyor
+    globals: true
+  }
 })

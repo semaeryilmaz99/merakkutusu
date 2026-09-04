@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import logger from "./logger.js";
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,   // smtp.gmail.com
@@ -19,9 +20,9 @@ try {
         html
     });
 
-    console.log("Email başarıyla gönderildi:", to);
+    logger.info("Email başarıyla gönderildi", { to });
 } catch (error) {
-    console.error("Email gönderilemedi:", error.message);
+    logger.error("Email gönderilemedi", { to, message: error.message });
     throw error;
 }
 };

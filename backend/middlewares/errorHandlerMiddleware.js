@@ -1,3 +1,5 @@
+import logger from "../config/logger.js";
+
 // Tanımsız route'lar için 404 üretir, merkezi error handler'a devreder
 export const notFound = (req, res, next) => {
   res.status(404);
@@ -17,6 +19,16 @@ export const errorHandler = (err, req, res, next) => {
   const message = err.name === "MulterError"
     ? (MULTER_ERROR_MESSAGES[err.code] || "Dosya yüklenemedi.")
     : err.message;
+
+  // Client'a giden mesaj kullanıcı dostu olabilir (ör. Türkçeleştirilmiş multer
+  // hatası) ama sunucu tarafında her zaman orijinal hatayı ve stack'i logluyoruz —
+  // aksi halde production'da (stack client'a gitmiyor) bir 500'ün hiçbir izi kalmaz.
+  logger.error(err.message, {
+    statusCode,
+    method: req.method,
+    url: req.originalUrl,
+    stack: err.stack
+  });
 
   res.status(statusCode).json({
     message,
