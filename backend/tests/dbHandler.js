@@ -1,12 +1,11 @@
-import "dotenv/config";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 
-// JWT_SECRET/JWT_REFRESH_SECRET gibi env değişkenleri testler için burada
-// açıkça yükleniyor — daha önce bu, articleController.js'in import zincirinde
-// yer alan config/cloudinary.js'in kendi dotenv.config() çağrısına tesadüfen
-// dayanıyordu. CI'da hiç .env dosyası olmayacağı için (gitignore'da) bu
-// tesadüf orada işe yaramaz; workflow bu değişkenleri kendi env'inden verir.
+// Env değişkenleri (.env yüklemesi + test'e özel sahte değerler) artık
+// vitest.config.js'in setupFiles'ı olan tests/setupEnv.js'de, her test
+// dosyasının kendi import'larından ÖNCE garantili şekilde yükleniyor —
+// daha önce bu burada (dbHandler.js'de) dotenv/config importuyla yapılıyordu
+// ama import sırasına bağımlıydı (bkz. setupEnv.js'deki not).
 
 // Testler gerçek MongoDB Atlas'a asla dokunmuyor — her test dosyası kendi
 // bellekteki (in-memory) geçici MongoDB instance'ına bağlanıyor, birbirinden

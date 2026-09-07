@@ -2,9 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Image as ImageIcon, Send } from "lucide-react";
+import { Image as ImageIcon, Send, Sparkles } from "lucide-react";
 import { createArticle } from "../services/articleService";
+import { suggestSources } from "../services/aiService";
 import TagInput from "../components/TagInput";
+import SourceSuggestions from "../components/SourceSuggestions";
 
 export default function WriteArticle() {
   const navigate = useNavigate();
@@ -17,6 +19,32 @@ export default function WriteArticle() {
   const [activeTab, setActiveTab] = useState("write"); // mobilde: "write" | "preview"
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  const [sourceSuggestions, setSourceSuggestions] = useState(null);
+  const [isSuggesting, setIsSuggesting] = useState(false);
+  const [suggestError, setSuggestError] = useState("");
+
+  const handleSuggestSources = async () => {
+    if (!title.trim() || !content.trim()) {
+      setSuggestError("Önce bir başlık ve biraz içerik yaz.");
+      return;
+    }
+    setIsSuggesting(true);
+    setSuggestError("");
+    try {
+      const { suggestions } = await suggestSources({ title, content, tags });
+      setSourceSuggestions(suggestions);
+    } catch (err) {
+      setSuggestError(err.response?.data?.message || "Kaynaklar getirilemedi, tekrar deneyin.");
+    } finally {
+      setIsSuggesting(false);
+    }
+  };
+
+  const handleToggleCitation = (citation, wasAdded) => {
+    const citationBlock = `\n\n> Kaynak: ${citation}`;
+    setContent((prev) => (wasAdded ? prev.replace(citationBlock, "") : `${prev.trim()}${citationBlock}`));
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
@@ -72,10 +100,29 @@ export default function WriteArticle() {
           {imagePreview && (
             <img src={imagePreview} alt="" className="h-12 w-20 rounded-lg object-cover" />
           )}
+
+          <button
+            type="button"
+            onClick={handleSuggestSources}
+            disabled={isSuggesting}
+            className="flex w-fit items-center gap-2 rounded-full bg-white/10 px-3 py-2 text-xs text-white/80 hover:bg-white/20 disabled:opacity-50"
+          >
+            <Sparkles size={14} />
+            {isSuggesting ? "Aranıyor..." : "Kaynak Öner"}
+          </button>
         </div>
 
         <TagInput tags={tags} onChange={setTags} />
       </div>
+
+      {(isSuggesting || suggestError || sourceSuggestions) && (
+        <SourceSuggestions
+          isLoading={isSuggesting}
+          error={suggestError}
+          suggestions={sourceSuggestions}
+          onToggleCitation={handleToggleCitation}
+        />
+      )}
 
       <div className="flex gap-2 lg:hidden">
         <button

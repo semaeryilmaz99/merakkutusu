@@ -58,3 +58,8 @@ export const updateProfileValidator = [
 export const setInterestsValidator = [
   body("tagIds").isArray().withMessage("tagIds bir dizi olmalı")
 ];
+
+export const suggestSourcesValidator = [
+  body("title").trim().notEmpty().withMessage("Başlık gereklidir"),
+  body("content").trim().notEmpty().withMessage("İçerik gereklidir")
+];

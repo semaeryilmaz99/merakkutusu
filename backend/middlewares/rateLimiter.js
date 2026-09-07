@@ -25,3 +25,14 @@ export const authLimiter = rateLimit({
   skip: () => isDev,
   message: { message: "Çok fazla deneme yapıldı, lütfen 15 dakika sonra tekrar deneyin." }
 });
+
+// OpenAI çağrısı yapan (ücretli) endpoint'ler için — genel limitten daha sıkı,
+// kötüye kullanım (ör. bir bot'un sürekli istek atması) doğrudan para kaybı demek.
+export const aiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 dakika
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: () => isDev,
+  message: { message: "Çok fazla AI isteği gönderildi, lütfen 15 dakika sonra tekrar deneyin." }
+});
