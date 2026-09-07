@@ -17,3 +17,74 @@
   --color-accent-gold: #F2B05C;
   --color-accent-coral: #F2615B;
 }
+
+/* @uiw/react-md-editor'ı (WriteArticle.jsx) marka paletine uyarlar. Kütüphane
+   kendi rengini --color-* CSS custom property'leriyle okuyor ve bunları
+   .w-md-editor / .wmde-markdown-var (ikisi de aynı kök elemanda) ve önizleme
+   içindeki .wmde-markdown elemanının ÜZERİNE DOĞRUDAN yazıyor (bkz.
+   node_modules/@uiw/react-md-editor/esm/Editor.factory.js,
+   node_modules/@uiw/react-markdown-preview/esm/preview.js). Bu yüzden
+   override'ı sadece .merak-md-editor sarmalayıcısına yazmak işe yaramıyordu
+   — miras alma, elemanın kendi üzerindeki (kütüphanenin) doğrudan tanımını
+   asla yenemiyor. Aynı elemanları (.w-md-editor, .wmde-markdown) doğrudan
+   hedefleyip !important ile üzerine yazıyoruz. */
+.merak-md-editor .w-md-editor {
+  --md-editor-font-family: inherit !important; /* sabit Helvetica yerine sitenin kendi fontu */
+  --color-canvas-default: #005C8C !important; /* brand-800 — yazı alanı */
+  --color-canvas-subtle: #1C6EA4 !important; /* brand-700, kod bloğu arka planı */
+  --color-border-default: #00C4B4 !important; /* teal-500 */
+  --color-border-muted: #009B77 !important; /* teal-700 */
+  --color-fg-default: #ffffff !important;
+  --color-fg-muted: rgba(255, 255, 255, 0.7) !important;
+  --color-accent-fg: #F2B05C !important; /* accent-gold, linkler/aktif ikon */
+  --color-neutral-muted: rgba(242, 176, 92, 0.18) !important; /* araç çubuğu hover */
+}
+
+/* Önizleme (canlı/preview modu) bilinçli olarak AÇIK temada — yayınlanan
+   makale sayfası (ArticleDetail.jsx) beyaz kart + koyu metin kullanıyor,
+   önizlemenin gerçek yayın görünümüyle birebir eşleşmesi için burada rengi
+   editör panelinden farklı, açık bir temaya geri döndürüyoruz. Önizleme
+   içeriği .wmde-markdown class'ını taşıyan AYRI bir elemanda render
+   ediliyor, o yüzden burada da doğrudan onu hedefliyoruz. */
+.merak-md-editor .w-md-editor-preview,
+.merak-md-editor .w-md-editor-preview .wmde-markdown {
+  --color-canvas-default: #ffffff !important;
+  --color-canvas-subtle: #f6f8fa !important;
+  --color-border-default: #d0d7de !important;
+  --color-fg-default: #003B5C !important; /* brand-900 */
+  --color-fg-muted: #57606a !important;
+  --color-accent-fg: #1C6EA4 !important; /* brand-700 */
+  --color-neutral-muted: rgba(0, 196, 180, 0.12) !important;
+}
+.merak-md-editor .w-md-editor-preview {
+  box-shadow: -1px 0 0 var(--color-teal-500, #00C4B4);
+}
+
+/* Araç çubuğunu sitenin geri kalanındaki yuvarlak/rahat buton diliyle
+   uyumlu hale getirir — varsayılan hali çok küçük/sıkışık (20px, keskin köşe). */
+.merak-md-editor .w-md-editor-toolbar {
+  padding: 8px 10px;
+  gap: 2px;
+}
+.merak-md-editor .w-md-editor-toolbar li > button {
+  height: 30px;
+  min-width: 30px;
+  padding: 6px;
+  border-radius: 8px;
+  transition: background-color 0.15s, color 0.15s;
+}
+.merak-md-editor .w-md-editor-toolbar li.active > button,
+.merak-md-editor .w-md-editor-toolbar li > button:hover,
+.merak-md-editor .w-md-editor-toolbar li > button:focus {
+  background-color: var(--color-neutral-muted);
+  color: #F2B05C;
+}
+.merak-md-editor .w-md-editor-toolbar-divider {
+  height: 20px;
+  opacity: 0.4;
+}
+.merak-md-editor .w-md-editor-text-input,
+.merak-md-editor .w-md-editor-text {
+  font-size: 14px !important;
+  line-height: 1.7 !important;
+}

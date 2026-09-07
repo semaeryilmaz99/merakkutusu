@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ReactMarkdown from "react-markdown";
+import MDEditor from "@uiw/react-md-editor";
+import "@uiw/react-md-editor/markdown-editor.css";
+import "@uiw/react-markdown-preview/markdown.css";
 import remarkGfm from "remark-gfm";
 import { Image as ImageIcon, Send, Sparkles } from "lucide-react";
 import { createArticle } from "../services/articleService";
@@ -16,7 +18,6 @@ export default function WriteArticle() {
   const [tags, setTags] = useState([]);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
-  const [activeTab, setActiveTab] = useState("write"); // mobilde: "write" | "preview"
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -124,52 +125,25 @@ export default function WriteArticle() {
         />
       )}
 
-      <div className="flex gap-2 lg:hidden">
-        <button
-          type="button"
-          onClick={() => setActiveTab("write")}
-          className={`flex-1 rounded-full px-4 py-2 text-sm font-medium ${
-            activeTab === "write" ? "bg-brand-700 text-white" : "bg-gray-200 text-brand-900"
-          }`}
-        >
-          Yaz
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("preview")}
-          className={`flex-1 rounded-full px-4 py-2 text-sm font-medium ${
-            activeTab === "preview" ? "bg-brand-700 text-white" : "bg-gray-200 text-brand-900"
-          }`}
-        >
-          Önizle
-        </button>
+      <div className="merak-md-editor overflow-hidden rounded-2xl border-2 border-teal-500" data-color-mode="dark">
+        <MDEditor
+          value={content}
+          onChange={(value) => setContent((value ?? "").slice(0, 20000))}
+          height={500}
+          visibleDragbar
+          previewOptions={{
+            remarkPlugins: [remarkGfm],
+            className:
+              "prose prose-sm max-w-none p-4 prose-headings:text-brand-900 prose-a:text-brand-700 prose-strong:text-brand-900 prose-code:text-teal-900"
+          }}
+          textareaProps={{
+            placeholder: "Markdown ile yazmaya başla: **kalın**, # başlık, - liste, [link](url), ```kod```...",
+            maxLength: 20000,
+            required: true
+          }}
+        />
       </div>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className={activeTab === "write" ? "block" : "hidden lg:block"}>
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Markdown ile yazmaya başla: **kalın**, # başlık, - liste, [link](url), ```kod```..."
-            maxLength={20000}
-            required
-            className="h-[60vh] min-h-[400px] w-full resize-none rounded-2xl bg-brand-800 p-4 text-sm text-white placeholder-white/40 outline-none"
-          />
-          <p className="mt-1 px-2 text-right text-[10px] text-gray-400">{content.length}/20000</p>
-        </div>
-
-        <div className={activeTab === "preview" ? "block" : "hidden lg:block"}>
-          <div className="h-[60vh] min-h-[400px] overflow-y-auto rounded-2xl border-2 border-teal-500 bg-white p-4">
-            {content.trim() ? (
-              <div className="prose prose-sm max-w-none prose-headings:text-brand-900 prose-a:text-brand-700 prose-strong:text-brand-900 prose-code:text-teal-900">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
-              </div>
-            ) : (
-              <p className="text-sm text-gray-400">Önizleme burada görünecek...</p>
-            )}
-          </div>
-        </div>
-      </div>
+      <p className="px-2 text-right text-[10px] text-gray-400">{content.length}/20000</p>
 
       {error && <p className="text-center text-sm text-accent-coral">{error}</p>}
 
