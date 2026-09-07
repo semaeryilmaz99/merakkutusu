@@ -1,11 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
-import { User, Home, Compass, Library, PenSquare, NotebookPen, Bell, LogOut, ShieldCheck } from "lucide-react";
+import { User, Home, Compass, Library, NotebookPen, StickyNote, Bell, LogOut, ShieldCheck } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 const linkClass =
   "flex items-center gap-3 rounded-full bg-white px-4 py-3 text-sm font-medium text-brand-900 hover:bg-accent-gold transition-colors";
 
-export default function Sidebar({ isOpen, onClose, onOpenCreateArticle, onOpenNotifications }) {
+export default function Sidebar({ isOpen, onClose, onOpenNotifications }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -44,14 +44,14 @@ export default function Sidebar({ isOpen, onClose, onOpenCreateArticle, onOpenNo
           <Link to="/library" onClick={onClose} className={linkClass}>
             <Library size={18} /> Kütüphane
           </Link>
+          <Link to="/notes" onClick={onClose} className={linkClass}>
+            <StickyNote size={18} /> Notlarım
+          </Link>
 
           <div className="my-2 border-t border-white/20" />
 
-          <button onClick={onOpenCreateArticle} className={linkClass}>
-            <PenSquare size={18} /> Makale Oluştur
-          </button>
           <Link to="/write" onClick={onClose} className={linkClass}>
-            <NotebookPen size={18} /> Detaylı Editör
+            <NotebookPen size={18} /> Makale Yaz
           </Link>
           <button onClick={onOpenNotifications} className={linkClass}>
             <Bell size={18} /> Bildirimler

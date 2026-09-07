@@ -4,11 +4,12 @@ import MDEditor from "@uiw/react-md-editor";
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 import remarkGfm from "remark-gfm";
-import { Image as ImageIcon, Send, Sparkles } from "lucide-react";
+import { Image as ImageIcon, Send, Sparkles, StickyNote } from "lucide-react";
 import { createArticle } from "../services/articleService";
 import { suggestSources } from "../services/aiService";
 import TagInput from "../components/TagInput";
 import SourceSuggestions from "../components/SourceSuggestions";
+import NotePicker from "../components/NotePicker";
 
 export default function WriteArticle() {
   const navigate = useNavigate();
@@ -45,6 +46,14 @@ export default function WriteArticle() {
   const handleToggleCitation = (citation, wasAdded) => {
     const citationBlock = `\n\n> Kaynak: ${citation}`;
     setContent((prev) => (wasAdded ? prev.replace(citationBlock, "") : `${prev.trim()}${citationBlock}`));
+  };
+
+  const [isNotePickerOpen, setIsNotePickerOpen] = useState(false);
+  const buildNoteBlock = (note) => `\n\n## ${note.title}\n\n${note.summary}`;
+  const isNoteAdded = (note) => content.includes(buildNoteBlock(note));
+  const handleToggleNote = (note) => {
+    const block = buildNoteBlock(note);
+    setContent((prev) => (prev.includes(block) ? prev.replace(block, "") : `${prev.trim()}${block}`));
   };
 
   const handleImageChange = (e) => {
@@ -111,6 +120,15 @@ export default function WriteArticle() {
             <Sparkles size={14} />
             {isSuggesting ? "Aranıyor..." : "Kaynak Öner"}
           </button>
+
+          <button
+            type="button"
+            onClick={() => setIsNotePickerOpen(true)}
+            className="flex w-fit items-center gap-2 rounded-full bg-white/10 px-3 py-2 text-xs text-white/80 hover:bg-white/20"
+          >
+            <StickyNote size={14} />
+            Notlarımdan Ekle
+          </button>
         </div>
 
         <TagInput tags={tags} onChange={setTags} />
@@ -122,6 +140,14 @@ export default function WriteArticle() {
           error={suggestError}
           suggestions={sourceSuggestions}
           onToggleCitation={handleToggleCitation}
+        />
+      )}
+
+      {isNotePickerOpen && (
+        <NotePicker
+          isNoteAdded={isNoteAdded}
+          onToggleNote={handleToggleNote}
+          onClose={() => setIsNotePickerOpen(false)}
         />
       )}
 

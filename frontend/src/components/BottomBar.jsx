@@ -3,7 +3,6 @@ import { Plus, Bell, MessageCircle } from "lucide-react";
 
 export default function BottomBar({
   unreadCount = 0,
-  onOpenCreateArticle,
   onOpenNotifications,
   onOpenChat,
   showChat = false,
@@ -27,13 +26,13 @@ export default function BottomBar({
             <MessageCircle size={20} />
           </button>
         )}
-        <button
-          onClick={onOpenCreateArticle}
-          aria-label="Makale oluştur"
+        <Link
+          to="/write"
+          aria-label="Makale yaz"
           className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-900 text-white hover:bg-brand-800 transition-colors"
         >
           <Plus size={20} />
-        </button>
+        </Link>
         <button
           onClick={onOpenNotifications}
           aria-label="Bildirimler"

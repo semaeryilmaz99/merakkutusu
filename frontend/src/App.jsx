@@ -16,6 +16,7 @@ import CategoryDetail from "./pages/CategoryDetail";
 import Library from "./pages/Library";
 import AdminPanel from "./pages/AdminPanel";
 import WriteArticle from "./pages/WriteArticle";
+import Notes from "./pages/Notes";
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
             <Route path="/library" element={<Library />} />
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/write" element={<WriteArticle />} />
+            <Route path="/notes" element={<Notes />} />
           </Route>
         </Route>
       </Routes>

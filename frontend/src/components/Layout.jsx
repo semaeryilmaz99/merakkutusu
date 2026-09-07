@@ -4,7 +4,6 @@ import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import RightPanel from "./RightPanel";
 import BottomBar from "./BottomBar";
-import ArticleFormModal from "./ArticleFormModal";
 import NotificationsModal from "./NotificationsModal";
 import IncomingMessageToast from "./IncomingMessageToast";
 import LibraryToast from "./LibraryToast";
@@ -16,7 +15,7 @@ import { useSocket } from "../context/SocketContext";
 export default function Layout() {
   const socket = useSocket();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeModal, setActiveModal] = useState(null); // "createArticle" | "notifications" | null
+  const [activeModal, setActiveModal] = useState(null); // "notifications" | null
   const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const isHome = useMatch("/");
@@ -64,10 +63,6 @@ export default function Layout() {
         <Sidebar
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
-          onOpenCreateArticle={() => {
-            setIsSidebarOpen(false);
-            setActiveModal("createArticle");
-          }}
           onOpenNotifications={() => {
             setIsSidebarOpen(false);
             setActiveModal("notifications");
@@ -83,13 +78,10 @@ export default function Layout() {
 
       <BottomBar
         unreadCount={unreadCount}
-        onOpenCreateArticle={() => setActiveModal("createArticle")}
         onOpenNotifications={() => setActiveModal("notifications")}
         onOpenChat={() => setIsMobileChatOpen(true)}
         showChat={Boolean(mobileChatRoomRequest)}
       />
-
-      {activeModal === "createArticle" && <ArticleFormModal onClose={closeModal} />}
 
       {activeModal === "notifications" && (
         <NotificationsModal onClose={closeModal} onSeen={() => setUnreadCount(0)} />

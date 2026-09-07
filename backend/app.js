@@ -11,6 +11,7 @@ import tagRoutes from "./routes/tagRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
+import noteRoutes from "./routes/noteRoutes.js";
 import { notFound, errorHandler } from "./middlewares/errorHandlerMiddleware.js";
 import { generalLimiter } from "./middlewares/rateLimiter.js";
 import allowedOrigins from "./config/allowedOrigins.js";
@@ -58,6 +59,7 @@ app.use("/api/tags", tagRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/notes", noteRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

@@ -1,20 +1,19 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
 import { Image as ImageIcon, Send } from "lucide-react";
-import { createArticle, updateArticle } from "../services/articleService";
+import { updateArticle } from "../services/articleService";
 import Input from "./UI/Input";
 import Modal from "./UI/Modal";
 import TagInput from "./TagInput";
 
+// Artık sadece makale düzenleme için kullanılıyor (ArticleDetail.jsx) —
+// oluşturma akışı tamamen /write (WriteArticle.jsx) sayfasına taşındı,
+// o yüzden burada "oluştur"a özel dallanma yok.
 export default function ArticleFormModal({ onClose, article, onSaved }) {
-  const navigate = useNavigate();
-  const isEditing = Boolean(article);
-
-  const [title, setTitle] = useState(article?.title || "");
-  const [content, setContent] = useState(article?.content || "");
-  const [tags, setTags] = useState((article?.tags || []).map((tag) => tag.name || tag));
+  const [title, setTitle] = useState(article.title);
+  const [content, setContent] = useState(article.content);
+  const [tags, setTags] = useState((article.tags || []).map((tag) => tag.name || tag));
   const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(article?.image || "");
+  const [imagePreview, setImagePreview] = useState(article.image || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -41,15 +40,9 @@ export default function ArticleFormModal({ onClose, article, onSaved }) {
       formData.append("tags", tags.join(","));
       if (imageFile) formData.append("image", imageFile);
 
-      if (isEditing) {
-        const updated = await updateArticle(article._id, formData);
-        onSaved?.(updated);
-        onClose();
-      } else {
-        const created = await createArticle(formData);
-        onClose();
-        navigate(`/articles/${created._id}`);
-      }
+      const updated = await updateArticle(article._id, formData);
+      onSaved?.(updated);
+      onClose();
     } catch (err) {
       setError(err.response?.data?.message || "Makale kaydedilemedi, tekrar deneyin.");
     } finally {
@@ -58,7 +51,7 @@ export default function ArticleFormModal({ onClose, article, onSaved }) {
   };
 
   return (
-    <Modal title={isEditing ? "Makaleyi Düzenle" : "Makale Oluştur"} onClose={onClose}>
+    <Modal title="Makaleyi Düzenle" onClose={onClose}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <Input
           label="Başlık"
@@ -85,7 +78,7 @@ export default function ArticleFormModal({ onClose, article, onSaved }) {
 
         <label className="flex w-fit cursor-pointer items-center gap-2 rounded-full bg-white/10 px-3 py-2 text-xs text-white/80 hover:bg-white/20">
           <ImageIcon size={14} />
-          {imageFile ? imageFile.name : isEditing ? "Görseli Değiştir (opsiyonel)" : "Görsel Ekle (opsiyonel)"}
+          {imageFile ? imageFile.name : "Görseli Değiştir (opsiyonel)"}
           <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
         </label>
 
@@ -97,26 +90,14 @@ export default function ArticleFormModal({ onClose, article, onSaved }) {
 
         {error && <p className="text-center text-sm text-accent-coral">{error}</p>}
 
-        <div className="flex items-center justify-between gap-2">
-          {!isEditing && (
-            <Link
-              to="/write"
-              onClick={onClose}
-              className="text-xs text-white/60 hover:text-white hover:underline"
-            >
-              Daha büyük bir alanda mı yazmak istersin? Tam sayfa editöre geç →
-            </Link>
-          )}
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            aria-label={isEditing ? "Değişiklikleri kaydet" : "Makaleyi yayınla"}
-            className="ml-auto flex h-10 w-10 flex-none items-center justify-center rounded-full bg-accent-gold text-brand-900 hover:brightness-95 disabled:opacity-60"
-          >
-            <Send size={18} />
-          </button>
-        </div>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          aria-label="Değişiklikleri kaydet"
+          className="ml-auto flex h-10 w-10 flex-none items-center justify-center rounded-full bg-accent-gold text-brand-900 hover:brightness-95 disabled:opacity-60"
+        >
+          <Send size={18} />
+        </button>
       </form>
     </Modal>
   );
