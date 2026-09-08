@@ -13,6 +13,7 @@ import { Readable } from "stream";
 import cloudinary from "../config/cloudinary.js";
 import { getIo } from "../socket/chatSocket.js";
 import parsePagination from "../utils/parsePagination.js";
+import toArticleSummary from "../utils/toArticleSummary.js";
 
 // Makale oluşturma
 export const createArticle = asyncHandler(async (req, res) => {
@@ -80,8 +81,9 @@ export const getArticles = asyncHandler(async (req, res) => {
       .populate("author", "username email avatar")
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit);
-    res.json(articles);
+      .limit(limit)
+      .lean();
+    res.json(articles.map(toArticleSummary));
 });
 
 // Tek makale getirme
@@ -341,9 +343,10 @@ export const searchArticles = asyncHandler(async (req, res) => {
       .populate("tags", "name")
       .sort({ createdAt: -1 }) // en yeni makaleler üstte
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
-    res.json(articles);
+    res.json(articles.map(toArticleSummary));
 });
 
 // Makaleleri tag'e göre filtreleme
@@ -363,9 +366,10 @@ export const filterArticlesByTag = asyncHandler(async (req, res) => {
           .sort({createdAt: -1}) //en yeni makaleler üstte
           .skip(skip)
           .limit(limit)
+          .lean()
       : [];
 
-    res.json(articles);
+    res.json(articles.map(toArticleSummary));
 });
 
 // Popüler makaleleri getirme
@@ -380,7 +384,7 @@ export const getPopularArticles = asyncHandler(async (req, res) => {
       .sort((a, b) => b.popularity - a.popularity)
       .slice(0, 10);
 
-    res.json(sorted);
+    res.json(sorted.map(toArticleSummary));
 });
 
 // Trend olan makaleler (zaman-ağırlıklı hot skoru — /popular'dan farklı olarak
@@ -396,7 +400,7 @@ export const getTrendingArticles = asyncHandler(async (req, res) => {
       .sort((a, b) => b.trendingScore - a.trendingScore)
       .slice(0, 10);
 
-    res.json(sorted);
+    res.json(sorted.map(toArticleSummary));
 });
 
 // Trending tags
@@ -444,25 +448,23 @@ export const getPersonalizedFeed = asyncHandler(async (req, res) => {
     // aday sayısı sınırsız büyümesin diye.
     const POOL_LIMIT = 100;
 
-    // 1) Takip edilen kullanıcıların makaleleri
-    const followingArticles = await Article.find({
-      author: { $in: followingIds }
-    })
-      .populate("author", "username avatar")
-      .populate("tags", "name")
-      .sort({ createdAt: -1 })
-      .limit(POOL_LIMIT)
-      .lean();
-
-    // 2) Favori tag’lere göre makaleler
-    const tagArticles = await Article.find({
-      tags: { $in: favoriteTagIds }
-    })
-      .populate("author", "username avatar")
-      .populate("tags", "name")
-      .sort({ createdAt: -1 })
-      .limit(POOL_LIMIT)
-      .lean();
+    // 1) ve 2): Takip edilen kullanıcıların makaleleri + favori tag'lere göre
+    // makaleler — birbirinden bağımsız iki sorgu, art arda değil paralel
+    // çalıştırılıyor (Atlas'a her round-trip gerçek gecikme ekliyor).
+    const [followingArticles, tagArticles] = await Promise.all([
+      Article.find({ author: { $in: followingIds } })
+        .populate("author", "username avatar")
+        .populate("tags", "name")
+        .sort({ createdAt: -1 })
+        .limit(POOL_LIMIT)
+        .lean(),
+      Article.find({ tags: { $in: favoriteTagIds } })
+        .populate("author", "username avatar")
+        .populate("tags", "name")
+        .sort({ createdAt: -1 })
+        .limit(POOL_LIMIT)
+        .lean()
+    ]);
 
     // 3) Kullanıcının okuma geçmişinden tag başına okuma sayısını çıkar,
     //    sonra bu sayımlardan tag ağırlıklarını hesapla
@@ -510,17 +512,23 @@ export const getPersonalizedFeed = asyncHandler(async (req, res) => {
     scoredArticles.sort((a, b) => b.score - a.score);
 
     const { skip, limit } = parsePagination(req.query, { defaultLimit: 30 });
-    res.json(scoredArticles.slice(skip, skip + limit));
+    res.json(scoredArticles.slice(skip, skip + limit).map(toArticleSummary));
 });
 
 // Explore feed: trend + random + ilgi alanı harmanı
 export const getExploreFeed = asyncHandler(async (req, res) => {
-    // 1) Trend havuzu
-    const allArticles = await Article.find()
+    // 1) Trend havuzu — tüm koleksiyonu değil, en yeni 150 makaleyi çekip
+    // aralarından skorluyoruz (trend skoru zaten zaman-ağırzırlıklı olduğu
+    // için eski makaleler pratikte hiç ilk 8'e giremiyor, bu limit sonucu
+    // değiştirmiyor ama koleksiyon büyüdükçe tüm tabloyu taramayı önlüyor).
+    const RECENT_POOL_LIMIT = 150;
+    const recentArticles = await Article.find()
       .populate("author", "username email avatar")
       .populate("tags", "name")
+      .sort({ createdAt: -1 })
+      .limit(RECENT_POOL_LIMIT)
       .lean();
-    const trendingPool = [...allArticles]
+    const trendingPool = [...recentArticles]
       .sort((a, b) => calculateTrendingScore(b) - calculateTrendingScore(a))
       .slice(0, 8);
 
@@ -550,7 +558,7 @@ export const getExploreFeed = asyncHandler(async (req, res) => {
       new Map(merged.map(a => [a._id.toString(), a])).values()
     );
 
-    res.json(shuffleArray(uniqueArticles).slice(0, 20));
+    res.json(shuffleArray(uniqueArticles).slice(0, 20).map(toArticleSummary));
 });
 
 // Keşfet: taglere göre gruplanmış kategori önizlemeleri
@@ -564,10 +572,11 @@ export const getExploreCategories = asyncHandler(async (req, res) => {
             .populate("author", "username avatar")
             .populate("tags", "name")
             .sort({ createdAt: -1 })
-            .limit(6),
+            .limit(6)
+            .lean(),
           Article.countDocuments({ tags: tag._id })
         ]);
-        return { tag: { _id: tag._id, name: tag.name }, articleCount, articles };
+        return { tag: { _id: tag._id, name: tag.name }, articleCount, articles: articles.map(toArticleSummary) };
       })
     );
 
@@ -582,7 +591,8 @@ export const getArticlesByAuthor = asyncHandler(async (req, res) => {
       .populate("tags", "name")
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
-    res.json(articles);
+    res.json(articles.map(toArticleSummary));
 });

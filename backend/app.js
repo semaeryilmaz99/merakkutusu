@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import compression from "compression";
 import morgan from "morgan";
 import logger from "./config/logger.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -38,6 +39,11 @@ app.use(cors({
     callback(new Error("CORS: Bu origin'e izin verilmiyor."));
   }
 }));
+// JSON response'ları (özellikle makale listeleri) gzip ile sıkıştırıp
+// network üzerinden aktarılan boyutu küçültür — CPU maliyeti network
+// kazancının çok altında, standart bir production pratiği.
+app.use(compression());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

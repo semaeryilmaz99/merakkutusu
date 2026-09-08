@@ -250,7 +250,7 @@ export default function ChatPanel({ roomRequest }) {
                   >
                     <div className="flex h-6 w-6 flex-none items-center justify-center overflow-hidden rounded-full bg-teal-500 text-[10px] font-bold text-white">
                       {message.sender?.avatar ? (
-                        <img src={message.sender.avatar} alt="" className="h-full w-full object-cover" />
+                        <img src={message.sender.avatar} alt="" loading="lazy" className="h-full w-full object-cover" />
                       ) : (
                         message.sender?.username?.[0]?.toUpperCase()
                       )}
@@ -266,7 +266,7 @@ export default function ChatPanel({ roomRequest }) {
                         <span>{formatTime(message.createdAt)}</span>
                       </div>
                       {message.image && (
-                        <img src={message.image} alt="" className="mb-1 max-h-48 rounded-lg object-cover" />
+                        <img src={message.image} alt="" loading="lazy" className="mb-1 max-h-48 rounded-lg object-cover" />
                       )}
                       {message.text && <p className="whitespace-pre-wrap">{message.text}</p>}
                     </div>

@@ -66,7 +66,7 @@ function LibraryPanel() {
             >
               <div className="h-12 w-12 flex-none overflow-hidden rounded-lg bg-teal-500">
                 {article.image && (
-                  <img src={article.image} alt="" className="h-full w-full object-cover" />
+                  <img src={article.image} alt="" loading="lazy" className="h-full w-full object-cover" />
                 )}
               </div>
               <div className="min-w-0">

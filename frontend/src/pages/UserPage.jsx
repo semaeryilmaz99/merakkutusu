@@ -146,7 +146,7 @@ function ProfilePanel({ user, onOpenEdit, onOpenFollowers }) {
               className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-brand-600 text-xs font-semibold text-white"
             >
               {author.avatar ? (
-                <img src={author.avatar} alt="" className="h-full w-full object-cover" />
+                <img src={author.avatar} alt="" loading="lazy" className="h-full w-full object-cover" />
               ) : (
                 author.username?.[0]?.toUpperCase()
               )}
@@ -178,7 +178,7 @@ function FollowersModal({ followers, onClose }) {
             >
               <div className="flex h-9 w-9 flex-none items-center justify-center overflow-hidden rounded-full bg-brand-600 text-xs font-semibold text-white">
                 {follower.avatar ? (
-                  <img src={follower.avatar} alt="" className="h-full w-full object-cover" />
+                  <img src={follower.avatar} alt="" loading="lazy" className="h-full w-full object-cover" />
                 ) : (
                   follower.username?.[0]?.toUpperCase()
                 )}

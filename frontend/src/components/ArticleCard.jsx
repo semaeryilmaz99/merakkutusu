@@ -4,19 +4,21 @@ import { Heart, Library, Clock } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { toggleFavorite, toggleLibrary } from "../services/articleService";
 import { formatRelativeDate } from "../utils/formatDate";
-import { getReadingMinutes } from "../utils/readingTime";
 
 export default function ArticleCard({ article, onLibraryChange }) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const tags = (article.tags || []).slice(0, 2);
-  const excerpt = (article.content || "")
+  // Backend artık tam içerik yerine kısa bir excerpt + hazır hesaplanmış
+  // readingMinutes gönderiyor (bkz. backend/utils/toArticleSummary.js) —
+  // liste görünümünde tüm makale gövdesini indirmeye gerek yok.
+  const excerpt = (article.excerpt || "")
     .replace(/```[\s\S]*?```/g, " ") // kod blokları
     .replace(/[#>*_~`]/g, "") // markdown biçim karakterleri
     .replace(/!?\[([^\]]*)\]\([^)]*\)/g, "$1") // [link metni](url) / ![alt](url)
     .replace(/\s+/g, " ")
     .trim();
-  const readingMinutes = getReadingMinutes(article.content);
+  const readingMinutes = article.readingMinutes || 1;
 
   const [isFavorite, setIsFavorite] = useState((article.favorites || []).includes(user?._id));
   const [favoritesCount, setFavoritesCount] = useState((article.favorites || []).length);
@@ -74,7 +76,7 @@ export default function ArticleCard({ article, onLibraryChange }) {
       <div className="flex items-center gap-2 border-b border-gray-100 px-3 py-2">
         <div className="flex h-6 w-6 flex-none items-center justify-center overflow-hidden rounded-full bg-teal-500 text-[10px] font-bold text-white">
           {article.author?.avatar ? (
-            <img src={article.author.avatar} alt="" className="h-full w-full object-cover" />
+            <img src={article.author.avatar} alt="" loading="lazy" className="h-full w-full object-cover" />
           ) : (
             article.author?.username?.[0]?.toUpperCase()
           )}
@@ -94,7 +96,7 @@ export default function ArticleCard({ article, onLibraryChange }) {
 
       <div className="aspect-video w-full overflow-hidden bg-gradient-to-br from-brand-400 to-teal-500">
         {article.image && (
-          <img src={article.image} alt={article.title} className="h-full w-full object-cover" />
+          <img src={article.image} alt={article.title} loading="lazy" className="h-full w-full object-cover" />
         )}
       </div>
 

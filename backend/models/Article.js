@@ -19,5 +19,12 @@ const ArticleSchema = new mongoose.Schema({
     views: {type: Number, default: 0}
 }, {timestamps: true});
 
+// Feed/arama/profil sorgularının en sık filtrelediği/sıraladığı alanlar —
+// index'siz bunlar collection scan'e düşüyor (veri arttıkça asıl önemi
+// ortaya çıkar, şu anki küçük ölçekte bile ileriye dönük doğru bir adım).
+ArticleSchema.index({ author: 1 });
+ArticleSchema.index({ tags: 1 });
+ArticleSchema.index({ createdAt: -1 });
+
 const Article = mongoose.model("Article", ArticleSchema);
 export default Article;

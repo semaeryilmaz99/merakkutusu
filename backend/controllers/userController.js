@@ -8,6 +8,7 @@ import mongoose from "mongoose";
 import { Readable } from "stream";
 import cloudinary from "../config/cloudinary.js";
 import { getIo } from "../socket/chatSocket.js";
+import toArticleSummary from "../utils/toArticleSummary.js";
 
 export const followUser = asyncHandler(async (req, res) => {
       const userId = req.user._id;       // Takip eden
@@ -91,11 +92,12 @@ export const getLibrary = asyncHandler(async (req, res) => {
         path: "library",
         select: "title content author image createdAt",
         populate: { path: "author", select: "username avatar" }
-      });
+      })
+      .lean();
 
     if (!user) return res.status(404).json({ message: "Kullanıcı bulunamadı" });
 
-    res.json(user.library);
+    res.json(user.library.map(toArticleSummary));
 });
 
 // Kullanıcının kütüphane görünürlüğünü değiştirme
@@ -327,7 +329,8 @@ export const getUserLibrary = asyncHandler(async (req, res) => {
         path: "library",
         select: "title content author image createdAt",
         populate: { path: "author", select: "username avatar" }
-      });
+      })
+      .lean();
 
     if (!user) return res.status(404).json({ message: "Kullanıcı bulunamadı" });
 
@@ -337,5 +340,5 @@ export const getUserLibrary = asyncHandler(async (req, res) => {
       return res.status(403).json({ message: "Bu kütüphane gizli" });
     }
 
-    res.json(user.library);
+    res.json(user.library.map(toArticleSummary));
 });

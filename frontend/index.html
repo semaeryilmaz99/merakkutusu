@@ -5,6 +5,12 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Merak Kutusu</title>
+    <!-- Makale/avatar görselleri hep Cloudinary'den geliyor — sayfa yüklenirken
+         DNS+TLS bağlantısını erkenden (görsellerin kendisini beklemeden)
+         paralel kurar, ilk görsel isteği geldiğinde bağlantı zaten hazır olur.
+         API origin'i deploy edilene kadar sabit değil (şu an localhost),
+         canlıya alınca aynı desenle eklenebilir. -->
+    <link rel="preconnect" href="https://res.cloudinary.com" />
   </head>
   <body>
     <div id="root"></div>

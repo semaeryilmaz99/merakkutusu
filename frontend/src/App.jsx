@@ -1,3 +1,4 @@
+import { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import RequireAuth from "./components/RequireAuth";
@@ -14,9 +15,14 @@ import PublicProfile from "./pages/PublicProfile";
 import Explore from "./pages/Explore";
 import CategoryDetail from "./pages/CategoryDetail";
 import Library from "./pages/Library";
-import AdminPanel from "./pages/AdminPanel";
-import WriteArticle from "./pages/WriteArticle";
 import Notes from "./pages/Notes";
+
+// WriteArticle (@uiw/react-md-editor'ı içeriyor — bundle'ın büyük kısmı) ve
+// AdminPanel (nadiren ziyaret edilen, admin-özel) lazy yükleniyor — Dashboard
+// gibi sık ziyaret edilen sayfalar artık bunları hiç indirmiyor, sadece
+// gerçekten o sayfaya gidildiğinde ayrı bir JS parçası (chunk) olarak gelir.
+const AdminPanel = lazy(() => import("./pages/AdminPanel"));
+const WriteArticle = lazy(() => import("./pages/WriteArticle"));
 
 function App() {
   return (
@@ -39,9 +45,23 @@ function App() {
             <Route path="/explore" element={<Explore />} />
             <Route path="/explore/:tagName" element={<CategoryDetail />} />
             <Route path="/library" element={<Library />} />
-            <Route path="/admin" element={<AdminPanel />} />
-            <Route path="/write" element={<WriteArticle />} />
             <Route path="/notes" element={<Notes />} />
+            <Route
+              path="/admin"
+              element={
+                <Suspense fallback={<p className="text-sm text-gray-500">Yükleniyor...</p>}>
+                  <AdminPanel />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/write"
+              element={
+                <Suspense fallback={<p className="text-sm text-gray-500">Yükleniyor...</p>}>
+                  <WriteArticle />
+                </Suspense>
+              }
+            />
           </Route>
         </Route>
       </Routes>

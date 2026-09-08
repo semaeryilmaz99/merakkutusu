@@ -41,6 +41,9 @@ UserSchema.methods.matchPassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };
 
+// getPersonalizedFeed/getExploreFeed gibi yerlerde $in sorgularında kullanılıyor
+UserSchema.index({ following: 1 });
+UserSchema.index({ favoriteTags: 1 });
 
 const User = mongoose.model("User", UserSchema);
 export default User;
