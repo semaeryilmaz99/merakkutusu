@@ -11,6 +11,7 @@ import {
 } from "../services/chatService";
 import { getArticleById } from "../services/articleService";
 import { getPublicProfile } from "../services/userService";
+import { formatTime } from "../utils/formatDate";
 
 const EMOJIS = [
   "😀", "😂", "😍", "😎", "🥳", "😢", "😡", "👍", "👎", "🙏",
@@ -18,9 +19,6 @@ const EMOJIS = [
   "👏", "✨", "🌟", "💡", "📚", "☕", "🍕", "🎵", "⚡", "✅",
   "❌", "😉", "😜", "🤩", "🥰", "😤", "🙄", "😇", "🤝", "👀",
 ];
-
-const formatTime = (dateStr) =>
-  new Date(dateStr).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
 const TYPING_TIMEOUT_MS = 3000;
 const TYPING_EMIT_THROTTLE_MS = 2000;

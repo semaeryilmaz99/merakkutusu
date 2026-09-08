@@ -16,3 +16,17 @@ export function formatFullDate(dateStr) {
   const timePart = date.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
   return `${datePart} · ${timePart}`;
 }
+
+// AdminPanel/Notes gibi tablo/liste görünümlerinde kullanılan sade gün.ay.yıl
+// biçimi — daha önce her sayfa kendi `new Date(...).toLocaleDateString(...)`
+// çağrısını tekrarlıyordu.
+export function formatShortDate(dateStr) {
+  if (!dateStr) return "";
+  return new Date(dateStr).toLocaleDateString("tr-TR");
+}
+
+// ChatPanel'deki mesaj balonlarında sadece saat:dakika gösteriliyor.
+export function formatTime(dateStr) {
+  if (!dateStr) return "";
+  return new Date(dateStr).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+}

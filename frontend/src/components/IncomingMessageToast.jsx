@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMatch } from "react-router-dom";
 import { X } from "lucide-react";
 import { useIncomingMessages } from "../context/SocketContext";
@@ -16,13 +16,39 @@ export default function IncomingMessageToast() {
     (m) => m.sender._id !== profileMatch?.params.id
   );
 
+  // Mesaj başına TEK bir zamanlayıcı — id'ye göre bir Map'te tutuluyor.
+  // Önceki hali `incomingMessages` dizisinin TAMAMINA bağımlıydı: yeni bir
+  // mesaj gelince (ya da biri kapatılınca) dizi referansı değiştiği için
+  // TÜM zamanlayıcılar sıfırdan kuruluyordu — art arda mesaj geldiğinde
+  // hiçbir toast asla 6sn'de otomatik kapanmıyordu. Burada sadece henüz
+  // zamanlayıcısı olmayan (yeni gelen) mesajlar için timer kuruluyor.
+  const timersRef = useRef(new Map());
+
   useEffect(() => {
-    if (incomingMessages.length === 0) return;
-    const timers = incomingMessages.map((m) =>
-      setTimeout(() => dismissIncomingMessage(m.id), AUTO_DISMISS_MS)
-    );
-    return () => timers.forEach(clearTimeout);
+    const currentIds = new Set(incomingMessages.map((m) => m.id));
+
+    incomingMessages.forEach((m) => {
+      if (timersRef.current.has(m.id)) return;
+      const timerId = setTimeout(() => {
+        dismissIncomingMessage(m.id);
+        timersRef.current.delete(m.id);
+      }, AUTO_DISMISS_MS);
+      timersRef.current.set(m.id, timerId);
+    });
+
+    // Elle kapatılmış (listeden çıkmış) mesajların zamanlayıcısını temizle
+    timersRef.current.forEach((timerId, id) => {
+      if (!currentIds.has(id)) {
+        clearTimeout(timerId);
+        timersRef.current.delete(id);
+      }
+    });
   }, [incomingMessages, dismissIncomingMessage]);
+
+  useEffect(() => {
+    const timers = timersRef.current;
+    return () => timers.forEach(clearTimeout);
+  }, []);
 
   const handleOpenReply = (message) => {
     setReplyTarget({ _id: message.sender._id, username: message.sender.username });

@@ -24,6 +24,7 @@ export default function UserPage() {
   const [favoriteTags, setFavoriteTags] = useState(user?.favoriteTags || []);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isFollowersOpen, setIsFollowersOpen] = useState(false);
+  const [tagError, setTagError] = useState("");
 
   useEffect(() => {
     if (!user?._id) return;
@@ -37,8 +38,21 @@ export default function UserPage() {
   }, [user?.favoriteTags]);
 
   const handleRemoveTag = async (tagId) => {
+    const removedTag = favoriteTags.find((t) => t._id === tagId);
     setFavoriteTags((prev) => prev.filter((t) => t._id !== tagId));
-    await toggleFavoriteTag(tagId);
+    try {
+      await toggleFavoriteTag(tagId);
+    } catch {
+      // İstek başarısız olursa etiketi geri koy — aksi halde kullanıcı
+      // arayüzde silinmiş görürken backend'de hâlâ favori kalmaya devam
+      // ediyordu, sonraki bir profil yenilemesinde etiket sessizce geri
+      // dönüp kafa karıştırıyordu.
+      if (removedTag) {
+        setFavoriteTags((prev) => [...prev, removedTag]);
+      }
+      setTagError("İlgi alanı kaldırılamadı, tekrar dene.");
+      setTimeout(() => setTagError(""), 3000);
+    }
   };
 
   if (!user) return null;
@@ -52,6 +66,7 @@ export default function UserPage() {
       />
 
       <div className="flex-1">
+        {tagError && <p className="mb-2 text-xs text-accent-coral">{tagError}</p>}
         <div className="mb-4 flex flex-wrap gap-2">
           {favoriteTags.length === 0 ? (
             <p className="text-sm text-gray-500">

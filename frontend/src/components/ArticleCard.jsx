@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, Library, Clock } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -23,6 +23,22 @@ export default function ArticleCard({ article, onLibraryChange }) {
   const [isFavorite, setIsFavorite] = useState((article.favorites || []).includes(user?._id));
   const [favoritesCount, setFavoritesCount] = useState((article.favorites || []).length);
   const [isInLibrary, setIsInLibrary] = useState((user?.library || []).includes(article._id));
+
+  // useState initializer sadece ilk mount'ta çalışır — aynı key'li
+  // (article._id) bir kart, ebeveyn tekrar veri çekince YENİ favorites/
+  // library bilgisiyle tekrar render edilse bile React aynı component
+  // instance'ını yeniden kullandığı için (remount olmadığı için) bu yeni
+  // veri hiç yansımıyordu (kart, başka biri favorilemiş olsa bile eski
+  // favori sayısını göstermeye devam ediyordu). Prop değiştiğinde local
+  // state'i senkronlar.
+  useEffect(() => {
+    setIsFavorite((article.favorites || []).includes(user?._id));
+    setFavoritesCount((article.favorites || []).length);
+  }, [article._id, article.favorites, user?._id]);
+
+  useEffect(() => {
+    setIsInLibrary((user?.library || []).includes(article._id));
+  }, [article._id, user?.library]);
 
   const openArticle = () => navigate(`/articles/${article._id}`);
 

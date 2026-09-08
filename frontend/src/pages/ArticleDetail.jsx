@@ -38,14 +38,26 @@ export default function ArticleDetail() {
   const [editingCommentText, setEditingCommentText] = useState("");
 
   useEffect(() => {
+    // PublicProfile.jsx'teki aynı race: id hızlıca değişirse (başka bir
+    // makaleye link'ten geçiş) eski isteğin geç gelen cevabı yeni makalenin
+    // üzerine yazabilirdi — "ignore" bayrağıyla geç gelen cevap yok sayılıyor.
+    let ignore = false;
+
     setIsLoading(true);
     Promise.all([getArticleById(id), getMyLibrary()])
       .then(([articleData, library]) => {
+        if (ignore) return;
         setArticle(articleData);
         setIsFavorite(articleData.favorites?.includes(user?._id));
         setIsInLibrary(library.some((a) => a._id === articleData._id));
       })
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        if (!ignore) setIsLoading(false);
+      });
+
+    return () => {
+      ignore = true;
+    };
   }, [id, user?._id]);
 
   useEffect(() => {

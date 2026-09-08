@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Outlet, useMatch } from "react-router-dom";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
@@ -54,6 +54,12 @@ export default function Layout() {
   }, [socket]);
 
   const closeModal = () => setActiveModal(null);
+  // NotificationsModal bu callback'i bir useEffect bağımlılığında kullanıyor —
+  // inline arrow function her Layout render'ında yeni bir referans olacağından
+  // (ör. socket'ten gelen bir bildirimle unreadCount değişip Layout yeniden
+  // render olduğunda), modal her seferinde tekrar mount olmamış olsa bile
+  // effect'i yeniden tetikleyip bildirimleri gereksiz yere tekrar çekiyordu.
+  const handleNotificationsSeen = useCallback(() => setUnreadCount(0), []);
 
   return (
     <div className="flex h-screen flex-col">
@@ -84,7 +90,7 @@ export default function Layout() {
       />
 
       {activeModal === "notifications" && (
-        <NotificationsModal onClose={closeModal} onSeen={() => setUnreadCount(0)} />
+        <NotificationsModal onClose={closeModal} onSeen={handleNotificationsSeen} />
       )}
 
       {isMobileChatOpen && mobileChatRoomRequest && (

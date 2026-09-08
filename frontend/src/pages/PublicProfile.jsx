@@ -19,17 +19,34 @@ export default function PublicProfile() {
   const [followError, setFollowError] = useState("");
 
   useEffect(() => {
+    // Kullanıcı hızlıca A profilinden B profiline geçerse, A için atılmış
+    // istek B'ninkinden GEÇ dönebilir — "ignore" bayrağı olmadan A'nın
+    // cevabı state'e yazılıp ekranda B'nin URL'sinde A'nın verisi
+    // görünebilirdi. Cleanup'ta bayrak set edilip geç gelen cevap yok sayılıyor.
+    let ignore = false;
+
     setIsLoading(true);
     Promise.all([getPublicProfile(id), getArticlesByAuthor(id)])
       .then(([profileData, articlesData]) => {
+        if (ignore) return;
         setProfile(profileData);
         setArticles(articlesData);
       })
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        if (!ignore) setIsLoading(false);
+      });
 
     getUserLibrary(id)
-      .then(setLibrary)
-      .catch(() => setLibraryError("Bu kullanıcının kütüphanesi gizli."));
+      .then((data) => {
+        if (!ignore) setLibrary(data);
+      })
+      .catch(() => {
+        if (!ignore) setLibraryError("Bu kullanıcının kütüphanesi gizli.");
+      });
+
+    return () => {
+      ignore = true;
+    };
   }, [id]);
 
   const handleToggleFollow = async () => {

@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FileText, Image as ImageIcon, Trash2, Upload, ExternalLink } from "lucide-react";
 import { createNote, getMyNotes, deleteNote } from "../services/noteService";
+import { formatShortDate } from "../utils/formatDate";
 import Modal from "../components/UI/Modal";
 
 export default function Notes() {
@@ -135,7 +136,7 @@ export default function Notes() {
                 <div className="flex items-center gap-2 text-brand-700">
                   {note.sourceType === "pdf" ? <FileText size={14} /> : <ImageIcon size={14} />}
                   <span className="text-[10px] uppercase tracking-wide text-gray-400">
-                    {new Date(note.createdAt).toLocaleDateString("tr-TR")}
+                    {formatShortDate(note.createdAt)}
                   </span>
                 </div>
                 <p className="text-sm font-semibold text-brand-900">{note.title}</p>

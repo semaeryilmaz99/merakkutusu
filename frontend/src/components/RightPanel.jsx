@@ -1,23 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { getMyLibrary } from "../services/articleService";
+import { useLibrary } from "../context/LibraryContext";
 import ChatPanel from "./ChatPanel";
 
 function LibraryPanel() {
-  const [library, setLibrary] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // Kütüphane verisi artık LibraryContext'ten geliyor (Library.jsx sayfasıyla
+  // paylaşılan tek kaynak) — burada sadece "yeni eklenen makaleyi vurgula ve
+  // en alta kaydır" animasyonu için event'in detail bilgisi kullanılıyor,
+  // veri çekme işi merkezi context'te.
+  const { library, isLoading } = useLibrary();
   const [highlightedId, setHighlightedId] = useState(null);
   const scrollRef = useRef(null);
   const shouldScrollRef = useRef(false);
 
-  useEffect(() => {
-    getMyLibrary()
-      .then(setLibrary)
-      .finally(() => setIsLoading(false));
-  }, []);
-
-  // ArticleCard/ArticleDetail kütüphane toggle'ı başarılı olunca bu event'i yayınlıyor
-  // (Faz 22'de chat aktivasyonu için eklenmişti) — panel sayfa yenilenmeden güncellensin diye.
   useEffect(() => {
     const handleLibraryChange = (e) => {
       if (e.detail.isInLibrary) {
@@ -27,7 +22,6 @@ function LibraryPanel() {
           setHighlightedId((prev) => (prev === e.detail.articleId ? null : prev));
         }, 2500);
       }
-      getMyLibrary().then(setLibrary);
     };
     window.addEventListener("library:changed", handleLibraryChange);
     return () => window.removeEventListener("library:changed", handleLibraryChange);

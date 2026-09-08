@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ShieldCheck, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { getAllUsers, deleteUser, getUserActivity } from "../services/adminService";
+import { formatShortDate } from "../utils/formatDate";
 import Modal from "../components/UI/Modal";
 
 export default function AdminPanel() {
@@ -78,7 +79,7 @@ export default function AdminPanel() {
                 </td>
                 <td className="px-4 py-3">{u.isVerified ? "Evet" : "Hayır"}</td>
                 <td className="px-4 py-3 text-gray-500">
-                  {new Date(u.createdAt).toLocaleDateString("tr-TR")}
+                  {formatShortDate(u.createdAt)}
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
