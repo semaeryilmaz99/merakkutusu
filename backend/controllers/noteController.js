@@ -1,10 +1,9 @@
-import { Readable } from "stream";
 import { PDFParse } from "pdf-parse";
-import cloudinary from "../config/cloudinary.js";
 import openai from "../utils/openaiClient.js";
 import Note from "../models/Note.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import parsePagination from "../utils/parsePagination.js";
+import uploadToCloudinary from "../utils/uploadToCloudinary.js";
 
 const CHAT_MODEL = "gpt-4o-mini"; // multimodal — görsel girdiyi de kabul ediyor
 const MAX_EXTRACTED_TEXT = 8000; // PDF metnini LLM'e göndermeden önce kırp (token maliyeti)
@@ -14,26 +13,6 @@ const SUMMARY_SYSTEM_PROMPT =
   "Bunu, öğrencinin tekrar çalışırken kullanabileceği yapılandırılmış bir Türkçe özete çevir: ana başlıklar, önemli " +
   "tanımlar/formüller, kısa madde işaretli bir özet. Markdown formatında yaz. İlk satır, notun kısa bir başlığı olsun " +
   "(3-8 kelime, # olmadan düz metin).";
-
-const uploadToCloudinary = (file) => {
-  const isPdf = file.mimetype === "application/pdf";
-  const bufferStream = new Readable();
-  bufferStream.push(file.buffer);
-  bufferStream.push(null);
-
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      isPdf
-        ? { folder: "merakkutusu_notes", resource_type: "raw" }
-        : { folder: "merakkutusu_notes", quality: "auto", fetch_format: "auto" },
-      (err, result) => {
-        if (err) return reject(err);
-        resolve(result);
-      }
-    );
-    bufferStream.pipe(stream);
-  });
-};
 
 // Görsel için: Cloudinary URL'i doğrudan gpt-4o-mini'ye gönderilir — tek
 // çağrıda hem OCR (görseldeki metni okuma) hem özetleme yapılır, ayrı bir
@@ -79,7 +58,12 @@ export const createNote = asyncHandler(async (req, res) => {
   if (!req.file) return res.status(400).json({ message: "Bir dosya yüklemelisiniz." });
 
   const isPdf = req.file.mimetype === "application/pdf";
-  const uploadResult = await uploadToCloudinary(req.file);
+  const uploadResult = await uploadToCloudinary(
+    req.file.buffer,
+    isPdf
+      ? { folder: "merakkutusu_notes", resource_type: "raw" }
+      : { folder: "merakkutusu_notes", quality: "auto", fetch_format: "auto" }
+  );
 
   let summary;
   let extractedText;

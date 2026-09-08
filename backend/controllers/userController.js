@@ -5,10 +5,10 @@ import Tag from "../models/Tag.js";
 import Blacklist from "../models/Blacklist.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import mongoose from "mongoose";
-import { Readable } from "stream";
-import cloudinary from "../config/cloudinary.js";
 import { getIo } from "../socket/chatSocket.js";
 import toArticleSummary from "../utils/toArticleSummary.js";
+import escapeRegExp from "../utils/escapeRegExp.js";
+import uploadToCloudinary from "../utils/uploadToCloudinary.js";
 
 export const followUser = asyncHandler(async (req, res) => {
       const userId = req.user._id;       // Takip eden
@@ -54,10 +54,11 @@ export const searchUsers = asyncHandler(async (req, res) => {
     const { q } = req.query;
     if (!q) return res.status(400).json({ message: "Arama terimi gerekli" });
 
+    const safeQuery = escapeRegExp(q);
     const users = await User.find({
       $or: [
-        { username: { $regex: q, $options: "i" } },
-        { bio: { $regex: q, $options: "i" } }
+        { username: { $regex: safeQuery, $options: "i" } },
+        { bio: { $regex: safeQuery, $options: "i" } }
       ]
     }).select("username bio");
 
@@ -116,7 +117,7 @@ export const updateLibraryVisibility = asyncHandler(async (req, res) => {
 
     res.status(200).json({
       message: `Kütüphane gizliliği '${user.libraryVisibility}' olarak ayarlandı.`,
-      librarysVisibility: user.libraryVisibility
+      libraryVisibility: user.libraryVisibility
     });
 });
 
@@ -162,8 +163,11 @@ export const getMostReadTags = asyncHandler(async (req, res) => {
 
     const tagCount = {};
 
-    // Okunan makaleleri ve taglerini say
+    // Okunan makaleleri ve taglerini say — okunan makale sonradan silinmiş
+    // olabilir (silme, kullanıcıların readingHistory'sini temizlemiyor),
+    // bu durumda populate null döner.
     user.readingHistory.forEach(item => {
+      if (!item.article || !item.article.tags) return;
       item.article.tags.forEach(tag => {
         if (tagCount[tag._id]) {
           tagCount[tag._id].count += 1;
@@ -192,6 +196,11 @@ export const getMe = asyncHandler(async (req, res) => {
       .populate("favoriteTags", "name")
       .populate("following", "username avatar")
       .populate("followers", "username avatar");
+
+    // Token hâlâ geçerliyken hesap az önce (başka bir sekmeden/adminden)
+    // silinmiş olabilir — sibling handler'ların hepsi bu kontrolü yapıyor,
+    // burada eksikti.
+    if (!user) return res.status(404).json({ message: "Kullanıcı bulunamadı" });
 
     const [articlesCount, favoritesCount] = await Promise.all([
       Article.countDocuments({ author: req.user._id }),
@@ -263,21 +272,11 @@ export const updateProfile = asyncHandler(async (req, res) => {
     }
 
     if (req.file) {
-      const bufferStream = new Readable();
-      bufferStream.push(req.file.buffer);
-      bufferStream.push(null);
-
-      const result = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: "merakkutusu_avatars", quality: "auto", fetch_format: "auto" },
-          (err, res) => {
-            if (err) return reject(err);
-            resolve(res);
-          }
-        );
-        bufferStream.pipe(stream);
+      const result = await uploadToCloudinary(req.file.buffer, {
+        folder: "merakkutusu_avatars",
+        quality: "auto",
+        fetch_format: "auto"
       });
-
       user.avatar = result.secure_url;
     }
 

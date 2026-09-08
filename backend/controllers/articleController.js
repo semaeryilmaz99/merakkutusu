@@ -9,11 +9,13 @@ import shuffleArray from "../utils/shuffleArray.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import mongoose from "mongoose";
 
-import { Readable } from "stream";
-import cloudinary from "../config/cloudinary.js";
 import { getIo } from "../socket/chatSocket.js";
 import parsePagination from "../utils/parsePagination.js";
 import toArticleSummary from "../utils/toArticleSummary.js";
+import escapeRegExp from "../utils/escapeRegExp.js";
+import recordArticleView from "../utils/recordArticleView.js";
+import resolveTagIds from "../utils/resolveTagIds.js";
+import uploadToCloudinary from "../utils/uploadToCloudinary.js";
 
 // Makale oluşturma
 export const createArticle = asyncHandler(async (req, res) => {
@@ -21,47 +23,15 @@ export const createArticle = asyncHandler(async (req, res) => {
     let imageUrl = "";
 
     if (req.file) {
-      // Buffer’ı stream olarak Cloudinary’ye gönder
-      const bufferStream = new Readable();
-      bufferStream.push(req.file.buffer);
-      bufferStream.push(null);
-
-      const result = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: "merakkutusu_articles", quality: "auto", fetch_format: "auto" },
-          (err, res) => {
-            if (err) return reject(err);
-            resolve(res);
-          }
-        );
-        bufferStream.pipe(stream);
+      const result = await uploadToCloudinary(req.file.buffer, {
+        folder: "merakkutusu_articles",
+        quality: "auto",
+        fetch_format: "auto"
       });
-
       imageUrl = result.secure_url;
     }
 
-    // tags gönderildiyse normalize et, yoksa boş array
-    let tagsArray = [];
-    if (req.body.tags) {
-    if (Array.isArray(req.body.tags)) {
-    tagsArray = req.body.tags.map(tag => tag.trim().toLowerCase());
-    } else if (typeof req.body.tags === "string") {
-    tagsArray = req.body.tags.split(",").map(tag => tag.trim().toLowerCase());
-   }
-}
-
-// Otomatik tag oluşturma ve ID'ye çevirme
-const tagIds = [];
-
-for (const tagName of tagsArray) {
-  let tag = await Tag.findOne({ name: tagName });
-
-  if (!tag) {
-    tag = await Tag.create({ name: tagName });
-  }
-
-  tagIds.push(tag._id);
-}
+    const tagIds = await resolveTagIds(req.body.tags);
 
     const article = await Article.create({
       title,
@@ -100,17 +70,7 @@ export const getArticleById = asyncHandler(async (req, res) => {
     article.views = (article.views || 0) + 1;
 
        if (req.user) {
-        // Eğer makale daha önce eklenmişse viewedAt'ı güncelle, yoksa ekle
-        await User.updateOne(
-            { _id: req.user._id, "readingHistory.article": article._id },
-            { $set: { "readingHistory.$.viewedAt": new Date() } }
-        );
-
-        // Eğer makale yoksa push ile ekle
-        await User.updateOne(
-            { _id: req.user._id, "readingHistory.article": { $ne: article._id } },
-            { $push: { readingHistory: { article: article._id, viewedAt: new Date() } } }
-        );
+        await recordArticleView(req.user._id, article._id);
     }
 
     res.json(article);
@@ -131,46 +91,19 @@ export const updateArticle = asyncHandler(async (req, res) => {
     article.title = req.body.title || article.title;
     article.content = req.body.content || article.content;
 
-    // -----------------------
-    // Tags (form-data string veya array) — createArticle'daki gibi isimden
-    // Tag ObjectId'sine çevrilir, olmayan tag'ler otomatik oluşturulur
-    // -----------------------
+    // Tags (form-data string veya array) — resolveTagIds isimden ObjectId'ye
+    // çevirir, olmayan tag'leri otomatik oluşturur (createArticle ile aynı mantık)
     if (req.body.tags) {
-      let tagsArray = [];
-      if (Array.isArray(req.body.tags)) {
-        tagsArray = req.body.tags.map(tag => tag.trim().toLowerCase());
-      } else if (typeof req.body.tags === "string") {
-        tagsArray = req.body.tags.split(",").map(tag => tag.trim().toLowerCase());
-      }
-
-      const tagIds = [];
-      for (const tagName of tagsArray) {
-        let tag = await Tag.findOne({ name: tagName });
-        if (!tag) tag = await Tag.create({ name: tagName });
-        tagIds.push(tag._id);
-      }
-      article.tags = tagIds;
+      article.tags = await resolveTagIds(req.body.tags);
     }
 
-    // -----------------------
     // Image (Cloudinary)
-    // -----------------------
     if (req.file) {
-      const bufferStream = new Readable();
-      bufferStream.push(req.file.buffer);
-      bufferStream.push(null);
-
-      const result = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: "merakkutusu_articles", quality: "auto", fetch_format: "auto" },
-          (err, res) => {
-            if (err) return reject(err);
-            resolve(res);
-          }
-        );
-        bufferStream.pipe(stream);
+      const result = await uploadToCloudinary(req.file.buffer, {
+        folder: "merakkutusu_articles",
+        quality: "auto",
+        fetch_format: "auto"
       });
-
       article.image = result.secure_url;
     }
 
@@ -308,11 +241,14 @@ export const searchArticles = asyncHandler(async (req, res) => {
     const { q, author, tags } = req.query;
     const filter = {};
 
-    // Başlık veya içerikte arama (case-insensitive)
+    // Başlık veya içerikte arama (case-insensitive) — regex özel karakterleri
+    // kaçışlanmıyorsa (ör. "[" tek başına) MongoDB regex derlemesi çöküp
+    // yakalanmamış bir 500 hatası veriyordu.
     if (q) {
+      const safeQuery = escapeRegExp(q);
       filter.$or = [
-        { title: { $regex: q, $options: "i" } },
-        { content: { $regex: q, $options: "i" } }
+        { title: { $regex: safeQuery, $options: "i" } },
+        { content: { $regex: safeQuery, $options: "i" } }
       ];
     }
 

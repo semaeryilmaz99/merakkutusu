@@ -4,6 +4,7 @@ import User from "../models/User.js";
 import Blacklist from "../models/Blacklist.js";
 import ChatRoom from "../models/ChatRoom.js";
 import resolveChatRoom from "../utils/resolveChatRoom.js";
+import authorizeChatRoomAccess from "../utils/authorizeChatRoomAccess.js";
 import allowedOrigins from "../config/allowedOrigins.js";
 
 let ioInstance;
@@ -72,21 +73,10 @@ export default function initChatSocket(httpServer) {
       const room = await ChatRoom.findById(roomId);
       if (!room) return callback?.({ error: "Chat odası bulunamadı" });
 
-      const userId = socket.user._id.toString();
-
       // Yetki join zamanında kontrol edildi, gönderim anında tekrar doğrulanıyor
       // (kullanıcı arada makaleyi kütüphaneden çıkarmış olabilir)
-      if (room.type === "direct" && !room.members.some(m => m.toString() === userId)) {
-        return callback?.({ error: "Bu odaya mesaj gönderme yetkiniz yok" });
-      }
-
-      if (room.type === "article") {
-        const user = await User.findById(socket.user._id).select("library");
-        const inLibrary = user?.library?.some(id => id.toString() === room.article.toString());
-        if (!inLibrary) {
-          return callback?.({ error: "Bu chat odasına mesaj göndermek için makaleyi kütüphanenize eklemelisiniz" });
-        }
-      }
+      const authResult = await authorizeChatRoomAccess(socket.user._id, room);
+      if (!authResult.ok) return callback?.({ error: authResult.message });
 
       const message = {
         sender: socket.user._id,
