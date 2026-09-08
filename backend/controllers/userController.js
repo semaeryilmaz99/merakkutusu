@@ -18,8 +18,11 @@ export const followUser = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: "Kendinizi takip edemezsiniz" });
     }
 
-    const user = await User.findById(userId);
-    const targetUser = await User.findById(targetId);
+    // İki bağımsız kullanıcı sorgusu — art arda değil paralel
+    const [user, targetUser] = await Promise.all([
+      User.findById(userId),
+      User.findById(targetId)
+    ]);
 
     if (!targetUser) return res.status(404).json({ message: "Kullanıcı bulunamadı" });
 
@@ -27,16 +30,14 @@ export const followUser = asyncHandler(async (req, res) => {
     if (user.following.includes(targetId)) {
         user.following.pull(targetId);
         targetUser.followers.pull(userId);
-        await user.save();
-        await targetUser.save();
+        await Promise.all([user.save(), targetUser.save()]);
         return res.json({ message: "Takipten çıkarıldı" });
     }
 
       // Takip et
     user.following.push(targetId);
     targetUser.followers.push(userId);
-    await user.save();
-    await targetUser.save();
+    await Promise.all([user.save(), targetUser.save()]);
 
     // Takip bildirimi oluştur
     await Notification.create({
@@ -91,8 +92,14 @@ export const getLibrary = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id)
       .populate({
         path: "library",
-        select: "title content author image createdAt",
-        populate: { path: "author", select: "username avatar" }
+        // ArticleCard.jsx favorites/tags alanlarına doğrudan bağımlı (kalp
+        // ikonu, tag pill'leri) — bunlar select'te eksikti, kütüphanedeki
+        // her makale "favorilenmemiş" ve "tag'siz" gibi yanlış görünüyordu.
+        select: "title content author image createdAt favorites tags comments",
+        populate: [
+          { path: "author", select: "username avatar" },
+          { path: "tags", select: "name" }
+        ]
       })
       .lean();
 
@@ -326,8 +333,14 @@ export const getUserLibrary = asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id)
       .populate({
         path: "library",
-        select: "title content author image createdAt",
-        populate: { path: "author", select: "username avatar" }
+        // ArticleCard.jsx favorites/tags alanlarına doğrudan bağımlı (kalp
+        // ikonu, tag pill'leri) — bunlar select'te eksikti, kütüphanedeki
+        // her makale "favorilenmemiş" ve "tag'siz" gibi yanlış görünüyordu.
+        select: "title content author image createdAt favorites tags comments",
+        populate: [
+          { path: "author", select: "username avatar" },
+          { path: "tags", select: "name" }
+        ]
       })
       .lean();
 

@@ -48,7 +48,8 @@ export const createArticle = asyncHandler(async (req, res) => {
 export const getArticles = asyncHandler(async (req, res) => {
     const { skip, limit } = parsePagination(req.query);
     const articles = await Article.find()
-      .populate("author", "username email avatar")
+      .populate("author", "username avatar")
+      .populate("tags", "name")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -59,7 +60,7 @@ export const getArticles = asyncHandler(async (req, res) => {
 // Tek makale getirme
 export const getArticleById = asyncHandler(async (req, res) => {
     const article = await Article.findById(req.params.id)
-    .populate("author", "username email avatar")
+    .populate("author", "username avatar")
     .populate("tags", "name")
     .populate("comments.user", "username");
 
@@ -109,7 +110,7 @@ export const updateArticle = asyncHandler(async (req, res) => {
 
     await article.save();
     await article.populate([
-      { path: "author", select: "username email avatar" },
+      { path: "author", select: "username avatar" },
       { path: "tags", select: "name" },
       { path: "comments.user", select: "username" }
     ]);
@@ -224,18 +225,6 @@ export const deleteComment = asyncHandler(async (req, res) => {
     res.json(article.comments);
 });
 
-// Feed oluşturma
-export const getFeed = asyncHandler(async (req, res) => {
-    const user = await User.findById(req.user._id).populate("following");
-    const followingIds = user.following.map(f => f._id);
-
-    const feed = await Article.find({ author: { $in: followingIds } })
-      .sort({ createdAt: -1 })
-      .populate("author", "username email avatar");
-
-    res.json(feed);
-});
-
 // Article arama ve filtreleme
 export const searchArticles = asyncHandler(async (req, res) => {
     const { q, author, tags } = req.query;
@@ -274,7 +263,7 @@ export const searchArticles = asyncHandler(async (req, res) => {
     // Mongo sorgusu ve populate
     const { skip, limit } = parsePagination(req.query);
     const articles = await Article.find(filter)
-      .populate("author", "username email avatar")
+      .populate("author", "username avatar")
       .populate("comments.user", "username")
       .populate("tags", "name")
       .sort({ createdAt: -1 }) // en yeni makaleler üstte
@@ -297,7 +286,7 @@ export const filterArticlesByTag = asyncHandler(async (req, res) => {
     const matchedTag = await Tag.findOne({ name: tag.trim().toLowerCase() });
     const articles = matchedTag
       ? await Article.find({tags: { $in: [matchedTag._id]}})
-          .populate("author", "username email avatar")
+          .populate("author", "username avatar")
           .populate("tags", "name")
           .sort({createdAt: -1}) //en yeni makaleler üstte
           .skip(skip)
@@ -310,25 +299,41 @@ export const filterArticlesByTag = asyncHandler(async (req, res) => {
 
 // Popüler makaleleri getirme
 export const getPopularArticles = asyncHandler(async (req, res) => {
-    const articles = await Article.find()
-      .populate("author", "username email avatar")
-      .populate("tags", "name")
-      .lean();
+    // "Tüm zamanların en popüleri" (trending'in aksine zaman ağırlıklı değil)
+    // — bu yüzden getTrendingArticles'taki gibi "en yeni N" ile sınırlamak
+    // yanlış olurdu (eski ama çok popüler bir makaleyi dışarıda bırakabilirdi).
+    // Bunun yerine popülerlik hesabı ve sıralama MongoDB'de (aggregation)
+    // yapılıyor — tüm koleksiyonu Node'a çekip JS'te sıralamak yerine.
+    const articles = await Article.aggregate([
+      {
+        $addFields: {
+          popularity: { $add: [{ $multiply: [{ $size: "$favorites" }, 2] }, { $size: "$comments" }] }
+        }
+      },
+      { $sort: { popularity: -1 } },
+      { $limit: 10 }
+    ]);
 
-    const sorted = articles
-      .map(a => ({ ...a, popularity: a.favorites.length * 2 + a.comments.length }))
-      .sort((a, b) => b.popularity - a.popularity)
-      .slice(0, 10);
+    const populated = await Article.populate(articles, [
+      { path: "author", select: "username avatar" },
+      { path: "tags", select: "name" }
+    ]);
 
-    res.json(sorted.map(toArticleSummary));
+    res.json(populated.map(toArticleSummary));
 });
 
 // Trend olan makaleler (zaman-ağırlıklı hot skoru — /popular'dan farklı olarak
 // güncel etkileşimi önceler, tüm-zamanların-en-iyisi değil "şu an yükselenler")
 export const getTrendingArticles = asyncHandler(async (req, res) => {
+    // Trend skoru zaman ağırlıklı olduğu için eski makaleler zaten düşük
+    // skor alıyor — tüm koleksiyonu değil en yeni 150 makaleyi çekmek
+    // sonucu pratikte değiştirmiyor (getExploreFeed'deki aynı desen).
+    const RECENT_POOL_LIMIT = 150;
     const articles = await Article.find()
-      .populate("author", "username email avatar")
+      .populate("author", "username avatar")
       .populate("tags", "name")
+      .sort({ createdAt: -1 })
+      .limit(RECENT_POOL_LIMIT)
       .lean();
 
     const sorted = articles
@@ -453,42 +458,46 @@ export const getPersonalizedFeed = asyncHandler(async (req, res) => {
 
 // Explore feed: trend + random + ilgi alanı harmanı
 export const getExploreFeed = asyncHandler(async (req, res) => {
-    // 1) Trend havuzu — tüm koleksiyonu değil, en yeni 150 makaleyi çekip
-    // aralarından skorluyoruz (trend skoru zaten zaman-ağırzırlıklı olduğu
-    // için eski makaleler pratikte hiç ilk 8'e giremiyor, bu limit sonucu
-    // değiştirmiyor ama koleksiyon büyüdükçe tüm tabloyu taramayı önlüyor).
+    // Trend skoru zaman ağırlıklı olduğu için eski makaleler pratikte hiç
+    // ilk 8'e giremiyor — bu yüzden tüm koleksiyon değil en yeni 150 yeterli.
     const RECENT_POOL_LIMIT = 150;
-    const recentArticles = await Article.find()
-      .populate("author", "username email avatar")
-      .populate("tags", "name")
-      .sort({ createdAt: -1 })
-      .limit(RECENT_POOL_LIMIT)
-      .lean();
+
+    // Birbirinden bağımsız 3 sorgu — art arda değil paralel çalıştırılıyor
+    // (Atlas'a her round-trip gerçek gecikme ekliyor).
+    const [recentArticles, randomDocs, favoriteTagIds] = await Promise.all([
+      Article.find()
+        .populate("author", "username avatar")
+        .populate("tags", "name")
+        .sort({ createdAt: -1 })
+        .limit(RECENT_POOL_LIMIT)
+        .lean(),
+      Article.aggregate([{ $sample: { size: 8 } }]),
+      req.user
+        ? User.findById(req.user._id).select("favoriteTags").then(u => u?.favoriteTags || [])
+        : Promise.resolve([])
+    ]);
+
     const trendingPool = [...recentArticles]
       .sort((a, b) => calculateTrendingScore(b) - calculateTrendingScore(a))
       .slice(0, 8);
 
-    // 2) Rastgele havuz
-    const randomDocs = await Article.aggregate([{ $sample: { size: 8 } }]);
-    const randomPool = await Article.populate(randomDocs, [
-      { path: "author", select: "username email" },
-      { path: "tags", select: "name" }
+    // randomPool'un populate'i ve interestPool'un sorgusu da birbirinden
+    // bağımsız — yine paralel.
+    const [randomPool, interestPool] = await Promise.all([
+      Article.populate(randomDocs, [
+        { path: "author", select: "username avatar" },
+        { path: "tags", select: "name" }
+      ]),
+      favoriteTagIds.length > 0
+        ? Article.find({ tags: { $in: favoriteTagIds } })
+            .populate("author", "username avatar")
+            .populate("tags", "name")
+            .limit(8)
+            .lean()
+        : Promise.resolve([])
     ]);
 
-    // 3) İlgi alanı havuzu (login'se ve favoriteTags varsa)
-    let interestPool = [];
-    if (req.user) {
-      const user = await User.findById(req.user._id).select("favoriteTags");
-      if (user?.favoriteTags?.length) {
-        interestPool = await Article.find({ tags: { $in: user.favoriteTags } })
-          .populate("author", "username email avatar")
-          .populate("tags", "name")
-          .limit(8)
-          .lean();
-      }
-    }
-
-    // 4) Havuzları birleştir, tekilleştir, karıştır
+    // Havuzları birleştir, tekilleştir, karıştır
     const merged = [...trendingPool, ...randomPool, ...interestPool];
     const uniqueArticles = Array.from(
       new Map(merged.map(a => [a._id.toString(), a])).values()
@@ -523,7 +532,7 @@ export const getExploreCategories = asyncHandler(async (req, res) => {
 export const getArticlesByAuthor = asyncHandler(async (req, res) => {
     const { skip, limit } = parsePagination(req.query, { defaultLimit: 50 });
     const articles = await Article.find({ author: req.params.id })
-      .populate("author", "username email avatar")
+      .populate("author", "username avatar")
       .populate("tags", "name")
       .sort({ createdAt: -1 })
       .skip(skip)

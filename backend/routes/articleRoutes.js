@@ -2,10 +2,9 @@ import express from "express";
 import upload from "../middlewares/upload.js";
 
 import {
-    createArticle, 
+    createArticle,
     getArticles,
-    getFeed, 
-    getArticleById, 
+    getArticleById,
     updateArticle, 
     deleteArticle,
     toggleFavorite,
@@ -49,7 +48,6 @@ router.put("/favorite/:id", protect, toggleFavorite);
 router.post("/:id/comment", protect, addCommentValidator, handleValidationErrors, addComment);
 router.put("/:id/comment/:commentId", protect, addCommentValidator, handleValidationErrors, updateComment);
 router.delete("/:id/comment/:commentId", protect, deleteComment);
-router.get("/feed", protect, getFeed);
 router.get("/:id", optionalAuth, getArticleById);
 
 export default router;
