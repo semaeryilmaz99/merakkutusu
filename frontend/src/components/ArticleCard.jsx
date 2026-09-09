@@ -83,7 +83,7 @@ export default function ArticleCard({ article, onLibraryChange }) {
       }}
       role="button"
       tabIndex={0}
-      className="flex cursor-pointer flex-col overflow-hidden rounded-2xl border-2 border-teal-500 bg-white shadow-sm transition hover:shadow-md"
+      className="flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md"
     >
       <div className="bg-gray-100 px-3 py-2">
         <p className="truncate text-sm font-semibold text-brand-900">{article.title}</p>

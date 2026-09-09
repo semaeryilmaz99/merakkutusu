@@ -195,7 +195,7 @@ export default function ArticleDetail() {
         {readProgress >= 100 && <SproutCelebration />}
       </div>
 
-      <div className="overflow-hidden rounded-2xl border-2 border-teal-500 bg-white">
+      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="flex items-center justify-between gap-3 bg-gray-100 px-4 py-3">
           <h1 className="truncate text-lg font-semibold text-brand-900">{article.title}</h1>
           <Link

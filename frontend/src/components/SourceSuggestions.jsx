@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { BookOpen, Check, ExternalLink, Plus } from "lucide-react";
 
-export default function SourceSuggestions({ isLoading, error, suggestions, onToggleCitation }) {
+export default function SourceSuggestions({ error, suggestions, onToggleCitation }) {
   const [addedIndices, setAddedIndices] = useState(() => new Set());
 
   // Yeni bir arama sonucu geldiğinde ("Kaynak Öner" tekrar tıklanınca) önceki
@@ -23,10 +23,6 @@ export default function SourceSuggestions({ isLoading, error, suggestions, onTog
     });
   };
 
-  if (isLoading) {
-    return <p className="text-sm text-gray-500">Kaynaklar aranıyor...</p>;
-  }
-
   if (error) {
     return <p className="text-sm text-accent-coral">{error}</p>;
   }
@@ -40,7 +36,7 @@ export default function SourceSuggestions({ isLoading, error, suggestions, onTog
   return (
     <div className="flex flex-col gap-3">
       {suggestions.map((s, i) => (
-        <div key={i} className="rounded-2xl border-2 border-teal-500 bg-white p-4">
+        <div key={i} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
           <div className="flex items-start gap-2">
             <BookOpen size={16} className="mt-0.5 flex-none text-brand-700" />
             <div className="min-w-0 flex-1">

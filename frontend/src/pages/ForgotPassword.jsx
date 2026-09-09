@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { forgotPassword } from "../services/authService";
 import Input from "../components/UI/Input";
 import Button from "../components/UI/Button";
+import AuthStatusPanel from "../components/UI/AuthStatusPanel";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -29,9 +30,9 @@ export default function ForgotPassword() {
     <div className="flex min-h-screen items-center justify-center bg-brand-500 p-4">
       <div className="w-full max-w-sm rounded-2xl bg-gray-50 p-6 shadow-xl">
         {isDone ? (
-          <p className="text-center text-brand-900">
+          <AuthStatusPanel variant="success" linkTo={null}>
             <strong>{email}</strong> adresine bir şifre sıfırlama linki gönderdik. Mailinizi kontrol edin.
-          </p>
+          </AuthStatusPanel>
         ) : (
           <form onSubmit={handleSubmit}>
             <p className="mb-4 text-center text-sm text-gray-500">

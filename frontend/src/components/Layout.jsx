@@ -21,8 +21,12 @@ export default function Layout() {
   const isHome = useMatch("/");
   const articleMatch = useMatch("/articles/:id");
   const profileMatch = useMatch("/users/:id");
+  const isWrite = useMatch("/write");
 
-  let rightPanelProps = { variant: "library" };
+  // Yazarken kütüphaneyi göstermenin bir faydası yok — kaynak önerisi zaten
+  // editörün kendi içinde (SourceSuggestions), kütüphane paneli burada sadece
+  // dikkat dağıtıp editöre ayrılabilecek genişliği alıyordu.
+  let rightPanelProps = isWrite ? null : { variant: "library" };
   let mobileChatRoomRequest = null;
   if (articleMatch) {
     const roomRequest = { type: "article", articleId: articleMatch.params.id };
@@ -63,23 +67,20 @@ export default function Layout() {
 
   return (
     <div className="flex h-screen flex-col">
-      <Navbar onOpenSidebar={() => setIsSidebarOpen(true)} />
+      <Navbar
+        onOpenSidebar={() => setIsSidebarOpen(true)}
+        onOpenNotifications={() => setActiveModal("notifications")}
+        unreadCount={unreadCount}
+      />
 
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar
-          isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
-          onOpenNotifications={() => {
-            setIsSidebarOpen(false);
-            setActiveModal("notifications");
-          }}
-        />
+        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
         <main className="flex-1 overflow-y-auto bg-gray-100 p-4 sm:p-6">
           <Outlet />
         </main>
 
-        <RightPanel {...rightPanelProps} />
+        {rightPanelProps && <RightPanel {...rightPanelProps} />}
       </div>
 
       <BottomBar

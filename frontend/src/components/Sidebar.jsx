@@ -1,11 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
-import { User, Home, Compass, Library, NotebookPen, StickyNote, Bell, LogOut, ShieldCheck } from "lucide-react";
+import { Compass, Library, StickyNote, LogOut, ShieldCheck } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 const linkClass =
   "flex items-center gap-3 rounded-full bg-white px-4 py-3 text-sm font-medium text-brand-900 hover:bg-accent-gold transition-colors";
 
-export default function Sidebar({ isOpen, onClose, onOpenNotifications }) {
+export default function Sidebar({ isOpen, onClose }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -32,12 +32,12 @@ export default function Sidebar({ isOpen, onClose, onOpenNotifications }) {
         }`}
       >
         <div className="flex flex-col gap-2">
-          <Link to="/userpage" onClick={onClose} className={linkClass}>
-            <User size={18} /> Kullanıcı Profili
-          </Link>
-          <Link to="/" onClick={onClose} className={linkClass}>
-            <Home size={18} /> Ana Sayfa
-          </Link>
+          {/* Ana Sayfa, Kullanıcı Profili, Makale Yaz ve Bildirimler kasıtlı
+              olarak burada yok — profile Navbar'daki avatar (her ekran
+              boyutunda), Ana Sayfa'ya Navbar (sm+)/BottomBar (mobil), Makale
+              Yaz + Bildirimler'e ise Navbar (lg+, masaüstü) veya BottomBar
+              (mobil) üzerinden zaten ulaşılabiliyor — her ikisi her genişlikte
+              en az bir yerden erişilebilir olduğundan burada tekrar etmiyor. */}
           <Link to="/explore" onClick={onClose} className={linkClass}>
             <Compass size={18} /> Keşfet
           </Link>
@@ -47,15 +47,6 @@ export default function Sidebar({ isOpen, onClose, onOpenNotifications }) {
           <Link to="/notes" onClick={onClose} className={linkClass}>
             <StickyNote size={18} /> Notlarım
           </Link>
-
-          <div className="my-2 border-t border-white/20" />
-
-          <Link to="/write" onClick={onClose} className={linkClass}>
-            <NotebookPen size={18} /> Makale Yaz
-          </Link>
-          <button onClick={onOpenNotifications} className={linkClass}>
-            <Bell size={18} /> Bildirimler
-          </button>
 
           {user?.role === "admin" && (
             <>
@@ -68,13 +59,20 @@ export default function Sidebar({ isOpen, onClose, onOpenNotifications }) {
 
           <div className="my-2 border-t border-white/20" />
 
-          <button onClick={handleLogout} className={linkClass}>
+          {/* Çıkış, geri dönüşü olmayan bir eylem olduğu için diğer nötr
+              linklerden renkle ayrılıyor (linkClass'ı override etmek yerine
+              ayrı yazıldı — aynı utility'nin iki değerini bir arada
+              kullanmak Tailwind'de hangisinin kazanacağı belirsiz olurdu). */}
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 rounded-full bg-white px-4 py-3 text-sm font-medium text-accent-coral transition-colors hover:bg-accent-coral/10"
+          >
             <LogOut size={18} /> Çıkış Yap
           </button>
         </div>
 
         <div className="flex justify-center pb-2">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-accent-gold bg-white text-xs font-bold text-brand-900">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full border border-accent-gold bg-white text-xs font-bold text-brand-900">
             LOGO
           </div>
         </div>

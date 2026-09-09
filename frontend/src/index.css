@@ -28,26 +28,15 @@
    — miras alma, elemanın kendi üzerindeki (kütüphanenin) doğrudan tanımını
    asla yenemiyor. Aynı elemanları (.w-md-editor, .wmde-markdown) doğrudan
    hedefleyip !important ile üzerine yazıyoruz. */
-.merak-md-editor .w-md-editor {
-  --md-editor-font-family: inherit !important; /* sabit Helvetica yerine sitenin kendi fontu */
-  --color-canvas-default: #005C8C !important; /* brand-800 — yazı alanı */
-  --color-canvas-subtle: #1C6EA4 !important; /* brand-700, kod bloğu arka planı */
-  --color-border-default: #00C4B4 !important; /* teal-500 */
-  --color-border-muted: #009B77 !important; /* teal-700 */
-  --color-fg-default: #ffffff !important;
-  --color-fg-muted: rgba(255, 255, 255, 0.7) !important;
-  --color-accent-fg: #F2B05C !important; /* accent-gold, linkler/aktif ikon */
-  --color-neutral-muted: rgba(242, 176, 92, 0.18) !important; /* araç çubuğu hover */
-}
-
-/* Önizleme (canlı/preview modu) bilinçli olarak AÇIK temada — yayınlanan
-   makale sayfası (ArticleDetail.jsx) beyaz kart + koyu metin kullanıyor,
-   önizlemenin gerçek yayın görünümüyle birebir eşleşmesi için burada rengi
-   editör panelinden farklı, açık bir temaya geri döndürüyoruz. Önizleme
-   içeriği .wmde-markdown class'ını taşıyan AYRI bir elemanda render
-   ediliyor, o yüzden burada da doğrudan onu hedefliyoruz. */
+/* Faz 37: yazma sayfası artık başlık+editör tek açık "kağıt" yüzeyi olacak
+   şekilde yeniden düzenlendi (yardımcı işlevler sağ raya taşındı) — editör
+   paneli de önizlemeyle aynı açık temaya alındı, ikisi arasında "koyu editör
+   / açık önizleme" ayrımı kalmadı, hepsi yayınlanan makale görünümüyle
+   (ArticleDetail.jsx) birebir eşleşiyor. */
+.merak-md-editor .w-md-editor,
 .merak-md-editor .w-md-editor-preview,
 .merak-md-editor .w-md-editor-preview .wmde-markdown {
+  --md-editor-font-family: inherit !important; /* sabit Helvetica yerine sitenin kendi fontu */
   --color-canvas-default: #ffffff !important;
   --color-canvas-subtle: #f6f8fa !important;
   --color-border-default: #d0d7de !important;

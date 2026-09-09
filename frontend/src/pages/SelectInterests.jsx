@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Check } from "lucide-react";
 import api from "../services/api";
 import Button from "../components/UI/Button";
+
+// Yükleme sırasında gerçek etiket düzenini taklit eden, değişen genişlikte
+// iskelet haplar — düz "Yükleniyor..." metninden sonra liste gelince sayfa
+// (dikey ortalı olduğu için) zıplamasın diye.
+const SKELETON_WIDTHS = ["w-24", "w-20", "w-28", "w-16", "w-24", "w-32", "w-20", "w-24", "w-28", "w-16"];
 
 export default function SelectInterests() {
   const navigate = useNavigate();
@@ -38,14 +44,16 @@ export default function SelectInterests() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-brand-500 p-4">
       <div className="w-full max-w-2xl rounded-2xl bg-brand-700 p-6 shadow-xl">
-        <div className="mb-6 rounded-full bg-gray-100 px-4 py-2 text-center text-sm font-semibold text-brand-900">
-          İlgi alanlarını seç
-        </div>
+        <h1 className="mb-6 text-center text-lg font-semibold text-white">İlgi alanlarını seç</h1>
 
         {isLoading ? (
-          <p className="text-center text-white">Yükleniyor...</p>
+          <div className="flex flex-wrap gap-3">
+            {SKELETON_WIDTHS.map((width, i) => (
+              <div key={i} className={`h-9 ${width} animate-pulse rounded-full bg-white/10`} />
+            ))}
+          </div>
         ) : (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="flex flex-wrap gap-3">
             {tags.map((tag) => {
               const isSelected = selected.has(tag._id);
               return (
@@ -53,12 +61,11 @@ export default function SelectInterests() {
                   key={tag._id}
                   type="button"
                   onClick={() => toggle(tag._id)}
-                  className={`rounded-full px-4 py-2 text-sm font-medium uppercase tracking-wide transition-colors ${
-                    isSelected
-                      ? "bg-accent-gold text-brand-900"
-                      : "bg-gray-200 text-brand-900 hover:bg-gray-300"
+                  className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                    isSelected ? "bg-accent-gold text-brand-900" : "bg-gray-200 text-brand-900 hover:bg-gray-300"
                   }`}
                 >
+                  {isSelected && <Check size={14} />}
                   #{tag.name}
                 </button>
               );
@@ -66,10 +73,13 @@ export default function SelectInterests() {
           </div>
         )}
 
-        <div className="mt-6">
-          <Button variant="light" onClick={handleSubmit} disabled={isSubmitting || isLoading}>
-            {isSubmitting ? "Kaydediliyor..." : "Kişisel Feed'ini Oluştur"}
-          </Button>
+        <div className="mt-6 flex items-center justify-between gap-4 border-t border-white/10 pt-4">
+          <p className="text-sm text-white/70">{selected.size} konu seçildi</p>
+          <div className="w-fit">
+            <Button variant="light" onClick={handleSubmit} disabled={isSubmitting || isLoading} className="px-6">
+              {isSubmitting ? "Kaydediliyor..." : "Kişisel Feed'ini Oluştur"}
+            </Button>
+          </div>
         </div>
       </div>
     </div>

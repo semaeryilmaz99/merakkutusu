@@ -11,9 +11,7 @@ export default function Modal({ title, onClose, children }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-none items-center justify-between p-6 pb-4">
-          <h2 className="rounded-full bg-white px-4 py-2 text-sm font-semibold uppercase tracking-wide text-brand-900">
-            {title}
-          </h2>
+          <h2 className="text-lg font-semibold text-white">{title}</h2>
           <button
             onClick={onClose}
             aria-label="Kapat"

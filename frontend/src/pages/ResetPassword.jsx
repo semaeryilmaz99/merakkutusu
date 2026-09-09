@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { resetPassword } from "../services/authService";
 import Input from "../components/UI/Input";
 import Button from "../components/UI/Button";
+import AuthStatusPanel from "../components/UI/AuthStatusPanel";
 
 export default function ResetPassword() {
   const { token } = useParams();
@@ -36,11 +37,10 @@ export default function ResetPassword() {
   if (isDone) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-brand-500 p-4">
-        <div className="w-full max-w-sm rounded-2xl bg-gray-50 p-6 text-center shadow-xl">
-          <p className="text-brand-900">Şifren başarıyla sıfırlandı.</p>
-          <Link to="/login" className="mt-4 inline-block text-sm font-semibold text-brand-700 hover:underline">
-            Giriş sayfasına git
-          </Link>
+        <div className="w-full max-w-sm rounded-2xl bg-gray-50 p-6 shadow-xl">
+          <AuthStatusPanel variant="success" linkLabel="Giriş sayfasına git">
+            Şifren başarıyla sıfırlandı.
+          </AuthStatusPanel>
         </div>
       </div>
     );

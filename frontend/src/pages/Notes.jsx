@@ -131,11 +131,11 @@ export default function Notes() {
                 key={note._id}
                 type="button"
                 onClick={() => openNote(note)}
-                className="flex flex-col items-start gap-2 rounded-2xl border-2 border-teal-500 bg-white p-4 text-left shadow-sm transition hover:shadow-md"
+                className="flex flex-col items-start gap-2 rounded-2xl border border-gray-200 bg-white p-4 text-left shadow-sm transition hover:shadow-md"
               >
                 <div className="flex items-center gap-2 text-brand-700">
                   {note.sourceType === "pdf" ? <FileText size={14} /> : <ImageIcon size={14} />}
-                  <span className="text-[10px] uppercase tracking-wide text-gray-400">
+                  <span className="text-[10px] text-gray-400">
                     {formatShortDate(note.createdAt)}
                   </span>
                 </div>

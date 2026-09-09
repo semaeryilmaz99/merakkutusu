@@ -4,18 +4,15 @@ export default function Input({ label, error, id, maxLength, value, ...props }) 
 
   return (
     <div className="mb-4">
-      <label
-        htmlFor={inputId}
-        className="mb-2 block rounded-full bg-gray-200 px-4 py-2 text-center text-xs font-semibold uppercase tracking-wide text-brand-900"
-      >
+      <label htmlFor={inputId} className="mb-1.5 block px-1 text-xs font-medium text-brand-800">
         {label}
       </label>
       <input
         id={inputId}
         maxLength={maxLength}
         value={value}
-        className={`w-full rounded-full bg-accent-gold px-4 py-3 text-brand-900 placeholder-brand-900/50 outline-none focus:ring-2 focus:ring-brand-900 ${
-          error ? "ring-2 ring-accent-coral" : ""
+        className={`w-full rounded-full border border-gray-300 bg-white px-4 py-3 text-brand-900 placeholder-gray-400 outline-none transition-colors focus:border-accent-gold focus:ring-2 focus:ring-accent-gold/30 ${
+          error ? "border-accent-coral focus:border-accent-coral focus:ring-accent-coral/30" : ""
         }`}
         {...props}
       />

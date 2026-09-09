@@ -89,59 +89,119 @@ export default function WriteArticle() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mx-auto flex max-w-5xl flex-col gap-4">
-      <div className="flex flex-col gap-3 rounded-2xl bg-brand-800 p-4">
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Başlık"
-          maxLength={200}
-          required
-          className="w-full rounded-full bg-white/10 px-4 py-3 text-lg font-semibold text-white placeholder-white/50 outline-none"
-        />
+    <form onSubmit={handleSubmit} className="mx-auto flex max-w-6xl flex-col gap-6 lg:flex-row lg:items-start">
+      {/* Ana sütun: başlık ve editör artık tek, açık "kağıt" yüzeyi — yardımcı
+          işlevler (görsel/etiket/kaynak/not) sağdaki rayda, burada sadece
+          yazma deneyimiyle ilgili olmayan hiçbir şey yok. */}
+      <div className="flex min-w-0 flex-1 flex-col gap-4">
+        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Başlık"
+            maxLength={200}
+            required
+            className="w-full border-b border-gray-100 px-5 py-4 text-xl font-semibold text-brand-900 placeholder-gray-400 outline-none"
+          />
 
-        <div className="flex flex-wrap items-center gap-3">
-          <label className="flex w-fit cursor-pointer items-center gap-2 rounded-full bg-white/10 px-3 py-2 text-xs text-white/80 hover:bg-white/20">
-            <ImageIcon size={14} />
+          <div className="merak-md-editor" data-color-mode="light">
+            <MDEditor
+              value={content}
+              onChange={(value) => setContent((value ?? "").slice(0, 20000))}
+              height={480}
+              visibleDragbar
+              previewOptions={{
+                remarkPlugins: [remarkGfm],
+                className:
+                  "prose prose-sm max-w-none p-4 prose-headings:text-brand-900 prose-a:text-brand-700 prose-strong:text-brand-900 prose-code:text-teal-900"
+              }}
+              textareaProps={{
+                placeholder: "Markdown ile yazmaya başla: **kalın**, # başlık, - liste, [link](url), ```kod```...",
+                maxLength: 20000,
+                required: true
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs text-gray-400">{content.length}/20000</p>
+          <div className="flex items-center gap-3">
+            {error && <p className="text-sm text-accent-coral">{error}</p>}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="flex items-center justify-center gap-2 rounded-full bg-accent-gold px-6 py-3 text-sm font-semibold text-brand-900 transition-[filter] hover:brightness-95 disabled:opacity-60"
+            >
+              <Send size={16} />
+              {isSubmitting ? "Yayınlanıyor..." : "Makaleyi Yayınla"}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Sağ yardımcı ray — masaüstünde sabit 312px, mobilde ana sütunun altına düşer. */}
+      <div className="flex w-full flex-col gap-4 lg:w-[312px] lg:flex-none">
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+          <p className="mb-2 text-xs font-semibold uppercase text-gray-400">Görsel</p>
+          <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-gray-300 p-4 text-center text-xs text-gray-500 transition-colors hover:border-accent-gold hover:bg-accent-gold/5">
+            {imagePreview ? (
+              <img src={imagePreview} alt="" className="h-20 w-full rounded-lg object-cover" />
+            ) : (
+              <ImageIcon size={20} className="text-gray-400" />
+            )}
             {imageFile ? imageFile.name : "Görsel Ekle (opsiyonel)"}
             <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
           </label>
-          {imagePreview && (
-            <img src={imagePreview} alt="" className="h-12 w-20 rounded-lg object-cover" />
-          )}
+        </div>
 
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+          <p className="mb-2 text-xs font-semibold uppercase text-gray-400">Etiketler</p>
+          <TagInput tags={tags} onChange={setTags} dark={false} />
+        </div>
+
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
           <button
             type="button"
             onClick={handleSuggestSources}
             disabled={isSuggesting}
-            className="flex w-fit items-center gap-2 rounded-full bg-white/10 px-3 py-2 text-xs text-white/80 hover:bg-white/20 disabled:opacity-50"
+            className="flex w-full items-center gap-2 text-xs font-semibold uppercase text-gray-400 disabled:opacity-50"
           >
             <Sparkles size={14} />
             {isSuggesting ? "Aranıyor..." : "Kaynak Öner"}
           </button>
 
+          {isSuggesting && (
+            <div className="mt-3 flex flex-col gap-2">
+              <div className="h-3 w-4/5 animate-pulse rounded-full bg-gray-100" />
+              <div className="h-3 w-3/5 animate-pulse rounded-full bg-gray-100" />
+              <div className="h-3 w-2/3 animate-pulse rounded-full bg-gray-100" />
+            </div>
+          )}
+
+          {(suggestError || sourceSuggestions) && !isSuggesting && (
+            <div className="mt-3">
+              <SourceSuggestions
+                error={suggestError}
+                suggestions={sourceSuggestions}
+                onToggleCitation={handleToggleCitation}
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
           <button
             type="button"
             onClick={() => setIsNotePickerOpen(true)}
-            className="flex w-fit items-center gap-2 rounded-full bg-white/10 px-3 py-2 text-xs text-white/80 hover:bg-white/20"
+            className="flex w-full items-center gap-2 text-xs font-semibold uppercase text-gray-400"
           >
             <StickyNote size={14} />
             Notlarımdan Ekle
           </button>
         </div>
-
-        <TagInput tags={tags} onChange={setTags} />
       </div>
-
-      {(isSuggesting || suggestError || sourceSuggestions) && (
-        <SourceSuggestions
-          isLoading={isSuggesting}
-          error={suggestError}
-          suggestions={sourceSuggestions}
-          onToggleCitation={handleToggleCitation}
-        />
-      )}
 
       {isNotePickerOpen && (
         <NotePicker
@@ -150,37 +210,6 @@ export default function WriteArticle() {
           onClose={() => setIsNotePickerOpen(false)}
         />
       )}
-
-      <div className="merak-md-editor overflow-hidden rounded-2xl border-2 border-teal-500" data-color-mode="dark">
-        <MDEditor
-          value={content}
-          onChange={(value) => setContent((value ?? "").slice(0, 20000))}
-          height={500}
-          visibleDragbar
-          previewOptions={{
-            remarkPlugins: [remarkGfm],
-            className:
-              "prose prose-sm max-w-none p-4 prose-headings:text-brand-900 prose-a:text-brand-700 prose-strong:text-brand-900 prose-code:text-teal-900"
-          }}
-          textareaProps={{
-            placeholder: "Markdown ile yazmaya başla: **kalın**, # başlık, - liste, [link](url), ```kod```...",
-            maxLength: 20000,
-            required: true
-          }}
-        />
-      </div>
-      <p className="px-2 text-right text-[10px] text-gray-400">{content.length}/20000</p>
-
-      {error && <p className="text-center text-sm text-accent-coral">{error}</p>}
-
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="flex items-center justify-center gap-2 self-end rounded-full bg-accent-gold px-6 py-3 text-sm font-semibold text-brand-900 hover:brightness-95 disabled:opacity-60"
-      >
-        <Send size={16} />
-        {isSubmitting ? "Yayınlanıyor..." : "Makaleyi Yayınla"}
-      </button>
     </form>
   );
 }

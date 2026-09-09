@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import api from "../services/api";
 
-export default function TagInput({ tags, onChange }) {
+// dark=true (varsayılan): ArticleFormModal.jsx içindeki koyu Modal'da
+// kullanılıyor. WriteArticle.jsx artık açık bir "kağıt" yüzeyinde
+// olduğundan oradan dark={false} geçiliyor.
+export default function TagInput({ tags, onChange, dark = true }) {
   const [allTags, setAllTags] = useState([]);
   const [input, setInput] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -53,7 +56,11 @@ export default function TagInput({ tags, onChange }) {
             }
           }}
           placeholder="Tag ekle ve Enter'a bas..."
-          className="w-full rounded-full bg-white/10 px-4 py-2 text-sm text-white placeholder-white/50 outline-none"
+          className={`w-full rounded-full px-4 py-2 text-sm outline-none ${
+            dark
+              ? "bg-white/10 text-white placeholder-white/50"
+              : "border border-gray-300 bg-white text-brand-900 placeholder-gray-400 focus:border-accent-gold"
+          }`}
         />
         {isOpen && suggestions.length > 0 && (
           <div className="absolute left-0 right-0 top-full z-10 mt-1 flex flex-wrap gap-1 rounded-xl bg-white p-2 shadow-lg">

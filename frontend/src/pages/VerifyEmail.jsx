@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { verifyEmail } from "../services/authService";
+import AuthStatusPanel from "../components/UI/AuthStatusPanel";
 
 export default function VerifyEmail() {
   const { token } = useParams();
@@ -28,29 +29,16 @@ export default function VerifyEmail() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-brand-500 p-4">
-      <div className="w-full max-w-sm rounded-2xl bg-gray-50 p-6 text-center shadow-xl">
-        {status === "loading" && <p className="text-brand-900">Doğrulanıyor...</p>}
+      <div className="w-full max-w-sm rounded-2xl bg-gray-50 p-6 shadow-xl">
+        {status === "loading" && <p className="text-center text-brand-900">Doğrulanıyor...</p>}
 
         {status === "success" && (
-          <>
-            <p className="text-brand-900">{message}</p>
-            <Link
-              to="/login"
-              className="mt-4 inline-block rounded-full bg-brand-600 px-6 py-2 text-sm font-semibold text-white hover:bg-brand-700"
-            >
-              Giriş Yap
-            </Link>
-          </>
+          <AuthStatusPanel variant="success" linkLabel="Giriş Yap" linkVariant="button">
+            {message}
+          </AuthStatusPanel>
         )}
 
-        {status === "error" && (
-          <>
-            <p className="text-accent-coral">{message}</p>
-            <Link to="/login" className="mt-4 inline-block text-sm font-semibold text-brand-700 hover:underline">
-              Giriş sayfasına dön
-            </Link>
-          </>
-        )}
+        {status === "error" && <AuthStatusPanel variant="error">{message}</AuthStatusPanel>}
       </div>
     </div>
   );

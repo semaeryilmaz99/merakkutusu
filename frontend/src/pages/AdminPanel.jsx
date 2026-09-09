@@ -43,7 +43,7 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border-2 border-teal-500 bg-white">
+    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
       <div className="flex items-center gap-2 bg-gray-100 px-4 py-3">
         <ShieldCheck size={18} className="text-brand-700" />
         <h1 className="text-lg font-semibold text-brand-900">

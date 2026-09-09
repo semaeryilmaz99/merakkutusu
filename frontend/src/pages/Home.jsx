@@ -117,7 +117,7 @@ export default function Home() {
   return (
     <div>
       <form onSubmit={handleSubmit} className="mb-6 flex items-center gap-3">
-        <div className="flex flex-1 items-center gap-2 rounded-full border-2 border-brand-700 bg-white px-4 py-2">
+        <div className="flex flex-1 items-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-2 shadow-sm">
           <input
             type="text"
             value={query}
@@ -135,8 +135,8 @@ export default function Home() {
             type="button"
             onClick={() => setIsFilterOpen((v) => !v)}
             aria-label="Tag filtrele"
-            className={`flex h-11 w-11 items-center justify-center rounded-full border-2 ${
-              selectedTag ? "border-accent-gold bg-accent-gold text-brand-900" : "border-brand-700 bg-white text-brand-700"
+            className={`flex h-11 w-11 items-center justify-center rounded-full border shadow-sm ${
+              selectedTag ? "border-accent-gold bg-accent-gold text-brand-900" : "border-gray-300 bg-white text-brand-700"
             }`}
           >
             <SlidersHorizontal size={18} />

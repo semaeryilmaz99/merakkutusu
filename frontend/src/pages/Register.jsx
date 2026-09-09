@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import Input from "../components/UI/Input";
 import Button from "../components/UI/Button";
+import AuthStatusPanel from "../components/UI/AuthStatusPanel";
 
 export default function Register() {
   const { register } = useAuth();
@@ -39,14 +40,11 @@ export default function Register() {
   if (isDone) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-brand-500 p-4">
-        <div className="w-full max-w-sm rounded-2xl bg-gray-50 p-6 text-center shadow-xl">
-          <p className="text-brand-900">
-            Kayıt başarılı! <strong>{form.email}</strong> adresine bir doğrulama maili gönderdik.
-            Giriş yapabilmek için mailinizdeki linke tıklayın.
-          </p>
-          <Link to="/login" className="mt-4 inline-block text-sm font-semibold text-brand-700 hover:underline">
-            Giriş sayfasına dön
-          </Link>
+        <div className="w-full max-w-sm rounded-2xl bg-gray-50 p-6 shadow-xl">
+          <AuthStatusPanel variant="success">
+            Kayıt başarılı! <strong>{form.email}</strong> adresine bir doğrulama maili gönderdik. Giriş yapabilmek
+            için mailinizdeki linke tıklayın.
+          </AuthStatusPanel>
         </div>
       </div>
     );
