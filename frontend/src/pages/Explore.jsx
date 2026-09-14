@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronRight, Flame } from "lucide-react";
+import { ChevronRight, Compass, Flame } from "lucide-react";
 import { getExploreFeed, getCategories, getTrendingArticles, getTrendingTags } from "../services/articleService";
 import ArticleCard from "../components/ArticleCard";
+import ArticleGrid from "../components/UI/ArticleGrid";
+import ArticleCardSkeleton from "../components/UI/ArticleCardSkeleton";
+import EmptyState from "../components/UI/EmptyState";
 
 export default function Explore() {
   const [categories, setCategories] = useState([]);
@@ -23,7 +26,13 @@ export default function Explore() {
   }, []);
 
   if (isLoading) {
-    return <p className="text-sm text-gray-500">Yükleniyor...</p>;
+    return (
+      <ArticleGrid>
+        {Array.from({ length: 6 }).map((_, i) => (
+          <ArticleCardSkeleton key={i} />
+        ))}
+      </ArticleGrid>
+    );
   }
 
   return (
@@ -48,11 +57,11 @@ export default function Explore() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <ArticleGrid>
             {trending.map((article) => (
               <ArticleCard key={article._id} article={article} />
             ))}
-          </div>
+          </ArticleGrid>
         </section>
       )}
 
@@ -72,11 +81,11 @@ export default function Explore() {
                   Tümünü gör <ChevronRight size={14} />
                 </Link>
               </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <ArticleGrid>
                 {articles.map((article) => (
                   <ArticleCard key={article._id} article={article} />
                 ))}
-              </div>
+              </ArticleGrid>
             </div>
           ))}
         </div>
@@ -85,13 +94,13 @@ export default function Explore() {
       <section>
         <h2 className="mb-4 text-lg font-semibold text-brand-900">Senin İçin Keşfet</h2>
         {feed.length === 0 ? (
-          <p className="text-sm text-gray-500">Şu an gösterilecek makale yok.</p>
+          <EmptyState icon={Compass} title="Şu an gösterilecek makale yok." />
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <ArticleGrid>
             {feed.map((article) => (
               <ArticleCard key={article._id} article={article} />
             ))}
-          </div>
+          </ArticleGrid>
         )}
       </section>
     </div>

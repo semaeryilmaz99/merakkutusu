@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLibrary } from "../context/LibraryContext";
 import ChatPanel from "./ChatPanel";
+
+const COLLAPSE_STORAGE_KEY = "rightPanelCollapsed";
 
 function LibraryPanel() {
   // Kütüphane verisi artık LibraryContext'ten geliyor (Library.jsx sayfasıyla
@@ -107,8 +110,46 @@ function LibraryWithChat() {
 }
 
 export default function RightPanel({ variant = "library", roomRequest }) {
+  // Panel her sayfada sabit 320px kaplıyordu (ChatGPT'nin de haklı olarak
+  // eleştirdiği nokta) — artık daraltılabilir. Tercih localStorage'da
+  // saklanıyor (AuthContext'teki token deseniyle aynı basit yaklaşım), böylece
+  // sayfa yenilense/başka sayfaya geçilse de kullanıcının seçimi korunuyor.
+  const [isCollapsed, setIsCollapsed] = useState(
+    () => localStorage.getItem(COLLAPSE_STORAGE_KEY) === "true"
+  );
+
+  const toggleCollapsed = () => {
+    setIsCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem(COLLAPSE_STORAGE_KEY, String(next));
+      return next;
+    });
+  };
+
+  if (isCollapsed) {
+    return (
+      <aside className="hidden w-12 flex-none flex-col items-center bg-teal-900 py-4 lg:flex">
+        <button
+          onClick={toggleCollapsed}
+          aria-label="Paneli genişlet"
+          className="flex h-9 w-9 items-center justify-center rounded-full text-white/70 hover:bg-white/10 hover:text-white"
+        >
+          <ChevronLeft size={18} />
+        </button>
+      </aside>
+    );
+  }
+
   return (
-    <aside className="hidden w-80 flex-col overflow-hidden bg-teal-900 p-4 text-white lg:flex">
+    <aside className="hidden w-80 flex-none flex-col overflow-hidden bg-teal-900 p-4 text-white lg:flex">
+      <button
+        onClick={toggleCollapsed}
+        aria-label="Paneli daralt"
+        className="mb-3 flex h-8 w-8 flex-none items-center justify-center self-end rounded-full text-white/70 hover:bg-white/10 hover:text-white"
+      >
+        <ChevronRight size={16} />
+      </button>
+
       {variant === "chat" && <ChatPanel roomRequest={roomRequest} />}
       {variant === "libraryWithChat" && <LibraryWithChat />}
       {variant === "library" && <LibraryPanel />}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BookOpen, Check, ExternalLink, Plus } from "lucide-react";
+import { BookOpen, Check, ExternalLink, Plus, Sparkles } from "lucide-react";
 
 export default function SourceSuggestions({ error, suggestions, onToggleCitation }) {
   const [addedIndices, setAddedIndices] = useState(() => new Set());
@@ -37,6 +37,10 @@ export default function SourceSuggestions({ error, suggestions, onToggleCitation
     <div className="flex flex-col gap-3">
       {suggestions.map((s, i) => (
         <div key={i} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+          <span className="mb-2 inline-flex items-center gap-1 rounded-full bg-accent-gold/20 px-2 py-0.5 text-[10px] font-semibold text-brand-800">
+            <Sparkles size={10} />
+            AI tarafından önerildi
+          </span>
           <div className="flex items-start gap-2">
             <BookOpen size={16} className="mt-0.5 flex-none text-brand-700" />
             <div className="min-w-0 flex-1">

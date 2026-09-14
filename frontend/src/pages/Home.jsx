@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { Search, SearchX, Sparkles, SlidersHorizontal, X } from "lucide-react";
 import { getPersonalizedFeed, searchArticles } from "../services/articleService";
 import { searchUsers } from "../services/userService";
 import api from "../services/api";
 import ArticleCard from "../components/ArticleCard";
+import ArticleGrid from "../components/UI/ArticleGrid";
+import ArticleCardSkeleton from "../components/UI/ArticleCardSkeleton";
+import EmptyState from "../components/UI/EmptyState";
 
 const PAGE_SIZE = 12;
 
@@ -190,22 +193,31 @@ export default function Home() {
       )}
 
       {isLoading ? (
-        <p className="text-sm text-gray-500">Yükleniyor...</p>
+        <ArticleGrid>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <ArticleCardSkeleton key={i} />
+          ))}
+        </ArticleGrid>
       ) : articles.length === 0 ? (
-        <p className="text-sm text-gray-500">
-          {isFiltering
-            ? matchedUsers.length > 0
-              ? "Eşleşen makale yok, ama yukarıda kullanıcı sonuçları var."
-              : "Sonuç bulunamadı."
-            : "Henüz feed'inizde makale yok — ilgi alanı seçin veya birilerini takip edin."}
-        </p>
+        <EmptyState
+          icon={isFiltering ? SearchX : Sparkles}
+          title={
+            isFiltering
+              ? matchedUsers.length > 0
+                ? "Eşleşen makale yok, ama yukarıda kullanıcı sonuçları var."
+                : "Sonuç bulunamadı."
+              : "Henüz feed'inizde makale yok."
+          }
+          description={isFiltering ? undefined : "İlgi alanı seçin veya birilerini takip edin."}
+          action={isFiltering ? undefined : { label: "Keşfetmeye başla", to: "/explore" }}
+        />
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <ArticleGrid>
             {articles.map((article) => (
               <ArticleCard key={article._id} article={article} />
             ))}
-          </div>
+          </ArticleGrid>
 
           {hasMore && (
             <div className="mt-6 flex justify-center">

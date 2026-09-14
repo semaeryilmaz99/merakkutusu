@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { Library, NotebookPen } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { getArticlesByAuthor } from "../services/articleService";
 import { getPublicProfile, followUser, getUserLibrary } from "../services/userService";
 import ArticleCard from "../components/ArticleCard";
 import Button from "../components/UI/Button";
 import StatPill from "../components/UI/StatPill";
+import ArticleGrid from "../components/UI/ArticleGrid";
+import EmptyState from "../components/UI/EmptyState";
 
 export default function PublicProfile() {
   const { id } = useParams();
@@ -117,26 +120,28 @@ export default function PublicProfile() {
       <div className="flex-1">
         <h2 className="mb-3 text-sm font-semibold text-brand-900">Makaleleri</h2>
         {articles.length === 0 ? (
-          <p className="mb-6 text-sm text-gray-500">Henüz makale yazmamış.</p>
+          <div className="mb-6">
+            <EmptyState icon={NotebookPen} title="Henüz makale yazmamış." />
+          </div>
         ) : (
-          <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <ArticleGrid className="mb-6">
             {articles.map((article) => (
               <ArticleCard key={article._id} article={article} />
             ))}
-          </div>
+          </ArticleGrid>
         )}
 
         <h2 className="mb-3 text-sm font-semibold text-brand-900">Kütüphanesi</h2>
         {libraryError ? (
           <p className="text-sm text-gray-500">{libraryError}</p>
         ) : !library || library.length === 0 ? (
-          <p className="text-sm text-gray-500">Kütüphane boş.</p>
+          <EmptyState icon={Library} title="Kütüphane boş." />
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <ArticleGrid>
             {library.map((article) => (
               <ArticleCard key={article._id} article={article} />
             ))}
-          </div>
+          </ArticleGrid>
         )}
       </div>
     </div>

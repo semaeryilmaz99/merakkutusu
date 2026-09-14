@@ -16,6 +16,19 @@
 
   --color-accent-gold: #F2B05C;
   --color-accent-coral: #F2615B;
+
+  /* Anlamsal token'lar — marka paletindeki AYNI renklere referans veriyor
+     (yeni hex değeri yok), sadece "bu renk hangi amaçla kullanılıyor"
+     anlamını taşıyan isimler ekliyor. Mevcut text-accent-coral gibi
+     kullanımlar geriye dönük değiştirilmedi, bundan sonra dokunulan/yeni
+     kodda kullanılacaklar. */
+  --color-success: var(--color-teal-700);
+  --color-warning: var(--color-accent-gold);
+  --color-error: var(--color-accent-coral);
+  --color-surface: #ffffff;
+  --color-surface-muted: #f9fafb;
+  --color-border-subtle: #e5e7eb;
+  --color-text-muted: #6b7280;
 }
 
 /* @uiw/react-md-editor'ı (WriteArticle.jsx) marka paletine uyarlar. Kütüphane

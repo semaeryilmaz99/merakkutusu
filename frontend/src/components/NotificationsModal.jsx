@@ -40,9 +40,27 @@ function NotificationRow({ notification, onClick }) {
   );
 }
 
+function NotificationRowSkeleton() {
+  return (
+    <div className="flex items-start gap-3 px-3 py-2.5">
+      <div className="mt-0.5 h-4 w-4 flex-none animate-pulse rounded-full bg-white/10" />
+      <div className="flex-1 space-y-1.5">
+        <div className="h-3 w-full animate-pulse rounded-full bg-white/10" />
+        <div className="h-3 w-2/3 animate-pulse rounded-full bg-white/10" />
+      </div>
+    </div>
+  );
+}
+
 function NotificationsList({ isLoading, notifications, onNotificationClick }) {
   if (isLoading) {
-    return <p className="text-center text-sm text-white/70">Yükleniyor...</p>;
+    return (
+      <div className="flex flex-col gap-1">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <NotificationRowSkeleton key={i} />
+        ))}
+      </div>
+    );
   }
 
   if (notifications.length === 0) {

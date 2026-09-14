@@ -5,6 +5,19 @@ import { FileText, Image as ImageIcon, Trash2, Upload, ExternalLink } from "luci
 import { createNote, getMyNotes, deleteNote } from "../services/noteService";
 import { formatShortDate } from "../utils/formatDate";
 import Modal from "../components/UI/Modal";
+import ArticleGrid from "../components/UI/ArticleGrid";
+import EmptyState from "../components/UI/EmptyState";
+
+function NoteCardSkeleton() {
+  return (
+    <div className="flex flex-col items-start gap-2 rounded-2xl border border-gray-200 bg-white p-4">
+      <div className="h-3 w-16 animate-pulse rounded-full bg-gray-100" />
+      <div className="h-4 w-4/5 animate-pulse rounded-full bg-gray-200" />
+      <div className="h-3 w-full animate-pulse rounded-full bg-gray-100" />
+      <div className="h-3 w-2/3 animate-pulse rounded-full bg-gray-100" />
+    </div>
+  );
+}
 
 export default function Notes() {
   const [notes, setNotes] = useState([]);
@@ -120,12 +133,20 @@ export default function Notes() {
       </form>
 
       {isLoading ? (
-        <p className="text-sm text-gray-500">Yükleniyor...</p>
+        <ArticleGrid>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <NoteCardSkeleton key={i} />
+          ))}
+        </ArticleGrid>
       ) : notes.length === 0 ? (
-        <p className="text-sm text-gray-500">Henüz not yüklemedin.</p>
+        <EmptyState
+          icon={Upload}
+          title="Henüz not yüklemedin."
+          description="Yukarıdan bir ekran görüntüsü ya da PDF yükleyerek başla."
+        />
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <ArticleGrid>
             {notes.map((note) => (
               <button
                 key={note._id}
@@ -143,7 +164,7 @@ export default function Notes() {
                 <p className="line-clamp-3 text-xs text-gray-500">{note.summary}</p>
               </button>
             ))}
-          </div>
+          </ArticleGrid>
 
           {hasMore && (
             <div className="flex justify-center">

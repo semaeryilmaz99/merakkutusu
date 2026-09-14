@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FileText, Image as ImageIcon, Check, Plus } from "lucide-react";
+import { FileText, Image as ImageIcon, Check, Plus, Sparkles } from "lucide-react";
 import { getMyNotes } from "../services/noteService";
 import Modal from "./UI/Modal";
 
@@ -35,6 +35,10 @@ export default function NotePicker({ isNoteAdded, onToggleNote, onClose }) {
             const added = isNoteAdded(note);
             return (
               <div key={note._id} className="rounded-2xl bg-white/10 p-3">
+                <span className="mb-2 inline-flex items-center gap-1 rounded-full bg-accent-gold/15 px-2 py-0.5 text-[10px] font-semibold text-accent-gold">
+                  <Sparkles size={10} />
+                  AI özeti
+                </span>
                 <div className="flex items-start gap-2">
                   {note.sourceType === "pdf" ? (
                     <FileText size={14} className="mt-0.5 flex-none text-white/70" />

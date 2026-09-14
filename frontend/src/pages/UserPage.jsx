@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { X } from "lucide-react";
+import { NotebookPen, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { getArticlesByAuthor } from "../services/articleService";
 import {
@@ -14,6 +14,9 @@ import ArticleCard from "../components/ArticleCard";
 import Modal from "../components/UI/Modal";
 import Button from "../components/UI/Button";
 import StatPill from "../components/UI/StatPill";
+import ArticleGrid from "../components/UI/ArticleGrid";
+import ArticleCardSkeleton from "../components/UI/ArticleCardSkeleton";
+import EmptyState from "../components/UI/EmptyState";
 
 export default function UserPage() {
   const { user, refreshUser, logout } = useAuth();
@@ -24,6 +27,7 @@ export default function UserPage() {
   const [favoriteTags, setFavoriteTags] = useState(user?.favoriteTags || []);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isFollowersOpen, setIsFollowersOpen] = useState(false);
+  const [isFollowingOpen, setIsFollowingOpen] = useState(false);
   const [tagError, setTagError] = useState("");
 
   useEffect(() => {
@@ -63,6 +67,7 @@ export default function UserPage() {
         user={user}
         onOpenEdit={() => setIsEditOpen(true)}
         onOpenFollowers={() => setIsFollowersOpen(true)}
+        onOpenFollowing={() => setIsFollowingOpen(true)}
       />
 
       <div className="flex-1">
@@ -96,15 +101,23 @@ export default function UserPage() {
         </div>
 
         {isLoadingArticles ? (
-          <p className="text-sm text-gray-500">Yükleniyor...</p>
+          <ArticleGrid>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <ArticleCardSkeleton key={i} />
+            ))}
+          </ArticleGrid>
         ) : articles.length === 0 ? (
-          <p className="text-sm text-gray-500">Henüz makale yazmadın.</p>
+          <EmptyState
+            icon={NotebookPen}
+            title="Henüz makale yazmadın."
+            action={{ label: "İlk makaleni yaz", to: "/write" }}
+          />
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <ArticleGrid>
             {articles.map((article) => (
               <ArticleCard key={article._id} article={article} />
             ))}
-          </div>
+          </ArticleGrid>
         )}
       </div>
 
@@ -121,13 +134,37 @@ export default function UserPage() {
       )}
 
       {isFollowersOpen && (
-        <FollowersModal followers={user.followers || []} onClose={() => setIsFollowersOpen(false)} />
+        <UserListModal
+          title="Takipçiler"
+          users={user.followers || []}
+          emptyMessage="Henüz takipçin yok."
+          onClose={() => setIsFollowersOpen(false)}
+        />
+      )}
+
+      {isFollowingOpen && (
+        <UserListModal
+          title="Takip Edilenler"
+          users={user.following || []}
+          emptyMessage="Henüz kimseyi takip etmiyorsun."
+          onClose={() => setIsFollowingOpen(false)}
+        />
       )}
     </div>
   );
 }
 
-function ProfilePanel({ user, onOpenEdit, onOpenFollowers }) {
+// Takip sayısı arttıkça (bkz. kullanıcı geri bildirimi) avatar ızgarası sınırsız
+// büyüyüp profil kartını kalabalıklaştırıyordu — önizleme sabit sayıda avatarla
+// sınırlandı, fazlası "+N" hücresine tıklanınca aynı Takipçiler modalının
+// "Takip Edilenler" versiyonunda açılıyor.
+const FOLLOWING_PREVIEW_LIMIT = 5;
+
+function ProfilePanel({ user, onOpenEdit, onOpenFollowers, onOpenFollowing }) {
+  const following = user.following || [];
+  const visibleFollowing = following.slice(0, FOLLOWING_PREVIEW_LIMIT);
+  const remainingFollowing = following.length - visibleFollowing.length;
+
   return (
     <div className="flex w-full flex-none flex-col items-center gap-3 rounded-2xl bg-white p-6 text-center lg:w-72">
       <div className="h-20 w-20 overflow-hidden rounded-full bg-brand-400">
@@ -149,11 +186,11 @@ function ProfilePanel({ user, onOpenEdit, onOpenFollowers }) {
       </div>
 
       <p className="mt-2 text-xs font-semibold text-brand-700">Takip edilen yazarlar</p>
-      {user.following?.length === 0 ? (
+      {following.length === 0 ? (
         <p className="text-xs text-gray-400">Henüz kimseyi takip etmiyorsun.</p>
       ) : (
         <div className="grid grid-cols-5 gap-2">
-          {user.following?.map((author) => (
+          {visibleFollowing.map((author) => (
             <Link
               key={author._id}
               to={`/users/${author._id}`}
@@ -167,6 +204,16 @@ function ProfilePanel({ user, onOpenEdit, onOpenFollowers }) {
               )}
             </Link>
           ))}
+          {remainingFollowing > 0 && (
+            <button
+              type="button"
+              onClick={onOpenFollowing}
+              aria-label={`${remainingFollowing} kişi daha gör`}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-[10px] font-semibold text-brand-700 hover:bg-gray-200"
+            >
+              +{remainingFollowing}
+            </button>
+          )}
         </div>
       )}
 
@@ -177,28 +224,30 @@ function ProfilePanel({ user, onOpenEdit, onOpenFollowers }) {
   );
 }
 
-function FollowersModal({ followers, onClose }) {
+// Takipçiler ve Takip Edilenler listeleri aynı görünümü paylaşıyor —
+// ikisi de tek bir modalda, sadece başlık/veri/boş mesajı farklı.
+function UserListModal({ title, users, emptyMessage, onClose }) {
   return (
-    <Modal title="Takipçiler" onClose={onClose}>
-      {followers.length === 0 ? (
-        <p className="text-center text-sm text-white/70">Henüz takipçin yok.</p>
+    <Modal title={title} onClose={onClose}>
+      {users.length === 0 ? (
+        <p className="text-center text-sm text-white/70">{emptyMessage}</p>
       ) : (
         <div className="flex flex-col gap-2">
-          {followers.map((follower) => (
+          {users.map((person) => (
             <Link
-              key={follower._id}
-              to={`/users/${follower._id}`}
+              key={person._id}
+              to={`/users/${person._id}`}
               onClick={onClose}
               className="flex items-center gap-3 rounded-xl bg-white/10 p-2 hover:bg-white/20"
             >
               <div className="flex h-9 w-9 flex-none items-center justify-center overflow-hidden rounded-full bg-brand-600 text-xs font-semibold text-white">
-                {follower.avatar ? (
-                  <img src={follower.avatar} alt="" loading="lazy" className="h-full w-full object-cover" />
+                {person.avatar ? (
+                  <img src={person.avatar} alt="" loading="lazy" className="h-full w-full object-cover" />
                 ) : (
-                  follower.username?.[0]?.toUpperCase()
+                  person.username?.[0]?.toUpperCase()
                 )}
               </div>
-              <p className="text-sm font-medium text-white">{follower.username}</p>
+              <p className="text-sm font-medium text-white">{person.username}</p>
             </Link>
           ))}
         </div>
