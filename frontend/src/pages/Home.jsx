@@ -8,6 +8,7 @@ import ArticleCard from "../components/ArticleCard";
 import ArticleGrid from "../components/UI/ArticleGrid";
 import ArticleCardSkeleton from "../components/UI/ArticleCardSkeleton";
 import EmptyState from "../components/UI/EmptyState";
+import ScrollToTopButton from "../components/ScrollToTopButton";
 
 const PAGE_SIZE = 12;
 
@@ -278,6 +279,8 @@ export default function Home() {
           )}
         </>
       )}
+
+      <ScrollToTopButton />
     </div>
   );
 }
