@@ -61,7 +61,7 @@ export const getArticles = asyncHandler(async (req, res) => {
 // Tek makale getirme
 export const getArticleById = asyncHandler(async (req, res) => {
     const article = await Article.findById(req.params.id)
-    .populate("author", "username avatar")
+    .populate("author", "username avatar followers")
     .populate("tags", "name")
     .populate("comments.user", "username");
 
@@ -75,7 +75,17 @@ export const getArticleById = asyncHandler(async (req, res) => {
         await recordArticleView(req.user._id, article._id);
     }
 
-    res.json(article);
+    // getPublicProfile'daki isFollowing hesabıyla aynı mantık — yazarın
+    // takipçi listesi ham haliyle dışarı sızmasın diye yanıttan siliniyor.
+    const articleObj = article.toObject();
+    if (req.user) {
+      articleObj.author.isFollowing = article.author.followers.some(
+        (followerId) => followerId.toString() === req.user._id.toString()
+      );
+    }
+    delete articleObj.author.followers;
+
+    res.json(articleObj);
 });
 
 //Makale güncelleme

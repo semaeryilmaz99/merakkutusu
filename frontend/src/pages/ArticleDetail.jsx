@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Heart, Library, Pencil, Send, Trash2 } from "lucide-react";
+import { Heart, Library, Pencil, Send, Share2, Trash2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useAuth } from "../context/AuthContext";
@@ -14,6 +14,7 @@ import {
   getMyLibrary,
   deleteArticle,
 } from "../services/articleService";
+import { followUser } from "../services/userService";
 import { formatFullDate } from "../utils/formatDate";
 import SproutCelebration from "../components/SproutCelebration";
 import ArticleFormModal from "../components/ArticleFormModal";
@@ -27,6 +28,7 @@ export default function ArticleDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isInLibrary, setIsInLibrary] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
@@ -36,6 +38,7 @@ export default function ArticleDetail() {
   const [actionError, setActionError] = useState("");
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingCommentText, setEditingCommentText] = useState("");
+  const [shareCopied, setShareCopied] = useState(false);
 
   useEffect(() => {
     // PublicProfile.jsx'teki aynı race: id hızlıca değişirse (başka bir
@@ -50,6 +53,7 @@ export default function ArticleDetail() {
         setArticle(articleData);
         setIsFavorite(articleData.favorites?.includes(user?._id));
         setIsInLibrary(library.some((a) => a._id === articleData._id));
+        setIsFollowing(Boolean(articleData.author?.isFollowing));
       })
       .finally(() => {
         if (!ignore) setIsLoading(false);
@@ -87,6 +91,40 @@ export default function ArticleDetail() {
     } catch {
       setIsInLibrary(previouslyInLibrary);
       setActionError("Kütüphane durumu güncellenemedi, tekrar dene.");
+    }
+  };
+
+  // PublicProfile.jsx'teki takip butonuyla aynı optimistic-toggle deseni —
+  // backend zaten follow/unfollow'u tek bir toggle endpoint'i olarak sunuyor.
+  const handleToggleFollow = async () => {
+    const wasFollowing = isFollowing;
+    setIsFollowing(!wasFollowing);
+    try {
+      await followUser(article.author._id);
+    } catch {
+      setIsFollowing(wasFollowing);
+      setActionError("Takip durumu güncellenemedi, tekrar dene.");
+    }
+  };
+
+  // Web Share API destekleniyorsa (çoğu mobil tarayıcı) native paylaşım
+  // sayfasını açar; desteklemeyen tarayıcılarda bağlantıyı panoya kopyalar.
+  const handleShare = async () => {
+    const shareData = { title: article.title, url: window.location.href };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        if (err?.name !== "AbortError") setActionError("Paylaşılamadı, tekrar dene.");
+      }
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    } catch {
+      setActionError("Bağlantı kopyalanamadı.");
     }
   };
 
@@ -167,6 +205,11 @@ export default function ArticleDetail() {
   }
 
   const isOwner = user && article.author?._id === user._id;
+  // Liste/feed endpoint'leri readingMinutes'ı toArticleSummary.js'te hesaplıyor
+  // ama getArticleById ham makaleyi dönüyor — burada zaten tam content elimizde
+  // olduğu için aynı formülü (200 kelime/dk) client-side uyguluyoruz.
+  const wordCount = article.content.trim() ? article.content.trim().split(/\s+/).filter(Boolean).length : 0;
+  const readTime = Math.max(1, Math.round(wordCount / 200));
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -196,45 +239,8 @@ export default function ArticleDetail() {
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div className="flex items-center justify-between gap-3 bg-gray-100 px-4 py-3">
-          <h1 className="truncate text-lg font-semibold text-brand-900">{article.title}</h1>
-          <Link
-            to={`/users/${article.author?._id}`}
-            className="flex flex-none items-center gap-2 rounded-full bg-white py-1 pl-1 pr-3 text-xs font-medium text-brand-700 hover:underline"
-          >
-            <span className="flex h-6 w-6 flex-none items-center justify-center overflow-hidden rounded-full bg-teal-500 text-[10px] font-bold text-white">
-              {article.author?.avatar ? (
-                <img src={article.author.avatar} alt="" className="h-full w-full object-cover" />
-              ) : (
-                article.author?.username?.[0]?.toUpperCase()
-              )}
-            </span>
-            {article.author?.username}
-          </Link>
-        </div>
-
-        {article.subtitle && (
-          <p className="border-b border-gray-100 px-4 py-2 text-sm italic text-gray-600">{article.subtitle}</p>
-        )}
-
-        <p className="border-b border-gray-100 px-4 py-2 text-xs text-gray-400">
-          {formatFullDate(article.createdAt)}
-        </p>
-
-        {article.image && (
-          <img src={article.image} alt={article.title} className="max-h-96 w-full object-cover" />
-        )}
-
-        <div className="prose prose-sm max-w-none p-4 prose-headings:text-brand-900 prose-a:text-brand-700 prose-strong:text-brand-900 prose-code:text-teal-900">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{article.content}</ReactMarkdown>
-        </div>
-
-        {actionError && (
-          <p className="px-4 pt-2 text-center text-xs text-accent-coral">{actionError}</p>
-        )}
-
-        <div className="flex items-center justify-between gap-2 border-t border-gray-100 p-4">
-          <div className="flex flex-wrap gap-2">
+        <div className="p-4 sm:p-6">
+          <div className="mb-3 flex flex-wrap items-center gap-2">
             {(article.tags || []).map((tag) => (
               <span
                 key={tag._id || tag}
@@ -243,26 +249,78 @@ export default function ArticleDetail() {
                 #{tag.name || tag}
               </span>
             ))}
+            <span className="text-xs text-gray-400">{readTime} dk okuma</span>
           </div>
 
-          <div className="flex flex-none items-center gap-2">
-            <button
-              onClick={handleToggleLibrary}
-              aria-label="Kütüphaneye ekle/çıkar"
-              className={`flex h-9 w-9 items-center justify-center rounded-full ${
-                isInLibrary ? "bg-brand-600 text-white" : "bg-gray-100 text-brand-700"
-              }`}
-            >
-              <Library size={16} />
-            </button>
+          <h1 className="text-2xl font-bold leading-tight text-brand-900 sm:text-3xl">{article.title}</h1>
+
+          {article.subtitle && <p className="mt-2 text-base italic text-gray-600">{article.subtitle}</p>}
+
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 pt-4">
+            <Link to={`/users/${article.author?._id}`} className="flex items-center gap-3">
+              <span className="flex h-11 w-11 flex-none items-center justify-center overflow-hidden rounded-full bg-teal-500 text-sm font-bold text-white">
+                {article.author?.avatar ? (
+                  <img src={article.author.avatar} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  article.author?.username?.[0]?.toUpperCase()
+                )}
+              </span>
+              <span>
+                <span className="block text-sm font-semibold text-brand-900 hover:underline">
+                  {article.author?.username}
+                </span>
+                <span className="block text-xs text-gray-400">{formatFullDate(article.createdAt)}</span>
+              </span>
+            </Link>
+
+            {!isOwner && user && (
+              <button
+                onClick={handleToggleFollow}
+                className={`flex-none rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${
+                  isFollowing
+                    ? "border border-gray-300 bg-white text-brand-900 hover:bg-gray-50"
+                    : "bg-accent-gold text-brand-900 hover:brightness-95"
+                }`}
+              >
+                {isFollowing ? "Takibi Bırak" : "Takip Et"}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {article.image && (
+          <img src={article.image} alt={article.title} className="max-h-96 w-full object-cover" />
+        )}
+
+        <div className="prose prose-sm max-w-none p-4 sm:p-6 prose-headings:text-brand-900 prose-a:text-brand-700 prose-strong:text-brand-900 prose-code:text-teal-900">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{article.content}</ReactMarkdown>
+        </div>
+
+        {actionError && <p className="px-4 pt-2 text-center text-xs text-accent-coral">{actionError}</p>}
+
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-gray-100 p-4">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={handleToggleFavorite}
               aria-label="Favorilere ekle/çıkar"
-              className={`flex h-9 w-9 items-center justify-center rounded-full ${
-                isFavorite ? "bg-accent-coral text-white" : "bg-gray-100 text-brand-700"
+              className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
+                isFavorite
+                  ? "bg-accent-coral text-white"
+                  : "border border-gray-300 bg-white text-brand-700 hover:bg-gray-50"
               }`}
             >
               <Heart size={16} fill={isFavorite ? "currentColor" : "none"} />
+            </button>
+            <button
+              onClick={handleToggleLibrary}
+              className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                isInLibrary
+                  ? "bg-brand-600 text-white"
+                  : "border border-gray-300 bg-white text-brand-700 hover:bg-gray-50"
+              }`}
+            >
+              <Library size={16} />
+              Kaydet
             </button>
 
             {isOwner && (
@@ -275,8 +333,8 @@ export default function ArticleDetail() {
               </button>
             )}
 
-            {isOwner && (
-              isConfirmingDelete ? (
+            {isOwner &&
+              (isConfirmingDelete ? (
                 <div className="flex items-center gap-1 rounded-full bg-gray-100 py-1 pl-3 pr-1">
                   <span className="text-xs text-brand-900">Silinsin mi?</span>
                   <button
@@ -301,103 +359,127 @@ export default function ArticleDetail() {
                 >
                   <Trash2 size={16} />
                 </button>
-              )
+              ))}
+          </div>
+
+          <div className="relative flex-none">
+            <button
+              onClick={handleShare}
+              aria-label="Paylaş"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white text-brand-700 hover:bg-gray-50"
+            >
+              <Share2 size={16} />
+            </button>
+            {shareCopied && (
+              <span className="absolute right-0 top-full z-10 mt-1 whitespace-nowrap rounded-full bg-brand-900 px-2 py-1 text-[11px] text-white">
+                Bağlantı kopyalandı
+              </span>
             )}
           </div>
         </div>
-      </div>
 
-      <form onSubmit={handleAddComment} className="mt-4 flex items-center gap-2 rounded-2xl bg-gray-700 p-3">
-        <input
-          type="text"
-          value={commentText}
-          onChange={(e) => setCommentText(e.target.value)}
-          placeholder="Yorumunu buraya yaz..."
-          className="flex-1 rounded-full bg-white px-4 py-2 text-sm text-brand-900 outline-none"
-        />
-        <button
-          type="submit"
-          disabled={isSubmittingComment}
-          aria-label="Yorum gönder"
-          className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-60"
-        >
-          <Send size={16} />
-        </button>
-      </form>
+        <div className="border-t border-gray-100 p-4 sm:p-6">
+          <h2 className="mb-4 text-base font-bold text-brand-900">Yorumlar {(article.comments || []).length}</h2>
 
-      <div className="mt-4 flex flex-col gap-3 rounded-2xl bg-gray-700 p-4">
-        {(article.comments || []).length === 0 ? (
-          <p className="text-sm text-white/70">Henüz yorum yok.</p>
-        ) : (
-          [...article.comments].reverse().map((comment) => {
-            const isCommentOwner = comment.user?._id === user?._id;
-            const canDelete = isCommentOwner || isOwner;
-            const isEditingThis = editingCommentId === comment._id;
+          <form onSubmit={handleAddComment} className="flex items-center gap-2">
+            <span className="flex h-8 w-8 flex-none items-center justify-center overflow-hidden rounded-full bg-teal-500 text-xs font-bold text-white">
+              {user?.avatar ? (
+                <img src={user.avatar} alt="" className="h-full w-full object-cover" />
+              ) : (
+                user?.username?.[0]?.toUpperCase()
+              )}
+            </span>
+            <input
+              type="text"
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              placeholder="Yorumunu buraya yaz..."
+              className="flex-1 rounded-full bg-gray-100 px-4 py-2 text-sm text-brand-900 outline-none"
+            />
+            <button
+              type="submit"
+              disabled={isSubmittingComment}
+              aria-label="Yorum gönder"
+              className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-60"
+            >
+              <Send size={16} />
+            </button>
+          </form>
 
-            return (
-              <div key={comment._id} className="flex items-start gap-3">
-                <div className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-accent-gold text-xs font-bold text-brand-900">
-                  {comment.user?.username?.[0]?.toUpperCase() || "?"}
-                </div>
-                <div className="min-w-0 flex-1 rounded-xl bg-white px-3 py-2 text-sm text-brand-900">
-                  <div className="mb-1 flex items-center justify-between gap-2">
-                    <p className="text-xs font-semibold text-brand-700">
-                      {comment.user?.username || "kullanıcı"}
-                    </p>
-                    {!isEditingThis && (isCommentOwner || canDelete) && (
-                      <div className="flex flex-none items-center gap-1">
-                        {isCommentOwner && (
-                          <button
-                            onClick={() => handleStartEditComment(comment)}
-                            aria-label="Yorumu düzenle"
-                            className="text-gray-400 hover:text-brand-700"
-                          >
-                            <Pencil size={12} />
-                          </button>
-                        )}
-                        {canDelete && (
-                          <button
-                            onClick={() => handleDeleteComment(comment._id)}
-                            aria-label="Yorumu sil"
-                            className="text-gray-400 hover:text-accent-coral"
-                          >
-                            <Trash2 size={12} />
-                          </button>
+          <div className="mt-2 flex flex-col">
+            {(article.comments || []).length === 0 ? (
+              <p className="py-3 text-sm text-gray-400">Henüz yorum yok.</p>
+            ) : (
+              [...article.comments].reverse().map((comment) => {
+                const isCommentOwner = comment.user?._id === user?._id;
+                const canDelete = isCommentOwner || isOwner;
+                const isEditingThis = editingCommentId === comment._id;
+
+                return (
+                  <div
+                    key={comment._id}
+                    className="flex items-start gap-3 border-t border-gray-100 py-3 first:border-t-0 first:pt-3"
+                  >
+                    <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-accent-gold text-xs font-bold text-brand-900">
+                      {comment.user?.username?.[0]?.toUpperCase() || "?"}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-semibold text-brand-700">{comment.user?.username || "kullanıcı"}</p>
+                        {!isEditingThis && canDelete && (
+                          <div className="flex flex-none items-center gap-2">
+                            {isCommentOwner && (
+                              <button
+                                onClick={() => handleStartEditComment(comment)}
+                                aria-label="Yorumu düzenle"
+                                className="text-gray-400 hover:text-brand-700"
+                              >
+                                <Pencil size={12} />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleDeleteComment(comment._id)}
+                              aria-label="Yorumu sil"
+                              className="text-gray-400 hover:text-accent-coral"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
                         )}
                       </div>
-                    )}
-                  </div>
 
-                  {isEditingThis ? (
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        value={editingCommentText}
-                        onChange={(e) => setEditingCommentText(e.target.value)}
-                        className="flex-1 rounded-full bg-gray-100 px-3 py-1 text-sm text-brand-900 outline-none"
-                        autoFocus
-                      />
-                      <button
-                        onClick={() => handleSaveComment(comment._id)}
-                        className="rounded-full bg-brand-600 px-2 py-1 text-xs font-semibold text-white"
-                      >
-                        Kaydet
-                      </button>
-                      <button
-                        onClick={() => setEditingCommentId(null)}
-                        className="rounded-full bg-gray-200 px-2 py-1 text-xs text-brand-900"
-                      >
-                        Vazgeç
-                      </button>
+                      {isEditingThis ? (
+                        <div className="mt-1 flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={editingCommentText}
+                            onChange={(e) => setEditingCommentText(e.target.value)}
+                            className="flex-1 rounded-full bg-gray-100 px-3 py-1 text-sm text-brand-900 outline-none"
+                            autoFocus
+                          />
+                          <button
+                            onClick={() => handleSaveComment(comment._id)}
+                            className="rounded-full bg-brand-600 px-2 py-1 text-xs font-semibold text-white"
+                          >
+                            Kaydet
+                          </button>
+                          <button
+                            onClick={() => setEditingCommentId(null)}
+                            className="rounded-full bg-gray-200 px-2 py-1 text-xs text-brand-900"
+                          >
+                            Vazgeç
+                          </button>
+                        </div>
+                      ) : (
+                        <p className="mt-0.5 text-sm text-gray-700">{comment.text}</p>
+                      )}
                     </div>
-                  ) : (
-                    comment.text
-                  )}
-                </div>
-              </div>
-            );
-          })
-        )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
       </div>
 
       {isEditingArticle && (

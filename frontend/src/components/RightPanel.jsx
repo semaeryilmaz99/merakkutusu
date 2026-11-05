@@ -126,9 +126,25 @@ export default function RightPanel({ variant = "library", roomRequest }) {
     });
   };
 
-  if (isCollapsed) {
-    return (
-      <aside className="hidden w-12 flex-none flex-col items-center bg-teal-900 py-4 lg:flex">
+  // Sidebar.jsx'teki gibi TEK bir eleman, genişliği animasyonla değişiyor —
+  // eskiden daraltma/genişletme iki ayrı JSX ağacı arasında anlık bir
+  // sıçramaydı (koşullu return), artık Sidebar'ın transition-transform'una
+  // paralel olarak transition-[width] ile 300ms'de yumuşakça açılıp kapanıyor.
+  // İçerik de tek seferde kaybolmasın diye iki katman (daraltılmış şerit +
+  // açık içerik) her zaman DOM'da kalıp opacity ile çapraz geçiş yapıyor;
+  // dış kapsayıcı overflow-hidden olduğu için daralmışken açık katman
+  // kırpılıyor, görünürde sadece şerit kalıyor.
+  return (
+    <aside
+      className={`relative hidden flex-none overflow-hidden bg-teal-900 text-white transition-[width] duration-300 ease-in-out lg:flex ${
+        isCollapsed ? "w-12" : "w-80"
+      }`}
+    >
+      <div
+        className={`absolute inset-y-0 left-0 flex w-12 flex-col items-center py-4 transition-opacity duration-200 ${
+          isCollapsed ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+      >
         <button
           onClick={toggleCollapsed}
           aria-label="Paneli genişlet"
@@ -136,23 +152,25 @@ export default function RightPanel({ variant = "library", roomRequest }) {
         >
           <ChevronLeft size={18} />
         </button>
-      </aside>
-    );
-  }
+      </div>
 
-  return (
-    <aside className="hidden w-80 flex-none flex-col overflow-hidden bg-teal-900 p-4 text-white lg:flex">
-      <button
-        onClick={toggleCollapsed}
-        aria-label="Paneli daralt"
-        className="mb-3 flex h-8 w-8 flex-none items-center justify-center self-end rounded-full text-white/70 hover:bg-white/10 hover:text-white"
+      <div
+        className={`absolute inset-y-0 left-0 flex w-80 flex-col overflow-hidden p-4 transition-opacity duration-200 ${
+          isCollapsed ? "pointer-events-none opacity-0" : "opacity-100"
+        }`}
       >
-        <ChevronRight size={16} />
-      </button>
+        <button
+          onClick={toggleCollapsed}
+          aria-label="Paneli daralt"
+          className="mb-3 flex h-8 w-8 flex-none items-center justify-center self-end rounded-full text-white/70 hover:bg-white/10 hover:text-white"
+        >
+          <ChevronRight size={16} />
+        </button>
 
-      {variant === "chat" && <ChatPanel roomRequest={roomRequest} />}
-      {variant === "libraryWithChat" && <LibraryWithChat />}
-      {variant === "library" && <LibraryPanel />}
+        {variant === "chat" && <ChatPanel roomRequest={roomRequest} />}
+        {variant === "libraryWithChat" && <LibraryWithChat />}
+        {variant === "library" && <LibraryPanel />}
+      </div>
     </aside>
   );
 }
