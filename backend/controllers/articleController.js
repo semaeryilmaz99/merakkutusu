@@ -19,7 +19,7 @@ import uploadToCloudinary from "../utils/uploadToCloudinary.js";
 
 // Makale oluşturma
 export const createArticle = asyncHandler(async (req, res) => {
-    const { title, content } = req.body;
+    const { title, content, subtitle } = req.body;
     let imageUrl = "";
 
     if (req.file) {
@@ -35,6 +35,7 @@ export const createArticle = asyncHandler(async (req, res) => {
 
     const article = await Article.create({
       title,
+      subtitle,
       content,
       image: imageUrl,
       author: req.user._id,
@@ -91,6 +92,9 @@ export const updateArticle = asyncHandler(async (req, res) => {
     // -----------------------
     article.title = req.body.title || article.title;
     article.content = req.body.content || article.content;
+    // ?? kullanılıyor: boş string kullanıcının alt başlığı bilerek sildiği
+    // anlamına gelebilir, || ise bu durumu "değiştirme" sayıp eski değeri korurdu.
+    article.subtitle = req.body.subtitle ?? article.subtitle;
 
     // Tags (form-data string veya array) — resolveTagIds isimden ObjectId'ye
     // çevirir, olmayan tag'leri otomatik oluşturur (createArticle ile aynı mantık)
@@ -229,6 +233,14 @@ export const deleteComment = asyncHandler(async (req, res) => {
 export const searchArticles = asyncHandler(async (req, res) => {
     const { q, author, tags } = req.query;
     const filter = {};
+
+    // Frontend input'u 200 karakterle sınırlıyor ama API doğrudan da
+    // çağrılabilir — biri koca bir metin yapıştırıp gönderirse hem aşırı
+    // uzun bir URL/query hem de gereksiz pahalı bir regex eşleştirmesi
+    // olmasın diye burada da sınırlıyoruz.
+    if (q && q.length > 200) {
+      return res.status(400).json({ message: "Arama terimi çok uzun (en fazla 200 karakter)." });
+    }
 
     // Başlık veya içerikte arama (case-insensitive) — regex özel karakterleri
     // kaçışlanmıyorsa (ör. "[" tek başına) MongoDB regex derlemesi çöküp

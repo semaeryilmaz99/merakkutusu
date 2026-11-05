@@ -54,6 +54,11 @@ export const followUser = asyncHandler(async (req, res) => {
 export const searchUsers = asyncHandler(async (req, res) => {
     const { q } = req.query;
     if (!q) return res.status(400).json({ message: "Arama terimi gerekli" });
+    // bkz. articleController.js searchArticles — aynı gerekçe: API doğrudan
+    // da çağrılabildiği için uzunluk sınırını frontend'e güvenmeden burada da uyguluyoruz.
+    if (q.length > 200) {
+      return res.status(400).json({ message: "Arama terimi çok uzun (en fazla 200 karakter)." });
+    }
 
     const safeQuery = escapeRegExp(q);
     const users = await User.find({

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BookOpen, Check, ExternalLink, Plus, Sparkles } from "lucide-react";
+import { BookOpen, Check, Sparkles } from "lucide-react";
 
 export default function SourceSuggestions({ error, suggestions, onToggleCitation }) {
   const [addedIndices, setAddedIndices] = useState(() => new Set());
@@ -24,30 +24,30 @@ export default function SourceSuggestions({ error, suggestions, onToggleCitation
   };
 
   if (error) {
-    return <p className="text-sm text-accent-coral">{error}</p>;
+    return <p className="text-[13px] text-ed-ai">{error}</p>;
   }
 
   if (!suggestions) return null;
 
   if (suggestions.length === 0) {
-    return <p className="text-sm text-gray-500">Taslağınla alakalı bir akademik kaynak bulunamadı.</p>;
+    return <p className="text-[13px] text-ed-muted">Taslağınla alakalı bir akademik kaynak bulunamadı.</p>;
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col">
       {suggestions.map((s, i) => (
-        <div key={i} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-          <span className="mb-2 inline-flex items-center gap-1 rounded-full bg-accent-gold/20 px-2 py-0.5 text-[10px] font-semibold text-brand-800">
-            <Sparkles size={10} />
+        <div key={i} className="border-t border-ed-border py-4 first:border-t-0 first:pt-0">
+          <span className="mb-1.5 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-ed-ai">
+            <Sparkles size={9} />
             AI tarafından önerildi
           </span>
           <div className="flex items-start gap-2">
-            <BookOpen size={16} className="mt-0.5 flex-none text-brand-700" />
+            <BookOpen size={15} className="mt-0.5 flex-none text-ed-muted" />
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-brand-900">
-                {s.paperTitle} {s.year ? <span className="font-normal text-gray-400">({s.year})</span> : null}
+              <p className="text-[15px] font-semibold leading-[1.4] text-ed-ink">
+                {s.paperTitle} {s.year ? <span className="font-normal text-ed-muted">({s.year})</span> : null}
               </p>
-              <p className="mt-1 text-xs text-gray-600">{s.reason}</p>
+              <p className="mt-1 text-[13px] leading-[1.55] text-ed-ink-soft">{s.reason}</p>
             </div>
           </div>
 
@@ -57,26 +57,25 @@ export default function SourceSuggestions({ error, suggestions, onToggleCitation
                 href={s.url}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-1 text-xs font-medium text-brand-700 hover:underline"
+                className="flex-1 text-[13px] font-medium text-ed-navy hover:underline"
               >
-                <ExternalLink size={12} />
-                Kaynağa git
+                Kaynağa git ↗
               </a>
             ) : (
-              <span />
+              <span className="flex-1" />
             )}
 
             <button
               type="button"
               onClick={() => handleToggle(i, s.suggestedCitation)}
-              className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold ${
+              className={`inline-flex flex-none items-center gap-1 rounded-full px-[11px] py-[5px] text-[13px] transition-colors ${
                 addedIndices.has(i)
-                  ? "bg-teal-500 text-white hover:brightness-95"
-                  : "bg-accent-gold text-brand-900 hover:brightness-95"
+                  ? "border border-ed-navy text-ed-navy"
+                  : "border border-ed-border-strong text-ed-ink hover:border-ed-navy hover:text-ed-navy"
               }`}
             >
-              {addedIndices.has(i) ? <Check size={12} /> : <Plus size={12} />}
-              {addedIndices.has(i) ? "Eklendi" : "Atıf Ekle"}
+              {addedIndices.has(i) && <Check size={12} />}
+              {addedIndices.has(i) ? "Eklendi ✓" : "Atıf ekle"}
             </button>
           </div>
         </div>

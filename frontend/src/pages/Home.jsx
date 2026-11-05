@@ -26,6 +26,24 @@ export default function Home() {
   const isFiltering = query.trim() !== "" || selectedTag !== "";
   const debounceRef = useRef(null);
   const didMountRef = useRef(false);
+
+  // Aynı arama tekrar yapılırsa (ör. bir tag'i açıp kapatıp tekrar seçmek,
+  // ya da aynı kelimeyi tekrar yazmak) ağa yeniden gitmemek için — SADECE
+  // filtreli aramalarda (isFiltering) devrede. Boş sorgulu kişisel feed her
+  // zaman taze çekiliyor, çünkü o daha dinamik ve yeni makale kaçırma riski
+  // var. Sayfa yenilenince sıfırlanması bilinçli, kalıcı olması gerekmiyor.
+  const searchCacheRef = useRef(new Map());
+  const MAX_SEARCH_CACHE_ENTRIES = 50;
+  const searchCacheKey = (q, tag, targetPage) => `${q || ""}::${tag || ""}::${targetPage}`;
+  const readSearchCache = (q, tag, targetPage) => searchCacheRef.current.get(searchCacheKey(q, tag, targetPage));
+  const writeSearchCache = (q, tag, targetPage, value) => {
+    const cache = searchCacheRef.current;
+    const key = searchCacheKey(q, tag, targetPage);
+    if (!cache.has(key) && cache.size >= MAX_SEARCH_CACHE_ENTRIES) {
+      cache.delete(cache.keys().next().value); // en eski kaydı sil (FIFO)
+    }
+    cache.set(key, value);
+  };
   // Aynı anda birden fazla arama isteği havada olabilir (kullanıcı yazarken
   // ara ara duraklarsa her duraklama bir istek başlatır) ve bunlar network'te
   // farklı sürede dönebilir — geç gelen eski bir cevap, daha yeni ve doğru
@@ -44,6 +62,18 @@ export default function Home() {
     const requestId = ++requestIdRef.current;
     setIsLoading(true);
     try {
+      const isSearch = Boolean(q?.trim() || tag);
+      if (isSearch) {
+        const cached = readSearchCache(q, tag, 1);
+        if (cached) {
+          setArticles(cached.results);
+          setMatchedUsers(cached.users);
+          setHasMore(cached.results.length === PAGE_SIZE);
+          setPage(1);
+          return;
+        }
+      }
+
       const [results, users] = await Promise.all([
         fetchPage(1, q, tag),
         q?.trim() ? searchUsers(q.trim()) : Promise.resolve([]),
@@ -53,6 +83,7 @@ export default function Home() {
       setMatchedUsers(users);
       setHasMore(results.length === PAGE_SIZE);
       setPage(1);
+      if (isSearch) writeSearchCache(q, tag, 1, { results, users });
     } finally {
       if (requestId === requestIdRef.current) setIsLoading(false);
     }
@@ -107,11 +138,24 @@ export default function Home() {
     setIsLoadingMore(true);
     try {
       const nextPage = page + 1;
+      const isSearch = Boolean(query?.trim() || selectedTag);
+
+      if (isSearch) {
+        const cached = readSearchCache(query, selectedTag, nextPage);
+        if (cached) {
+          setArticles((prev) => [...prev, ...cached.results]);
+          setHasMore(cached.results.length === PAGE_SIZE);
+          setPage(nextPage);
+          return;
+        }
+      }
+
       const results = await fetchPage(nextPage, query, selectedTag);
       if (requestId !== requestIdRef.current) return; // bu arada yeni bir arama/filtre başladı
       setArticles((prev) => [...prev, ...results]);
       setHasMore(results.length === PAGE_SIZE);
       setPage(nextPage);
+      if (isSearch) writeSearchCache(query, selectedTag, nextPage, { results, users: [] });
     } finally {
       if (requestId === requestIdRef.current) setIsLoadingMore(false);
     }
@@ -126,6 +170,7 @@ export default function Home() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Makale, kullanıcı veya konu arayın..."
+            maxLength={200}
             className="flex-1 text-sm text-brand-900 outline-none"
           />
           <button type="submit" aria-label="Ara" className="text-brand-700">

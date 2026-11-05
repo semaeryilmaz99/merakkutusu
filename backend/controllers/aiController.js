@@ -1,3 +1,4 @@
+import { createHash } from "crypto";
 import PaperCache from "../models/PaperCache.js";
 import searchOpenAlex from "../utils/openAlex.js";
 import searchCore from "../utils/core.js";
@@ -5,6 +6,7 @@ import embedText, { embedTexts } from "../utils/embedText.js";
 import translateSearchQuery from "../utils/translateSearchQuery.js";
 import openai from "../utils/openaiClient.js";
 import asyncHandler from "../utils/asyncHandler.js";
+import createMemoryCache from "../utils/memoryCache.js";
 import logger from "../config/logger.js";
 
 // Atlas panelinden "papercaches" koleksiyonunda embedding alanı üzerinde
@@ -13,6 +15,20 @@ import logger from "../config/logger.js";
 const VECTOR_INDEX_NAME = "paper_vector_index";
 const TOP_K = 5;
 const CHAT_MODEL = "gpt-4o-mini";
+
+// PaperCache (yukarıda) makale embedding'lerini önbelleğe alıyor — bu ise
+// AYNI taslak için ÜRETİLMİŞ nihai öneri listesini. WriteArticle.jsx'te
+// "Kaynak Öner" rayı kapatılıp tekrar açıldığında da aynı isteği yeniden
+// atıyor — içerik değişmediyse tüm pipeline'ı (çeviri + 2 dış API + embedding
+// + vector search + generation) baştan çalıştırmamak için 1 saatlik bir
+// bellek-içi önbellek yeterli (taslaklar kısa ömürlü, Redis gibi paylaşımlı/
+// kalıcı bir servis gerekmiyor).
+const suggestionCache = createMemoryCache({ ttlMs: 60 * 60 * 1000, maxSize: 200 });
+
+function buildSuggestionCacheKey(title, content, tags) {
+  const normalized = `${title}\n${content}\n${[...tags].sort().join(",")}`;
+  return createHash("sha256").update(normalized).digest("hex");
+}
 
 const normalizeTags = (tags) => {
   if (Array.isArray(tags)) return tags;
@@ -60,6 +76,18 @@ export const suggestSources = asyncHandler(async (req, res) => {
   const { title, content } = req.body;
   const tags = normalizeTags(req.body.tags);
 
+  const cacheKey = buildSuggestionCacheKey(title, content, tags);
+  const cached = suggestionCache.get(cacheKey);
+  if (cached) {
+    logger.info("Kaynak önerisi cache'ten döndürüldü");
+    return res.json(cached);
+  }
+  const respond = (suggestions) => {
+    const body = { suggestions };
+    suggestionCache.set(cacheKey, body);
+    res.json(body);
+  };
+
   // 1) Türkçe taslağı İngilizce akademik anahtar kelimelere çevirip iki
   // kaynakta paralel arama yap — RAG'in "retrieval" adayları
   const rawQuery = [title, ...tags].filter(Boolean).join(" ");
@@ -70,7 +98,7 @@ export const suggestSources = asyncHandler(async (req, res) => {
   logger.info("Aday makale sayısı", { count: candidates.length });
 
   if (candidates.length === 0) {
-    return res.json({ suggestions: [] });
+    return respond([]);
   }
 
   // 2) Cache'te olmayan adayları embed edip kaydet (aynı makale tekrar
@@ -117,7 +145,7 @@ export const suggestSources = asyncHandler(async (req, res) => {
   logger.info("Vector search sonucu", { count: nearestPapers.length, titles: nearestPapers.map((p) => p.title) });
 
   if (nearestPapers.length === 0) {
-    return res.json({ suggestions: [] });
+    return respond([]);
   }
 
   // 4) LLM'e SADECE bulunan makalelere dayanarak öneri ürettir — "generation"
@@ -167,5 +195,5 @@ export const suggestSources = asyncHandler(async (req, res) => {
     .filter(Boolean);
   logger.info("Son öneriler (eşleştirmeden sonra)", { count: enriched.length });
 
-  res.json({ suggestions: enriched });
+  respond(enriched);
 });

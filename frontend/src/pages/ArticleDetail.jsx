@@ -213,6 +213,10 @@ export default function ArticleDetail() {
           </Link>
         </div>
 
+        {article.subtitle && (
+          <p className="border-b border-gray-100 px-4 py-2 text-sm italic text-gray-600">{article.subtitle}</p>
+        )}
+
         <p className="border-b border-gray-100 px-4 py-2 text-xs text-gray-400">
           {formatFullDate(article.createdAt)}
         </p>

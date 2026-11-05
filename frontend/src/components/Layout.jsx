@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Outlet, useMatch } from "react-router-dom";
 import Navbar from "./Navbar";
+import WriteNavHeader from "./WriteNavHeader";
 import Sidebar from "./Sidebar";
 import RightPanel from "./RightPanel";
 import BottomBar from "./BottomBar";
@@ -67,16 +68,28 @@ export default function Layout() {
 
   return (
     <div className="flex h-screen flex-col">
-      <Navbar
-        onOpenSidebar={() => setIsSidebarOpen(true)}
-        onOpenNotifications={() => setActiveModal("notifications")}
-        unreadCount={unreadCount}
-      />
+      {isWrite ? (
+        <WriteNavHeader
+          onOpenSidebar={() => setIsSidebarOpen(true)}
+          onOpenNotifications={() => setActiveModal("notifications")}
+          unreadCount={unreadCount}
+        />
+      ) : (
+        <Navbar
+          onOpenSidebar={() => setIsSidebarOpen(true)}
+          onOpenNotifications={() => setActiveModal("notifications")}
+          unreadCount={unreadCount}
+        />
+      )}
 
       <div className="flex flex-1 overflow-hidden">
         <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-        <main className="flex-1 overflow-y-auto bg-gray-100 p-4 sm:p-6">
+        <main
+          className={`flex-1 overflow-y-auto p-4 sm:p-6 ${
+            isWrite ? "bg-ed-bg font-ed-sans lg:overflow-hidden" : "bg-gray-100"
+          }`}
+        >
           <Outlet />
         </main>
 

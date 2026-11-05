@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Send, Image as ImageIcon, Smile } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
+import { useOnboarding } from "../context/OnboardingContext";
 import {
   getOrCreateDashboardRoom,
   getOrCreateArticleRoom,
@@ -26,8 +27,10 @@ const TYPING_EMIT_THROTTLE_MS = 2000;
 export default function ChatPanel({ roomRequest }) {
   const { user } = useAuth();
   const socket = useSocket();
+  const { isChatHintVisible, dismissChatHint } = useOnboarding();
 
   const [title, setTitle] = useState("Sohbet");
+  const [isAuthorView, setIsAuthorView] = useState(false);
   const [roomId, setRoomId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -54,6 +57,7 @@ export default function ChatPanel({ roomRequest }) {
     setMessages([]);
     setRoomId(null);
     setTypingUsers({});
+    setIsAuthorView(false);
     Object.values(typingTimeoutsRef.current).forEach(clearTimeout);
     typingTimeoutsRef.current = {};
 
@@ -70,6 +74,9 @@ export default function ChatPanel({ roomRequest }) {
           ]);
           roomRes = res;
           setTitle(article.author?.username || "Makale Sohbeti");
+          // Yazar kendi makalesinde "kütüphaneye ekle" ipucunu görmemeli —
+          // backend zaten yazar için bu şartı aramıyor (resolveChatRoom.js).
+          setIsAuthorView(Boolean(article.author?._id && article.author._id === user?._id));
         } else {
           const [res, profile] = await Promise.all([
             getOrCreateDirectRoom(roomRequest.targetUserId),
@@ -218,6 +225,19 @@ export default function ChatPanel({ roomRequest }) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
+      {roomRequest.type === "article" && !isAuthorView && isChatHintVisible && (
+        <div className="mb-3 rounded-xl bg-white/10 p-3 text-xs text-white">
+          <p>Bu makalenin yazarıyla sohbet edebilmek için önce makaleyi kütüphanene eklemen gerekir.</p>
+          <button
+            type="button"
+            onClick={dismissChatHint}
+            className="mt-2 font-medium text-accent-gold hover:underline"
+          >
+            Anladım
+          </button>
+        </div>
+      )}
+
       <div className="mb-4 flex items-center justify-between rounded-full bg-white px-4 py-2 text-sm font-medium text-brand-900">
         <span className="truncate">{title}</span>
         <span className="h-6 w-6 flex-none rounded-full bg-teal-500" />

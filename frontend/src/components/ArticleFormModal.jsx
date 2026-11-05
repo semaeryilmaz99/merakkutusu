@@ -10,6 +10,7 @@ import TagInput from "./TagInput";
 // o yüzden burada "oluştur"a özel dallanma yok.
 export default function ArticleFormModal({ onClose, article, onSaved }) {
   const [title, setTitle] = useState(article.title);
+  const [subtitle, setSubtitle] = useState(article.subtitle || "");
   const [content, setContent] = useState(article.content);
   const [tags, setTags] = useState((article.tags || []).map((tag) => tag.name || tag));
   const [imageFile, setImageFile] = useState(null);
@@ -36,6 +37,7 @@ export default function ArticleFormModal({ onClose, article, onSaved }) {
     try {
       const formData = new FormData();
       formData.append("title", title.trim());
+      formData.append("subtitle", subtitle.trim());
       formData.append("content", content.trim());
       formData.append("tags", tags.join(","));
       if (imageFile) formData.append("image", imageFile);
@@ -60,6 +62,14 @@ export default function ArticleFormModal({ onClose, article, onSaved }) {
           onChange={(e) => setTitle(e.target.value)}
           maxLength={200}
           required
+        />
+
+        <Input
+          label="Alt başlık (opsiyonel)"
+          type="text"
+          value={subtitle}
+          onChange={(e) => setSubtitle(e.target.value)}
+          maxLength={300}
         />
 
         <textarea

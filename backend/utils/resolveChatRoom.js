@@ -18,10 +18,15 @@ export default async function resolveChatRoom({ type, userId, articleId, targetU
     const article = await Article.findById(articleId);
     if (!article) return { error: { status: 404, message: "Makale bulunamadı" } };
 
-    const user = await User.findById(userId).select("library");
-    const inLibrary = user?.library?.some(id => id.toString() === articleId.toString());
-    if (!inLibrary) {
-      return { error: { status: 403, message: "Bu chat odasına erişmek için makaleyi kütüphanenize eklemelisiniz" } };
+    // Yazar kendi makalesinin sohbetine her zaman erişebilir — kendi
+    // paylaşımını "kütüphanesine eklemesi" anlamsız bir şart olurdu.
+    const isAuthor = article.author.toString() === userId.toString();
+    if (!isAuthor) {
+      const user = await User.findById(userId).select("library");
+      const inLibrary = user?.library?.some(id => id.toString() === articleId.toString());
+      if (!inLibrary) {
+        return { error: { status: 403, message: "Bu chat odasına erişmek için makaleyi kütüphanenize eklemelisiniz" } };
+      }
     }
 
     let room = await ChatRoom.findOne({ type: "article", article: articleId });

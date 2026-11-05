@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Home, Compass, Plus, Bell, MessageCircle } from "lucide-react";
+import OnboardingHint from "./OnboardingHint";
 
 // Masaüstünde (lg+) Navbar (Ana Sayfa/Keşfet/profil) ve RightPanel zaten tüm
 // bu erişimi karşılıyor — BottomBar sadece mobilin birincil sekme çubuğu.
@@ -22,13 +23,15 @@ export default function BottomBar({
         <Home size={20} />
       </Link>
 
-      <Link
-        to="/explore"
-        aria-label="Keşfet"
-        className="flex h-11 w-11 items-center justify-center rounded-full text-white hover:bg-white/10 transition-colors"
-      >
-        <Compass size={20} />
-      </Link>
+      <OnboardingHint stepId="explore" placement="top" bubbleBreakpoint="lg:hidden">
+        <Link
+          to="/explore"
+          aria-label="Keşfet"
+          className="flex h-11 w-11 items-center justify-center rounded-full text-white hover:bg-white/10 transition-colors"
+        >
+          <Compass size={20} />
+        </Link>
+      </OnboardingHint>
 
       {showChat && (
         <button
@@ -40,13 +43,15 @@ export default function BottomBar({
         </button>
       )}
 
-      <Link
-        to="/write"
-        aria-label="Makale yaz"
-        className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-900 text-white hover:bg-brand-800 transition-colors"
-      >
-        <Plus size={20} />
-      </Link>
+      <OnboardingHint stepId="write" placement="top" bubbleBreakpoint="lg:hidden">
+        <Link
+          to="/write"
+          aria-label="Makale yaz"
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-900 text-white hover:bg-brand-800 transition-colors"
+        >
+          <Plus size={20} />
+        </Link>
+      </OnboardingHint>
 
       <button
         onClick={onOpenNotifications}

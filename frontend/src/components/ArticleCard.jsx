@@ -87,6 +87,7 @@ export default function ArticleCard({ article, onLibraryChange }) {
     >
       <div className="bg-gray-100 px-3 py-2">
         <p className="truncate text-sm font-semibold text-brand-900">{article.title}</p>
+        {article.subtitle && <p className="truncate text-xs text-gray-500">{article.subtitle}</p>}
       </div>
 
       <div className="flex items-center gap-2 border-b border-gray-100 px-3 py-2">

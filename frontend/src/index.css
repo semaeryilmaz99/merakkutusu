@@ -29,6 +29,34 @@
   --color-surface-muted: #f9fafb;
   --color-border-subtle: #e5e7eb;
   --color-text-muted: #6b7280;
+
+  /* --- Editorial katmanı: sadece /write (WriteArticle.jsx) ve Navbar'ın
+     /write'taki hâli (WriteNavHeader.jsx) için --- Eski brand, teal, accent
+     renk isimleri yukarıda olduğu gibi duruyor; bu token'lar SADECE yazma
+     sayfasında kullanılıyor, uygulamanın geri kalanı hâlâ marka paletinde. */
+  --color-ed-bg: #f6f5f1;
+  --color-ed-surface: #ffffff;
+  --color-ed-border: #e6e3db;
+  --color-ed-border-strong: #d9d6cd;
+  --color-ed-ink: #14212b;
+  --color-ed-ink-soft: #3d4a55;
+  --color-ed-muted: #5b6670;
+  --color-ed-placeholder: #8b9095;
+  --color-ed-navy: #0e3a55;
+  --color-ed-navy-strong: #082638;
+  --color-ed-ai: #8a2f5b;
+  --color-ed-ai-bg: #f6e9f0;
+  --color-ed-info-bg: #e7eef3;
+  --color-ed-success: #2f7d5b;
+
+  --font-ed-serif: "Newsreader", Georgia, serif;
+  --font-ed-sans: "Manrope", system-ui, sans-serif;
+
+  --radius-ed-sm: 6px;
+  --radius-ed-md: 10px;
+  --radius-ed-lg: 14px;
+  --radius-ed-xl: 18px;
+  --shadow-ed-soft: 0 6px 20px -12px rgba(20, 33, 43, 0.25);
 }
 
 /* @uiw/react-md-editor'ı (WriteArticle.jsx) marka paletine uyarlar. Kütüphane
@@ -41,52 +69,264 @@
    — miras alma, elemanın kendi üzerindeki (kütüphanenin) doğrudan tanımını
    asla yenemiyor. Aynı elemanları (.w-md-editor, .wmde-markdown) doğrudan
    hedefleyip !important ile üzerine yazıyoruz. */
-/* Faz 37: yazma sayfası artık başlık+editör tek açık "kağıt" yüzeyi olacak
-   şekilde yeniden düzenlendi (yardımcı işlevler sağ raya taşındı) — editör
-   paneli de önizlemeyle aynı açık temaya alındı, ikisi arasında "koyu editör
-   / açık önizleme" ayrımı kalmadı, hepsi yayınlanan makale görünümüyle
-   (ArticleDetail.jsx) birebir eşleşiyor. */
+/* Editorial görünümü — sıcak krem zemin, Newsreader serif gövde metni. */
 .merak-md-editor .w-md-editor,
 .merak-md-editor .w-md-editor-preview,
 .merak-md-editor .w-md-editor-preview .wmde-markdown {
-  --md-editor-font-family: inherit !important; /* sabit Helvetica yerine sitenin kendi fontu */
-  --color-canvas-default: #ffffff !important;
-  --color-canvas-subtle: #f6f8fa !important;
-  --color-border-default: #d0d7de !important;
-  --color-fg-default: #003B5C !important; /* brand-900 */
-  --color-fg-muted: #57606a !important;
-  --color-accent-fg: #1C6EA4 !important; /* brand-700 */
-  --color-neutral-muted: rgba(0, 196, 180, 0.12) !important;
+  --md-editor-font-family: var(--font-ed-serif) !important;
+  --color-canvas-default: #ffffff !important; /* ed-surface */
+  --color-canvas-subtle: #ffffff !important; /* ed-surface */
+  --color-border-default: #e6e3db !important; /* ed-border */
+  --color-fg-default: #14212b !important; /* ed-ink */
+  --color-fg-muted: #5b6670 !important; /* ed-muted */
+  --color-accent-fg: #0e3a55 !important; /* ed-navy */
+  --color-neutral-muted: rgba(14, 58, 85, 0.08) !important;
 }
-.merak-md-editor .w-md-editor-preview {
-  box-shadow: -1px 0 0 var(--color-teal-500, #00C4B4);
+/* Yazma alanı sabit boyutlu, beyaz dolgulu bir kutu — krem sayfa zemininden
+   ayrışsın diye kenarlık + yumuşak gölge eklendi. Yükseklik MDEditor'a
+   verilen height prop'uyla, genişlik kapsayıcı sütunla sabit; resize=false
+   (bkz. WriteArticle.jsx) ile kullanıcı da sürükleyip büyütemiyor. */
+.merak-md-editor .w-md-editor {
+  box-shadow: var(--shadow-ed-soft) !important;
+  border: 1px solid var(--color-ed-border) !important;
+  border-radius: var(--radius-ed-lg) !important;
+  background: #ffffff !important;
+  height: 480px !important;
+  max-height: 480px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
 }
-
-/* Araç çubuğunu sitenin geri kalanındaki yuvarlak/rahat buton diliyle
-   uyumlu hale getirir — varsayılan hali çok küçük/sıkışık (20px, keskin köşe). */
-.merak-md-editor .w-md-editor-toolbar {
-  padding: 8px 10px;
-  gap: 2px;
-}
-.merak-md-editor .w-md-editor-toolbar li > button {
-  height: 30px;
-  min-width: 30px;
-  padding: 6px;
-  border-radius: 8px;
-  transition: background-color 0.15s, color 0.15s;
-}
-.merak-md-editor .w-md-editor-toolbar li.active > button,
-.merak-md-editor .w-md-editor-toolbar li > button:hover,
-.merak-md-editor .w-md-editor-toolbar li > button:focus {
-  background-color: var(--color-neutral-muted);
-  color: #F2B05C;
-}
-.merak-md-editor .w-md-editor-toolbar-divider {
-  height: 20px;
-  opacity: 0.4;
+/* Gerçek kaydırma kapsayıcısı .w-md-editor-text-input DEĞİL .w-md-editor-area
+   — yazarken kutunun kendisi büyümesin, sadece bu iç alan dikey kaysın.
+   overflow-x: hidden + break-word: uzun tek bir kelime/URL kutuyu yanlara
+   doğru genişletmesin, satır içinde kırılsın. */
+.merak-md-editor .w-md-editor-area {
+  height: 100% !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
 }
 .merak-md-editor .w-md-editor-text-input,
+.merak-md-editor .w-md-editor-text-pre > code,
+.merak-md-editor .w-md-editor-text-pre,
 .merak-md-editor .w-md-editor-text {
-  font-size: 14px !important;
-  line-height: 1.7 !important;
+  font-family: var(--font-ed-serif) !important;
+  font-size: 21px !important;
+  line-height: 1.75 !important;
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+  white-space: pre-wrap !important;
+}
+.merak-md-editor .w-md-editor-area,
+.merak-md-editor .w-md-editor-text-input,
+.merak-md-editor .w-md-editor-text {
+  padding: 8px 20px !important;
+}
+.merak-md-editor .w-md-editor-preview {
+  box-shadow: -1px 0 0 var(--color-ed-border);
+}
+
+/* Araç çubuğu <MDEditor hideToolbar> ile tamamen gizli — "/" komut menüsü ve
+   FormatToolbar.jsx onun yerini alıyor, bu yüzden burada toolbar CSS'i yok. */
+
+@keyframes ed-slash-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Editorial bileşen dili: yuvarlak pill butonlar, yumuşak kartlar, ince
+   çerçeveler. Sadece WriteArticle.jsx + WriteNavHeader.jsx'te kullanılıyor. */
+@layer components {
+  .ed-ib {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-ed-md);
+    border: 0;
+    background: transparent;
+    color: var(--color-ed-ink-soft);
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+  }
+  .ed-ib:hover {
+    background: var(--color-ed-info-bg);
+    color: var(--color-ed-navy);
+  }
+
+  .ed-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 999px;
+    font-family: var(--font-ed-sans);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+  }
+  .ed-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .ed-btn-ghost {
+    background: transparent;
+    border: 1px solid var(--color-ed-border-strong);
+    color: var(--color-ed-ink);
+  }
+  .ed-btn-ghost:not(:disabled):hover {
+    background: var(--color-ed-surface);
+    border-color: var(--color-ed-ink-soft);
+  }
+  .ed-btn-primary {
+    border: 1px solid transparent;
+    background: var(--color-ed-navy);
+    color: #fff;
+  }
+  .ed-btn-primary:not(:disabled):hover {
+    background: var(--color-ed-navy-strong);
+  }
+
+  .ed-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    border: 1px dashed var(--color-ed-border-strong);
+    background: transparent;
+    color: var(--color-ed-muted);
+    font-family: var(--font-ed-sans);
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .ed-chip:hover {
+    border-style: solid;
+    border-color: var(--color-ed-navy);
+    color: var(--color-ed-navy);
+    background: var(--color-ed-surface);
+  }
+
+  .ed-row-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius-ed-lg);
+    border: 1px solid transparent;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+  }
+  .ed-row-btn:hover {
+    background: var(--color-ed-bg);
+    border-color: var(--color-ed-border);
+  }
+
+  .ed-navlink {
+    display: inline-flex;
+    font-family: var(--font-ed-sans);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--color-ed-ink-soft);
+    padding: 10px 12px;
+    border-radius: 8px;
+    transition: background-color 0.15s, color 0.15s;
+  }
+  .ed-navlink:hover {
+    background: var(--color-ed-info-bg);
+    color: var(--color-ed-navy);
+  }
+  .ed-navlink-active {
+    background: var(--color-ed-info-bg);
+    color: var(--color-ed-navy);
+  }
+
+  .ed-drop {
+    border: 1.5px dashed var(--color-ed-border-strong);
+    border-radius: var(--radius-ed-lg);
+    background: var(--color-ed-bg);
+    transition: border-color 0.15s, background-color 0.15s;
+  }
+  .ed-drop:hover {
+    border-color: var(--color-ed-navy);
+    background: var(--color-ed-info-bg);
+  }
+
+  .ed-kicker {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 10px;
+    border-radius: 6px;
+    background: var(--color-ed-info-bg);
+    color: var(--color-ed-navy);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .ed-ai-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 8px;
+    border-radius: 6px;
+    background: var(--color-ed-ai-bg);
+    color: var(--color-ed-ai);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+
+  .ed-card {
+    background: var(--color-ed-surface);
+    border: 1px solid var(--color-ed-border);
+    border-radius: var(--radius-ed-xl);
+    padding: 20px;
+  }
+
+  .ed-kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 7px;
+    box-sizing: border-box;
+    border: 1px solid var(--color-ed-border-strong);
+    border-bottom-width: 2px;
+    border-radius: 6px;
+    background: var(--color-ed-surface);
+    font-family: var(--font-ed-sans);
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--color-ed-ink-soft);
+  }
+
+  .ed-palette-in {
+    animation: ed-slash-menu-in 160ms ease-out;
+  }
+}
+
+/* Sadece WriteArticle.jsx'in kök elemanına eklenen .write-article-page class'ı
+   içinde geçerli — global odak halkasını navy rengine çeviriyor, WriteNavHeader.jsx
+   artık marka renklerinde olduğu için (Navbar.jsx gibi) kendi özel odak kuralı yok. */
+.write-article-page :focus-visible {
+  outline: 2px solid var(--color-ed-navy);
+  outline-offset: 2px;
 }
