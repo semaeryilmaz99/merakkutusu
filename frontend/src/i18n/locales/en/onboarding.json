@@ -1,0 +1,18 @@
+{
+  "skip": "Skip",
+  "next": "Next",
+  "finish": "Finish",
+  "nav": {
+    "explore": { "title": "Explore", "text": "Find the newest and most popular articles from the community here." },
+    "write": { "title": "Write an Article", "text": "Share what you know — AI suggests academic sources for you as you write." },
+    "profile": { "title": "Your Profile", "text": "Edit your bio, update your interests, and see your posts from here." }
+  },
+  "write": {
+    "tags": { "title": "Tags", "text": "Mark your article with relevant tags so it reaches the right readers." },
+    "editor": { "title": "Command palette", "text": "Press '/' while writing: headings, lists, quotes, source suggestions and more, one keystroke away." },
+    "sources": { "title": "Suggest sources", "text": "AI suggests academic sources based on your draft — add a citation with one click." },
+    "notes": { "title": "Add from My Notes", "text": "Move one of the PDF summaries you uploaded on the Notes page into your draft with one click." },
+    "cover": { "title": "Cover image", "text": "Add a cover image if you'd like — optional, you can also publish without one." },
+    "publish": { "title": "Publish", "text": "Publish your article from here when you're ready." }
+  }
+}

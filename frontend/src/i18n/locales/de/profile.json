@@ -1,0 +1,65 @@
+{
+  "loading": "Wird geladen...",
+  "notFound": "Benutzer nicht gefunden.",
+  "bioEmpty": "Noch keine Biografie hinzugefügt.",
+  "stats": {
+    "followers": "Follower",
+    "favorites": "Favoriten",
+    "articles": "Artikel"
+  },
+  "tagRemoveFailed": "Interesse konnte nicht entfernt werden, versuch es erneut.",
+  "noInterests": {
+    "text": "Du hast noch keine Interessen ausgewählt —",
+    "link": "hier auswählen"
+  },
+  "emptyArticles": {
+    "title": "Du hast noch keinen Artikel geschrieben.",
+    "action": "Schreib deinen ersten Artikel"
+  },
+  "emptyArticlesOther": "Hat noch keinen Artikel geschrieben.",
+  "followersModal": {
+    "title": "Follower",
+    "empty": "Noch keine Follower."
+  },
+  "followingModal": {
+    "title": "Gefolgte",
+    "empty": "Du folgst noch niemandem."
+  },
+  "removeTagAria": "Tag {{tag}} entfernen",
+  "followingHeading": "Gefolgte Autoren",
+  "showMoreAria": "{{count}} weitere anzeigen",
+  "editProfileButton": "Profilinformationen Aktualisieren",
+  "editModal": {
+    "title": "Profilinformationen Aktualisieren",
+    "usernameLabel": "Benutzername:",
+    "avatarPlaceholder": "Profilbild",
+    "bioPlaceholder": "Biografie",
+    "libraryVisibility": "Sichtbarkeit der Bibliothek",
+    "private": "Privat",
+    "public": "Öffentlich",
+    "saveError": "Profil konnte nicht aktualisiert werden, versuch es erneut.",
+    "save": "Änderungen Speichern",
+    "saving": "Wird gespeichert...",
+    "changePasswordTitle": "Passwort Ändern",
+    "currentPasswordPlaceholder": "Aktuelles Passwort",
+    "newPasswordPlaceholder": "Neues Passwort",
+    "passwordChanged": "Passwort geändert.",
+    "passwordChangeFailed": "Passwort konnte nicht geändert werden.",
+    "changePassword": "Passwort Ändern",
+    "changingPassword": "Wird geändert...",
+    "deleteWarning": "Dein Konto wird dauerhaft gelöscht. Gib dein Passwort ein, um zu bestätigen.",
+    "deletePasswordPlaceholder": "Dein Passwort",
+    "deleteFailed": "Konto konnte nicht gelöscht werden.",
+    "deleteConfirmYes": "Ja, mein Konto löschen",
+    "deleting": "Wird gelöscht...",
+    "cancel": "Abbrechen",
+    "deleteAccount": "Mein Konto löschen"
+  },
+  "followFailed": "Aktion fehlgeschlagen, versuch es erneut.",
+  "follow": "Folgen",
+  "unfollow": "Nicht mehr folgen",
+  "libraryHidden": "Die Bibliothek dieses Benutzers ist privat.",
+  "articlesHeading": "Artikel",
+  "libraryHeading": "Bibliothek",
+  "libraryEmpty": "Die Bibliothek ist leer."
+}

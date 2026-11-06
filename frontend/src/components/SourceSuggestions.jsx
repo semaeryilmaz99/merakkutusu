@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { BookOpen, Check, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function SourceSuggestions({ error, suggestions, onToggleCitation }) {
+  const { t } = useTranslation("write");
   const [addedIndices, setAddedIndices] = useState(() => new Set());
 
   // Yeni bir arama sonucu geldiğinde ("Kaynak Öner" tekrar tıklanınca) önceki
@@ -30,7 +32,7 @@ export default function SourceSuggestions({ error, suggestions, onToggleCitation
   if (!suggestions) return null;
 
   if (suggestions.length === 0) {
-    return <p className="text-[13px] text-ed-muted">Taslağınla alakalı bir akademik kaynak bulunamadı.</p>;
+    return <p className="text-[13px] text-ed-muted">{t("sources.noMatch")}</p>;
   }
 
   return (
@@ -39,7 +41,7 @@ export default function SourceSuggestions({ error, suggestions, onToggleCitation
         <div key={i} className="border-t border-ed-border py-4 first:border-t-0 first:pt-0">
           <span className="mb-1.5 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-ed-ai">
             <Sparkles size={9} />
-            AI tarafından önerildi
+            {t("sources.aiSuggested")}
           </span>
           <div className="flex items-start gap-2">
             <BookOpen size={15} className="mt-0.5 flex-none text-ed-muted" />
@@ -59,7 +61,7 @@ export default function SourceSuggestions({ error, suggestions, onToggleCitation
                 rel="noreferrer"
                 className="flex-1 text-[13px] font-medium text-ed-navy hover:underline"
               >
-                Kaynağa git ↗
+                {t("sources.visitSource")}
               </a>
             ) : (
               <span className="flex-1" />
@@ -75,7 +77,7 @@ export default function SourceSuggestions({ error, suggestions, onToggleCitation
               }`}
             >
               {addedIndices.has(i) && <Check size={12} />}
-              {addedIndices.has(i) ? "Eklendi ✓" : "Atıf ekle"}
+              {addedIndices.has(i) ? t("sources.added") : t("sources.addCitation")}
             </button>
           </div>
         </div>

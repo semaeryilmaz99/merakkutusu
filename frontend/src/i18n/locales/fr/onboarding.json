@@ -1,0 +1,18 @@
+{
+  "skip": "Passer",
+  "next": "Suivant",
+  "finish": "Terminer",
+  "nav": {
+    "explore": { "title": "Explorer", "text": "Trouve ici les articles les plus récents et les plus populaires de la communauté." },
+    "write": { "title": "Écrire un article", "text": "Partage ce que tu sais — l'IA te suggère des sources académiques pendant que tu écris." },
+    "profile": { "title": "Ton profil", "text": "Modifie ta bio, mets à jour tes centres d'intérêt et consulte tes publications ici." }
+  },
+  "write": {
+    "tags": { "title": "Tags", "text": "Marque ton article avec des tags pertinents pour qu'il atteigne les bons lecteurs." },
+    "editor": { "title": "Palette de commandes", "text": "Appuie sur '/' en écrivant : titres, listes, citations, suggestions de sources et plus encore, à portée de touche." },
+    "sources": { "title": "Suggérer des sources", "text": "L'IA suggère des sources académiques selon ton brouillon — ajoute une citation en un clic." },
+    "notes": { "title": "Ajouter depuis Mes Notes", "text": "Transfère en un clic l'un des résumés de PDF que tu as importés dans la page Notes vers ton brouillon." },
+    "cover": { "title": "Image de couverture", "text": "Ajoute une image de couverture si tu veux — optionnel, tu peux aussi publier sans." },
+    "publish": { "title": "Publier", "text": "Publie ton article ici dès que tu es prêt." }
+  }
+}

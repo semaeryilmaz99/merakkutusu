@@ -1,0 +1,11 @@
+{
+  "validationError": "El título y el contenido no pueden estar vacíos.",
+  "saveFailed": "No se pudo guardar el artículo, inténtalo de nuevo.",
+  "modalTitle": "Editar Artículo",
+  "titleLabel": "Título",
+  "subtitleLabel": "Subtítulo (opcional)",
+  "contentPlaceholder": "Contenido del artículo...",
+  "markdownHint": "Se admite Markdown: **negrita**, # título, - lista, [enlace](url), ```código```",
+  "changeImage": "Cambiar Imagen (opcional)",
+  "saveAria": "Guardar cambios"
+}

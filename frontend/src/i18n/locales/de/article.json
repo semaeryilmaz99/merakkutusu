@@ -1,0 +1,43 @@
+{
+  "loading": "Wird geladen...",
+  "notFound": "Artikel nicht gefunden.",
+  "readTime": "{{time}} Min. Lesezeit",
+  "readTimeShort": "{{time}} Min.",
+  "readTimeTooltip": "Geschätzte Lesezeit",
+  "errors": {
+    "favoriteUpdateFailed": "Favoritenstatus konnte nicht aktualisiert werden, versuche es erneut.",
+    "libraryUpdateFailed": "Bibliotheksstatus konnte nicht aktualisiert werden, versuche es erneut.",
+    "followUpdateFailed": "Folge-Status konnte nicht aktualisiert werden, versuche es erneut.",
+    "shareFailed": "Teilen fehlgeschlagen, versuche es erneut.",
+    "linkCopyFailed": "Link konnte nicht kopiert werden.",
+    "commentUpdateFailed": "Kommentar konnte nicht aktualisiert werden.",
+    "commentDeleteFailed": "Kommentar konnte nicht gelöscht werden."
+  },
+  "actions": {
+    "favoriteAria": "Zu Favoriten hinzufügen/entfernen",
+    "libraryAria": "Zur Bibliothek hinzufügen/entfernen",
+    "save": "Speichern",
+    "editAria": "Artikel bearbeiten",
+    "deleteAria": "Artikel löschen",
+    "deleteConfirmQuestion": "Wirklich löschen?",
+    "deleteConfirmYes": "Ja, löschen",
+    "deleteCancel": "Abbrechen",
+    "shareAria": "Teilen",
+    "linkCopied": "Link kopiert"
+  },
+  "follow": {
+    "follow": "Folgen",
+    "unfollow": "Entfolgen"
+  },
+  "comments": {
+    "heading": "Kommentare {{count}}",
+    "placeholder": "Schreibe hier deinen Kommentar...",
+    "sendAria": "Kommentar senden",
+    "empty": "Noch keine Kommentare.",
+    "unknownUser": "Nutzer",
+    "editAria": "Kommentar bearbeiten",
+    "deleteAria": "Kommentar löschen",
+    "saveEdit": "Speichern",
+    "cancelEdit": "Abbrechen"
+  }
+}

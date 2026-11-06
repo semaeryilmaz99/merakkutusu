@@ -1,0 +1,22 @@
+{
+  "search": {
+    "placeholder": "Makale, kullanıcı veya konu arayın...",
+    "searchAria": "Ara",
+    "filterAria": "Tag filtrele",
+    "clearAria": "Filtreyi temizle"
+  },
+  "users": {
+    "heading": "Kullanıcılar"
+  },
+  "empty": {
+    "noMatchButUsers": "Eşleşen makale yok, ama yukarıda kullanıcı sonuçları var.",
+    "noResults": "Sonuç bulunamadı.",
+    "noFeed": "Henüz feed'inizde makale yok.",
+    "noFeedDescription": "İlgi alanı seçin veya birilerini takip edin.",
+    "exploreAction": "Keşfetmeye başla"
+  },
+  "loadMore": {
+    "button": "Daha Fazla Yükle",
+    "loading": "Yükleniyor..."
+  }
+}

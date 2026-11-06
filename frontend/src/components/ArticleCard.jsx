@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, Library, Clock } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import { toggleFavorite, toggleLibrary } from "../services/articleService";
 import { formatRelativeDate } from "../utils/formatDate";
 
 export default function ArticleCard({ article, onLibraryChange }) {
+  const { t } = useTranslation("article");
   const { user } = useAuth();
   const navigate = useNavigate();
   const tags = (article.tags || []).slice(0, 2);
@@ -104,10 +106,10 @@ export default function ArticleCard({ article, onLibraryChange }) {
         <span className="flex-none text-[10px] text-gray-400">{formatRelativeDate(article.createdAt)}</span>
         <span
           className="flex flex-none items-center gap-1 rounded-full bg-accent-gold/20 px-2 py-0.5 text-[10px] font-mono font-medium text-brand-800"
-          title="Tahmini okuma süresi"
+          title={t("readTimeTooltip")}
         >
           <Clock size={10} />
-          {readingMinutes} dk
+          {t("readTimeShort", { time: readingMinutes })}
         </span>
       </div>
 
@@ -148,7 +150,7 @@ export default function ArticleCard({ article, onLibraryChange }) {
           <button
             type="button"
             onClick={handleToggleFavorite}
-            aria-label="Favorilere ekle/çıkar"
+            aria-label={t("actions.favoriteAria")}
             className={`flex h-8 items-center gap-1 rounded-full px-2 text-xs font-medium ${
               isFavorite ? "bg-accent-coral text-white" : "bg-gray-100 text-brand-700"
             }`}
@@ -160,7 +162,7 @@ export default function ArticleCard({ article, onLibraryChange }) {
           <button
             type="button"
             onClick={handleToggleLibrary}
-            aria-label="Kütüphaneye ekle/çıkar"
+            aria-label={t("actions.libraryAria")}
             className={`flex h-8 w-8 items-center justify-center rounded-full ${
               isInLibrary ? "bg-brand-600 text-white" : "bg-gray-100 text-brand-700"
             }`}

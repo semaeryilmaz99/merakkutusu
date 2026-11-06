@@ -1,0 +1,32 @@
+{
+  "accessDenied": "You don't have access to this page.",
+  "loading": "Loading...",
+  "heading": "Admin Panel — Users",
+  "table": {
+    "username": "Username",
+    "email": "Email",
+    "role": "Role",
+    "verified": "Verified",
+    "joined": "Joined",
+    "actions": "Actions"
+  },
+  "yes": "Yes",
+  "no": "No",
+  "activity": "Activity",
+  "deleteConfirmYes": "Yes, delete",
+  "cancel": "Cancel",
+  "deleteUserAria": "Delete user {{username}}",
+  "prevPageAria": "Previous page",
+  "nextPageAria": "Next page",
+  "pageIndicator": "Page {{page}} of {{totalPages}}",
+  "activityModal": {
+    "title": "User Activity",
+    "articles": "articles",
+    "receivedFavorites": "favorites received",
+    "receivedComments": "comments received",
+    "madeComments": "comments made",
+    "recentArticles": "Recent Articles",
+    "noArticles": "No articles yet.",
+    "statsLine": "{{favorites}} favorites · {{comments}} comments"
+  }
+}

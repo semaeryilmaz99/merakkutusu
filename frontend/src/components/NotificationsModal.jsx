@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, MessageCircle, UserPlus, Bell, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import i18next from "../i18n";
 import { getNotifications, markAsRead } from "../services/notificationService";
 import Modal from "./UI/Modal";
 
@@ -11,16 +13,17 @@ const ICONS = {
 };
 
 function buildMessage(notification) {
-  const name = notification.fromUser?.username || "Bir kullanıcı";
+  const t = (key, options) => i18next.t(key, { ns: "notifications", ...options });
+  const name = notification.fromUser?.username || t("defaultUser");
   switch (notification.type) {
     case "follow":
-      return `${name} seni takip etmeye başladı.`;
+      return t("messages.follow", { name });
     case "favorite":
-      return `${name} "${notification.article?.title || "bir makaleni"}" makaleni favoriledi.`;
+      return t("messages.favorite", { name, title: notification.article?.title || t("defaultArticle") });
     case "comment":
-      return `${name} "${notification.article?.title || "bir makaleni"}" makalene yorum yaptı.`;
+      return t("messages.comment", { name, title: notification.article?.title || t("defaultArticle") });
     default:
-      return `${name} bir etkileşimde bulundu.`;
+      return t("messages.default", { name });
   }
 }
 
@@ -52,7 +55,7 @@ function NotificationRowSkeleton() {
   );
 }
 
-function NotificationsList({ isLoading, notifications, onNotificationClick }) {
+function NotificationsList({ isLoading, notifications, onNotificationClick, t }) {
   if (isLoading) {
     return (
       <div className="flex flex-col gap-1">
@@ -67,7 +70,7 @@ function NotificationsList({ isLoading, notifications, onNotificationClick }) {
     return (
       <div className="flex flex-col items-center gap-2 py-6 text-center">
         <Bell size={22} className="text-white/40" />
-        <p className="text-sm text-white/70">Henüz bildiriminiz yok.</p>
+        <p className="text-sm text-white/70">{t("empty")}</p>
       </div>
     );
   }
@@ -92,6 +95,7 @@ function NotificationsList({ isLoading, notifications, onNotificationClick }) {
 // açılıyor. İkisi de aynı anda DOM'da ama sadece biri görünür olduğundan
 // (display:none) veri/fetch mantığı bölünmüyor.
 export default function NotificationsModal({ onClose, onSeen }) {
+  const { t } = useTranslation("notifications");
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -122,8 +126,8 @@ export default function NotificationsModal({ onClose, onSeen }) {
   return (
     <>
       <div className="lg:hidden">
-        <Modal title="Bildirimler" onClose={onClose}>
-          <NotificationsList isLoading={isLoading} notifications={notifications} onNotificationClick={handleClick} />
+        <Modal title={t("title")} onClose={onClose}>
+          <NotificationsList isLoading={isLoading} notifications={notifications} onNotificationClick={handleClick} t={t} />
         </Modal>
       </div>
 
@@ -133,16 +137,16 @@ export default function NotificationsModal({ onClose, onSeen }) {
           onClick={(e) => e.stopPropagation()}
         >
           <div className="mb-2 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-white">Bildirimler</h2>
+            <h2 className="text-sm font-semibold text-white">{t("title")}</h2>
             <button
               onClick={onClose}
-              aria-label="Kapat"
+              aria-label={t("close")}
               className="rounded-full p-1 text-white/70 hover:bg-white/10 hover:text-white"
             >
               <X size={16} />
             </button>
           </div>
-          <NotificationsList isLoading={isLoading} notifications={notifications} onNotificationClick={handleClick} />
+          <NotificationsList isLoading={isLoading} notifications={notifications} onNotificationClick={handleClick} t={t} />
         </div>
       </div>
     </>

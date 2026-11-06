@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { ShieldCheck, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import { getAllUsers, deleteUser, getUserActivity } from "../services/adminService";
 import { formatShortDate } from "../utils/formatDate";
 import Modal from "../components/UI/Modal";
 
 export default function AdminPanel() {
+  const { t } = useTranslation("admin");
   const { user: currentUser } = useAuth();
 
   const [users, setUsers] = useState([]);
@@ -35,11 +37,11 @@ export default function AdminPanel() {
   };
 
   if (currentUser?.role !== "admin") {
-    return <p className="text-sm text-accent-coral">Bu sayfaya erişim yetkiniz yok.</p>;
+    return <p className="text-sm text-accent-coral">{t("accessDenied")}</p>;
   }
 
   if (isLoading) {
-    return <p className="text-sm text-gray-500">Yükleniyor...</p>;
+    return <p className="text-sm text-gray-500">{t("loading")}</p>;
   }
 
   return (
@@ -47,7 +49,7 @@ export default function AdminPanel() {
       <div className="flex items-center gap-2 bg-gray-100 px-4 py-3">
         <ShieldCheck size={18} className="text-brand-700" />
         <h1 className="text-lg font-semibold text-brand-900">
-          Admin Paneli — Kullanıcılar <span className="text-sm font-normal text-gray-400">({totalCount})</span>
+          {t("heading")} <span className="text-sm font-normal text-gray-400">({totalCount})</span>
         </h1>
       </div>
 
@@ -55,12 +57,12 @@ export default function AdminPanel() {
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-gray-100 text-xs uppercase text-gray-400">
-              <th className="px-4 py-2">Kullanıcı Adı</th>
-              <th className="px-4 py-2">Email</th>
-              <th className="px-4 py-2">Rol</th>
-              <th className="px-4 py-2">Doğrulanmış</th>
-              <th className="px-4 py-2">Katılım</th>
-              <th className="px-4 py-2">İşlemler</th>
+              <th className="px-4 py-2">{t("table.username")}</th>
+              <th className="px-4 py-2">{t("table.email")}</th>
+              <th className="px-4 py-2">{t("table.role")}</th>
+              <th className="px-4 py-2">{t("table.verified")}</th>
+              <th className="px-4 py-2">{t("table.joined")}</th>
+              <th className="px-4 py-2">{t("table.actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -77,7 +79,7 @@ export default function AdminPanel() {
                     {u.role}
                   </span>
                 </td>
-                <td className="px-4 py-3">{u.isVerified ? "Evet" : "Hayır"}</td>
+                <td className="px-4 py-3">{u.isVerified ? t("yes") : t("no")}</td>
                 <td className="px-4 py-3 text-gray-500">
                   {formatShortDate(u.createdAt)}
                 </td>
@@ -87,7 +89,7 @@ export default function AdminPanel() {
                       onClick={() => setActivityUserId(u._id)}
                       className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-brand-700 hover:bg-gray-200"
                     >
-                      Aktivite
+                      {t("activity")}
                     </button>
 
                     {u._id === currentUser._id ? null : confirmingId === u._id ? (
@@ -96,19 +98,19 @@ export default function AdminPanel() {
                           onClick={() => handleDelete(u._id)}
                           className="rounded-full bg-accent-coral px-2 py-1 text-xs font-semibold text-white"
                         >
-                          Evet, sil
+                          {t("deleteConfirmYes")}
                         </button>
                         <button
                           onClick={() => setConfirmingId(null)}
                           className="rounded-full bg-gray-200 px-2 py-1 text-xs text-brand-900"
                         >
-                          Vazgeç
+                          {t("cancel")}
                         </button>
                       </div>
                     ) : (
                       <button
                         onClick={() => setConfirmingId(u._id)}
-                        aria-label={`${u.username} kullanıcısını sil`}
+                        aria-label={t("deleteUserAria", { username: u.username })}
                         className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-brand-700 hover:bg-accent-coral hover:text-white"
                       >
                         <Trash2 size={14} />
@@ -127,18 +129,18 @@ export default function AdminPanel() {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            aria-label="Önceki sayfa"
+            aria-label={t("prevPageAria")}
             className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-brand-700 disabled:opacity-40"
           >
             <ChevronLeft size={16} />
           </button>
           <span className="text-xs text-gray-500">
-            Sayfa {page} / {totalPages}
+            {t("pageIndicator", { page, totalPages })}
           </span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            aria-label="Sonraki sayfa"
+            aria-label={t("nextPageAria")}
             className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-brand-700 disabled:opacity-40"
           >
             <ChevronRight size={16} />
@@ -154,6 +156,7 @@ export default function AdminPanel() {
 }
 
 function UserActivityModal({ userId, onClose }) {
+  const { t } = useTranslation("admin");
   const [activity, setActivity] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -164,9 +167,9 @@ function UserActivityModal({ userId, onClose }) {
   }, [userId]);
 
   return (
-    <Modal title="Kullanıcı Aktivitesi" onClose={onClose}>
+    <Modal title={t("activityModal.title")} onClose={onClose}>
       {isLoading ? (
-        <p className="text-center text-sm text-white/70">Yükleniyor...</p>
+        <p className="text-center text-sm text-white/70">{t("loading")}</p>
       ) : (
         <div className="flex flex-col gap-4 text-white">
           <p className="text-sm font-semibold">{activity.user.username}</p>
@@ -174,33 +177,33 @@ function UserActivityModal({ userId, onClose }) {
           <div className="grid grid-cols-2 gap-2 text-center text-xs">
             <div className="rounded-xl bg-white/10 p-3">
               <p className="text-lg font-bold">{activity.articleCount}</p>
-              <p>makale</p>
+              <p>{t("activityModal.articles")}</p>
             </div>
             <div className="rounded-xl bg-white/10 p-3">
               <p className="text-lg font-bold">{activity.receivedFavorites}</p>
-              <p>alınan favori</p>
+              <p>{t("activityModal.receivedFavorites")}</p>
             </div>
             <div className="rounded-xl bg-white/10 p-3">
               <p className="text-lg font-bold">{activity.receivedComments}</p>
-              <p>alınan yorum</p>
+              <p>{t("activityModal.receivedComments")}</p>
             </div>
             <div className="rounded-xl bg-white/10 p-3">
               <p className="text-lg font-bold">{activity.madeComments}</p>
-              <p>yaptığı yorum</p>
+              <p>{t("activityModal.madeComments")}</p>
             </div>
           </div>
 
           <div>
-            <p className="mb-2 text-xs font-semibold text-white/70">Son Makaleleri</p>
+            <p className="mb-2 text-xs font-semibold text-white/70">{t("activityModal.recentArticles")}</p>
             {activity.recentArticles.length === 0 ? (
-              <p className="text-xs text-white/50">Henüz makale yok.</p>
+              <p className="text-xs text-white/50">{t("activityModal.noArticles")}</p>
             ) : (
               <div className="flex flex-col gap-1">
                 {activity.recentArticles.map((a) => (
                   <div key={a._id} className="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2 text-xs">
                     <span className="truncate">{a.title}</span>
                     <span className="flex-none text-white/60">
-                      {a.favorites} favori · {a.comments} yorum
+                      {t("activityModal.statsLine", { favorites: a.favorites, comments: a.comments })}
                     </span>
                   </div>
                 ))}

@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Check } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import api from "../services/api";
 import Button from "../components/UI/Button";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 
 // Yükleme sırasında gerçek etiket düzenini taklit eden, değişen genişlikte
 // iskelet haplar — düz "Yükleniyor..." metninden sonra liste gelince sayfa
@@ -10,6 +12,7 @@ import Button from "../components/UI/Button";
 const SKELETON_WIDTHS = ["w-24", "w-20", "w-28", "w-16", "w-24", "w-32", "w-20", "w-24", "w-28", "w-16"];
 
 export default function SelectInterests() {
+  const { t } = useTranslation("interests");
   const navigate = useNavigate();
   const [tags, setTags] = useState([]);
   const [selected, setSelected] = useState(new Set());
@@ -42,13 +45,15 @@ export default function SelectInterests() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
+    <div className="relative flex min-h-screen items-center justify-center bg-gray-50 p-4">
+      <div className="absolute right-4 top-4 z-10 lg:right-6 lg:top-6">
+        <LanguageSwitcher />
+      </div>
+
       <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-brand-900">Hangi konular ilgini çekiyor?</h1>
-          <p className="mt-2 text-sm text-gray-500">
-            Birkaç tanesini seç, sana özel bir akış oluşturalım. İstediğin zaman değiştirebilirsin.
-          </p>
+          <h1 className="text-2xl font-bold text-brand-900">{t("title")}</h1>
+          <p className="mt-2 text-sm text-gray-500">{t("subtitle")}</p>
         </div>
 
         {isLoading ? (
@@ -81,10 +86,10 @@ export default function SelectInterests() {
         )}
 
         <div className="mt-8 flex items-center justify-between gap-4 border-t border-gray-100 pt-5">
-          <p className="text-sm text-gray-500">{selected.size} konu seçildi</p>
+          <p className="text-sm text-gray-500">{t("selectedCount", { count: selected.size })}</p>
           <div className="w-fit">
             <Button onClick={handleSubmit} disabled={isSubmitting || isLoading} className="px-6">
-              {isSubmitting ? "Kaydediliyor..." : "Kişisel Feed'ini Oluştur"}
+              {isSubmitting ? t("submitting") : t("submit")}
             </Button>
           </div>
         </div>

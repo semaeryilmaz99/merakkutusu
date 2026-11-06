@@ -1,0 +1,12 @@
+{
+  "libraryHeading": "your library",
+  "loading": "Loading...",
+  "empty": "Your library is empty — add articles you like.",
+  "authorFallback": "author",
+  "tabs": {
+    "library": "Library",
+    "chat": "Chat"
+  },
+  "expandAria": "Expand panel",
+  "collapseAria": "Collapse panel"
+}

@@ -1,0 +1,26 @@
+{
+  "upload": {
+    "title": "Upload Class Notes",
+    "description": "Upload a screenshot/photo or a PDF, and AI will summarize it and save it to your library.",
+    "chooseFile": "Choose File (image or PDF)",
+    "button": "Upload & Summarize",
+    "summarizing": "Summarizing...",
+    "failed": "Couldn't upload note, please try again."
+  },
+  "empty": {
+    "title": "You haven't uploaded any notes yet.",
+    "description": "Start by uploading a screenshot or PDF above."
+  },
+  "loadMore": {
+    "button": "Load More",
+    "loading": "Loading..."
+  },
+  "detail": {
+    "openOriginal": "Open original file",
+    "confirmDelete": "Are you sure you want to delete this note?",
+    "deleteYes": "Yes, delete",
+    "deleting": "Deleting...",
+    "cancel": "Cancel",
+    "delete": "Delete Note"
+  }
+}

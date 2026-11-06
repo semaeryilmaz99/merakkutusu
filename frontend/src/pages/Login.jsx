@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import { getMe } from "../services/authService";
 import Input from "../components/UI/Input";
 import Button from "../components/UI/Button";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 
 export default function Login() {
+  const { t } = useTranslation("auth");
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -26,7 +28,7 @@ export default function Login() {
       const hasInterests = me.favoriteTags?.length > 0;
       navigate(hasInterests ? "/" : "/select-interests", { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || "Giriş yapılamadı, tekrar deneyin.");
+      setError(err.response?.data?.message || t("login.genericError"));
     } finally {
       setIsSubmitting(false);
     }
@@ -34,13 +36,9 @@ export default function Login() {
 
   return (
     <div className="relative flex min-h-screen flex-col lg:flex-row">
-      <Link
-        to="/"
-        aria-label="Kapat"
-        className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-accent-gold text-brand-900 hover:brightness-95 lg:right-6 lg:top-6"
-      >
-        <X size={16} />
-      </Link>
+      <div className="absolute right-4 top-4 z-10 lg:right-6 lg:top-6">
+        <LanguageSwitcher />
+      </div>
 
       {/* Marka paneli — sadece masaüstünde görünür, giriş bu uygulamanın "ön
           kapısı" olduğu için ilk izlenim burada. Mobilde 50/50 bölünme sığmadığı
@@ -51,9 +49,7 @@ export default function Login() {
         <div className="pointer-events-none absolute -right-12 top-8 h-56 w-56 rounded-full bg-teal-700/30" />
         <div className="pointer-events-none absolute bottom-0 left-1/4 h-72 w-72 rounded-full bg-accent-gold/10" />
         <h1 className="relative text-4xl font-bold text-white">merakkutusu</h1>
-        <p className="relative mt-3 max-w-xs text-sm text-white/70">
-          Merak ettiğin her şeyi keşfet, okuduklarını biriktir, kendi bilgini paylaş.
-        </p>
+        <p className="relative mt-3 max-w-xs text-sm text-white/70">{t("tagline")}</p>
       </div>
 
       <div className="flex flex-1 items-center justify-center bg-gray-50 p-4">
@@ -62,7 +58,7 @@ export default function Login() {
 
           <form onSubmit={handleSubmit}>
             <Input
-              label="Kullanıcı Adı/Email"
+              label={t("login.usernameOrEmailLabel")}
               type="text"
               required
               value={email}
@@ -70,7 +66,7 @@ export default function Login() {
               autoComplete="email"
             />
             <Input
-              label="Şifre"
+              label={t("passwordLabel")}
               type="password"
               required
               value={password}
@@ -81,20 +77,20 @@ export default function Login() {
             {error && <p className="mb-4 text-center text-sm text-accent-coral">{error}</p>}
 
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Giriş yapılıyor..." : "Giriş Yap"}
+              {isSubmitting ? t("login.submitting") : t("login.submit")}
             </Button>
 
             <Link
               to="/forgot-password"
               className="mt-3 block text-center text-xs font-medium text-brand-700 hover:underline"
             >
-              şifreni mi unuttun?
+              {t("login.forgotPassword")}
             </Link>
 
             <p className="mt-4 text-center text-xs text-gray-500">
-              Hesabınız yok mu?{" "}
+              {t("login.noAccount")}{" "}
               <Link to="/register" className="font-semibold text-brand-700 hover:underline">
-                Kayıt olun
+                {t("login.registerLink")}
               </Link>
             </p>
           </form>

@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useLibrary } from "../context/LibraryContext";
 import ChatPanel from "./ChatPanel";
 
 const COLLAPSE_STORAGE_KEY = "rightPanelCollapsed";
 
 function LibraryPanel() {
+  const { t } = useTranslation("rightPanel");
   // Kütüphane verisi artık LibraryContext'ten geliyor (Library.jsx sayfasıyla
   // paylaşılan tek kaynak) — burada sadece "yeni eklenen makaleyi vurgula ve
   // en alta kaydır" animasyonu için event'in detail bilgisi kullanılıyor,
@@ -42,13 +44,13 @@ function LibraryPanel() {
   return (
     <>
       <div className="mb-4 rounded-full bg-white px-4 py-2 text-center text-sm font-medium text-brand-900">
-        kütüphanen
+        {t("libraryHeading")}
       </div>
 
       {isLoading ? (
-        <p className="text-center text-sm text-white/70">Yükleniyor...</p>
+        <p className="text-center text-sm text-white/70">{t("loading")}</p>
       ) : library.length === 0 ? (
-        <p className="text-center text-sm text-white/70">Kütüphaneniz boş — beğendiğiniz makaleleri ekleyin.</p>
+        <p className="text-center text-sm text-white/70">{t("empty")}</p>
       ) : (
         <div ref={scrollRef} className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
           {library.map((article) => (
@@ -68,7 +70,7 @@ function LibraryPanel() {
               </div>
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium text-white">
-                  {article.author?.username || "author"}
+                  {article.author?.username || t("authorFallback")}
                 </p>
                 <p className="truncate text-xs text-white/70">{article.title}</p>
               </div>
@@ -81,6 +83,7 @@ function LibraryPanel() {
 }
 
 function LibraryWithChat() {
+  const { t } = useTranslation("rightPanel");
   const [showChat, setShowChat] = useState(false);
 
   return (
@@ -92,7 +95,7 @@ function LibraryWithChat() {
             !showChat ? "bg-white text-brand-900" : "bg-white/10 text-white/80"
           }`}
         >
-          Kütüphane
+          {t("tabs.library")}
         </button>
         <button
           onClick={() => setShowChat(true)}
@@ -100,7 +103,7 @@ function LibraryWithChat() {
             showChat ? "bg-white text-brand-900" : "bg-white/10 text-white/80"
           }`}
         >
-          Sohbet
+          {t("tabs.chat")}
         </button>
       </div>
 
@@ -110,6 +113,7 @@ function LibraryWithChat() {
 }
 
 export default function RightPanel({ variant = "library", roomRequest }) {
+  const { t } = useTranslation("rightPanel");
   // Panel her sayfada sabit 320px kaplıyordu (ChatGPT'nin de haklı olarak
   // eleştirdiği nokta) — artık daraltılabilir. Tercih localStorage'da
   // saklanıyor (AuthContext'teki token deseniyle aynı basit yaklaşım), böylece
@@ -147,7 +151,7 @@ export default function RightPanel({ variant = "library", roomRequest }) {
       >
         <button
           onClick={toggleCollapsed}
-          aria-label="Paneli genişlet"
+          aria-label={t("expandAria")}
           className="flex h-9 w-9 items-center justify-center rounded-full text-white/70 hover:bg-white/10 hover:text-white"
         >
           <ChevronLeft size={18} />
@@ -161,7 +165,7 @@ export default function RightPanel({ variant = "library", roomRequest }) {
       >
         <button
           onClick={toggleCollapsed}
-          aria-label="Paneli daralt"
+          aria-label={t("collapseAria")}
           className="mb-3 flex h-8 w-8 flex-none items-center justify-center self-end rounded-full text-white/70 hover:bg-white/10 hover:text-white"
         >
           <ChevronRight size={16} />

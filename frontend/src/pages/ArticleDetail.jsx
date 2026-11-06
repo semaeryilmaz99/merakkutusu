@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { Heart, Library, Pencil, Send, Share2, Trash2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import {
   getArticleById,
@@ -20,6 +21,7 @@ import SproutCelebration from "../components/SproutCelebration";
 import ArticleFormModal from "../components/ArticleFormModal";
 
 export default function ArticleDetail() {
+  const { t } = useTranslation("article");
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -77,7 +79,7 @@ export default function ArticleDetail() {
       await toggleFavorite(id);
     } catch {
       setIsFavorite(previouslyFavorite);
-      setActionError("Favori durumu güncellenemedi, tekrar dene.");
+      setActionError(t("errors.favoriteUpdateFailed"));
     }
   };
 
@@ -90,7 +92,7 @@ export default function ArticleDetail() {
       window.dispatchEvent(new CustomEvent("library:changed", { detail: { articleId: id, isInLibrary: next } }));
     } catch {
       setIsInLibrary(previouslyInLibrary);
-      setActionError("Kütüphane durumu güncellenemedi, tekrar dene.");
+      setActionError(t("errors.libraryUpdateFailed"));
     }
   };
 
@@ -103,7 +105,7 @@ export default function ArticleDetail() {
       await followUser(article.author._id);
     } catch {
       setIsFollowing(wasFollowing);
-      setActionError("Takip durumu güncellenemedi, tekrar dene.");
+      setActionError(t("errors.followUpdateFailed"));
     }
   };
 
@@ -115,7 +117,7 @@ export default function ArticleDetail() {
       try {
         await navigator.share(shareData);
       } catch (err) {
-        if (err?.name !== "AbortError") setActionError("Paylaşılamadı, tekrar dene.");
+        if (err?.name !== "AbortError") setActionError(t("errors.shareFailed"));
       }
       return;
     }
@@ -124,7 +126,7 @@ export default function ArticleDetail() {
       setShareCopied(true);
       setTimeout(() => setShareCopied(false), 2000);
     } catch {
-      setActionError("Bağlantı kopyalanamadı.");
+      setActionError(t("errors.linkCopyFailed"));
     }
   };
 
@@ -154,7 +156,7 @@ export default function ArticleDetail() {
       setArticle((prev) => ({ ...prev, comments }));
       setEditingCommentId(null);
     } catch (err) {
-      setActionError(err.response?.data?.message || "Yorum güncellenemedi.");
+      setActionError(err.response?.data?.message || t("errors.commentUpdateFailed"));
     }
   };
 
@@ -163,7 +165,7 @@ export default function ArticleDetail() {
       const comments = await deleteComment(id, commentId);
       setArticle((prev) => ({ ...prev, comments }));
     } catch (err) {
-      setActionError(err.response?.data?.message || "Yorum silinemedi.");
+      setActionError(err.response?.data?.message || t("errors.commentDeleteFailed"));
     }
   };
 
@@ -197,11 +199,11 @@ export default function ArticleDetail() {
   };
 
   if (isLoading) {
-    return <p className="text-sm text-gray-500">Yükleniyor...</p>;
+    return <p className="text-sm text-gray-500">{t("loading")}</p>;
   }
 
   if (!article) {
-    return <p className="text-sm text-accent-coral">Makale bulunamadı.</p>;
+    return <p className="text-sm text-accent-coral">{t("notFound")}</p>;
   }
 
   const isOwner = user && article.author?._id === user._id;
@@ -249,7 +251,7 @@ export default function ArticleDetail() {
                 #{tag.name || tag}
               </span>
             ))}
-            <span className="text-xs text-gray-400">{readTime} dk okuma</span>
+            <span className="text-xs text-gray-400">{t("readTime", { time: readTime })}</span>
           </div>
 
           <h1 className="text-2xl font-bold leading-tight text-brand-900 sm:text-3xl">{article.title}</h1>
@@ -282,7 +284,7 @@ export default function ArticleDetail() {
                     : "bg-accent-gold text-brand-900 hover:brightness-95"
                 }`}
               >
-                {isFollowing ? "Takibi Bırak" : "Takip Et"}
+                {isFollowing ? t("follow.unfollow") : t("follow.follow")}
               </button>
             )}
           </div>
@@ -302,7 +304,7 @@ export default function ArticleDetail() {
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={handleToggleFavorite}
-              aria-label="Favorilere ekle/çıkar"
+              aria-label={t("actions.favoriteAria")}
               className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
                 isFavorite
                   ? "bg-accent-coral text-white"
@@ -320,13 +322,13 @@ export default function ArticleDetail() {
               }`}
             >
               <Library size={16} />
-              Kaydet
+              {t("actions.save")}
             </button>
 
             {isOwner && (
               <button
                 onClick={() => setIsEditingArticle(true)}
-                aria-label="Makaleyi düzenle"
+                aria-label={t("actions.editAria")}
                 className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-brand-700 hover:bg-brand-600 hover:text-white"
               >
                 <Pencil size={16} />
@@ -336,25 +338,25 @@ export default function ArticleDetail() {
             {isOwner &&
               (isConfirmingDelete ? (
                 <div className="flex items-center gap-1 rounded-full bg-gray-100 py-1 pl-3 pr-1">
-                  <span className="text-xs text-brand-900">Silinsin mi?</span>
+                  <span className="text-xs text-brand-900">{t("actions.deleteConfirmQuestion")}</span>
                   <button
                     onClick={handleDelete}
                     disabled={isDeleting}
                     className="rounded-full bg-accent-coral px-2 py-1 text-xs font-semibold text-white disabled:opacity-60"
                   >
-                    {isDeleting ? "..." : "Evet, sil"}
+                    {isDeleting ? "..." : t("actions.deleteConfirmYes")}
                   </button>
                   <button
                     onClick={() => setIsConfirmingDelete(false)}
                     className="rounded-full bg-gray-200 px-2 py-1 text-xs text-brand-900"
                   >
-                    Vazgeç
+                    {t("actions.deleteCancel")}
                   </button>
                 </div>
               ) : (
                 <button
                   onClick={() => setIsConfirmingDelete(true)}
-                  aria-label="Makaleyi sil"
+                  aria-label={t("actions.deleteAria")}
                   className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-brand-700 hover:bg-accent-coral hover:text-white"
                 >
                   <Trash2 size={16} />
@@ -365,21 +367,23 @@ export default function ArticleDetail() {
           <div className="relative flex-none">
             <button
               onClick={handleShare}
-              aria-label="Paylaş"
+              aria-label={t("actions.shareAria")}
               className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white text-brand-700 hover:bg-gray-50"
             >
               <Share2 size={16} />
             </button>
             {shareCopied && (
               <span className="absolute right-0 top-full z-10 mt-1 whitespace-nowrap rounded-full bg-brand-900 px-2 py-1 text-[11px] text-white">
-                Bağlantı kopyalandı
+                {t("actions.linkCopied")}
               </span>
             )}
           </div>
         </div>
 
         <div className="border-t border-gray-100 p-4 sm:p-6">
-          <h2 className="mb-4 text-base font-bold text-brand-900">Yorumlar {(article.comments || []).length}</h2>
+          <h2 className="mb-4 text-base font-bold text-brand-900">
+            {t("comments.heading", { count: (article.comments || []).length })}
+          </h2>
 
           <form onSubmit={handleAddComment} className="flex items-center gap-2">
             <span className="flex h-8 w-8 flex-none items-center justify-center overflow-hidden rounded-full bg-teal-500 text-xs font-bold text-white">
@@ -393,13 +397,13 @@ export default function ArticleDetail() {
               type="text"
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
-              placeholder="Yorumunu buraya yaz..."
+              placeholder={t("comments.placeholder")}
               className="flex-1 rounded-full bg-gray-100 px-4 py-2 text-sm text-brand-900 outline-none"
             />
             <button
               type="submit"
               disabled={isSubmittingComment}
-              aria-label="Yorum gönder"
+              aria-label={t("comments.sendAria")}
               className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-60"
             >
               <Send size={16} />
@@ -408,7 +412,7 @@ export default function ArticleDetail() {
 
           <div className="mt-2 flex flex-col">
             {(article.comments || []).length === 0 ? (
-              <p className="py-3 text-sm text-gray-400">Henüz yorum yok.</p>
+              <p className="py-3 text-sm text-gray-400">{t("comments.empty")}</p>
             ) : (
               [...article.comments].reverse().map((comment) => {
                 const isCommentOwner = comment.user?._id === user?._id;
@@ -425,13 +429,15 @@ export default function ArticleDetail() {
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-sm font-semibold text-brand-700">{comment.user?.username || "kullanıcı"}</p>
+                        <p className="text-sm font-semibold text-brand-700">
+                          {comment.user?.username || t("comments.unknownUser")}
+                        </p>
                         {!isEditingThis && canDelete && (
                           <div className="flex flex-none items-center gap-2">
                             {isCommentOwner && (
                               <button
                                 onClick={() => handleStartEditComment(comment)}
-                                aria-label="Yorumu düzenle"
+                                aria-label={t("comments.editAria")}
                                 className="text-gray-400 hover:text-brand-700"
                               >
                                 <Pencil size={12} />
@@ -439,7 +445,7 @@ export default function ArticleDetail() {
                             )}
                             <button
                               onClick={() => handleDeleteComment(comment._id)}
-                              aria-label="Yorumu sil"
+                              aria-label={t("comments.deleteAria")}
                               className="text-gray-400 hover:text-accent-coral"
                             >
                               <Trash2 size={12} />
@@ -461,13 +467,13 @@ export default function ArticleDetail() {
                             onClick={() => handleSaveComment(comment._id)}
                             className="rounded-full bg-brand-600 px-2 py-1 text-xs font-semibold text-white"
                           >
-                            Kaydet
+                            {t("comments.saveEdit")}
                           </button>
                           <button
                             onClick={() => setEditingCommentId(null)}
                             className="rounded-full bg-gray-200 px-2 py-1 text-xs text-brand-900"
                           >
-                            Vazgeç
+                            {t("comments.cancelEdit")}
                           </button>
                         </div>
                       ) : (

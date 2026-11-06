@@ -1,0 +1,65 @@
+{
+  "loading": "Loading...",
+  "notFound": "User not found.",
+  "bioEmpty": "No bio added yet.",
+  "stats": {
+    "followers": "followers",
+    "favorites": "favorites",
+    "articles": "articles"
+  },
+  "tagRemoveFailed": "Couldn't remove the interest, try again.",
+  "noInterests": {
+    "text": "You haven't picked any interests yet —",
+    "link": "pick some here"
+  },
+  "emptyArticles": {
+    "title": "You haven't written any articles yet.",
+    "action": "Write your first article"
+  },
+  "emptyArticlesOther": "Hasn't written any articles yet.",
+  "followersModal": {
+    "title": "Followers",
+    "empty": "No followers yet."
+  },
+  "followingModal": {
+    "title": "Following",
+    "empty": "You're not following anyone yet."
+  },
+  "removeTagAria": "Remove {{tag}} tag",
+  "followingHeading": "Authors followed",
+  "showMoreAria": "See {{count}} more",
+  "editProfileButton": "Update Profile Info",
+  "editModal": {
+    "title": "Update Profile Info",
+    "usernameLabel": "Username:",
+    "avatarPlaceholder": "Profile Picture",
+    "bioPlaceholder": "Bio",
+    "libraryVisibility": "Library visibility",
+    "private": "Private",
+    "public": "Public",
+    "saveError": "Couldn't update profile, try again.",
+    "save": "Save Changes",
+    "saving": "Saving...",
+    "changePasswordTitle": "Change Password",
+    "currentPasswordPlaceholder": "Current password",
+    "newPasswordPlaceholder": "New password",
+    "passwordChanged": "Password changed.",
+    "passwordChangeFailed": "Couldn't change password.",
+    "changePassword": "Change Password",
+    "changingPassword": "Changing...",
+    "deleteWarning": "Your account will be permanently deleted. Enter your password to confirm.",
+    "deletePasswordPlaceholder": "Your password",
+    "deleteFailed": "Couldn't delete account.",
+    "deleteConfirmYes": "Yes, delete my account",
+    "deleting": "Deleting...",
+    "cancel": "Cancel",
+    "deleteAccount": "Delete my account"
+  },
+  "followFailed": "Action failed, try again.",
+  "follow": "Follow",
+  "unfollow": "Unfollow",
+  "libraryHidden": "This user's library is private.",
+  "articlesHeading": "Articles",
+  "libraryHeading": "Library",
+  "libraryEmpty": "Library is empty."
+}

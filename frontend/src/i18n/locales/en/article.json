@@ -1,0 +1,43 @@
+{
+  "loading": "Loading...",
+  "notFound": "Article not found.",
+  "readTime": "{{time}} min read",
+  "readTimeShort": "{{time}} min",
+  "readTimeTooltip": "Estimated reading time",
+  "errors": {
+    "favoriteUpdateFailed": "Couldn't update favorite status, try again.",
+    "libraryUpdateFailed": "Couldn't update library status, try again.",
+    "followUpdateFailed": "Couldn't update follow status, try again.",
+    "shareFailed": "Couldn't share, try again.",
+    "linkCopyFailed": "Couldn't copy the link.",
+    "commentUpdateFailed": "Couldn't update comment.",
+    "commentDeleteFailed": "Couldn't delete comment."
+  },
+  "actions": {
+    "favoriteAria": "Add/remove favorite",
+    "libraryAria": "Add/remove from library",
+    "save": "Save",
+    "editAria": "Edit article",
+    "deleteAria": "Delete article",
+    "deleteConfirmQuestion": "Delete this?",
+    "deleteConfirmYes": "Yes, delete",
+    "deleteCancel": "Cancel",
+    "shareAria": "Share",
+    "linkCopied": "Link copied"
+  },
+  "follow": {
+    "follow": "Follow",
+    "unfollow": "Unfollow"
+  },
+  "comments": {
+    "heading": "Comments {{count}}",
+    "placeholder": "Write your comment here...",
+    "sendAria": "Send comment",
+    "empty": "No comments yet.",
+    "unknownUser": "user",
+    "editAria": "Edit comment",
+    "deleteAria": "Delete comment",
+    "saveEdit": "Save",
+    "cancelEdit": "Cancel"
+  }
+}

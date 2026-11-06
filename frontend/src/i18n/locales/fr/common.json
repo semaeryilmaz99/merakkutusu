@@ -1,0 +1,15 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "explore": "Explorer",
+    "library": "Bibliothèque",
+    "notes": "Mes Notes",
+    "admin": "Panneau Admin",
+    "logout": "Déconnexion",
+    "openMenu": "Ouvrir le menu",
+    "write": "Écrire un article",
+    "notifications": "Notifications",
+    "profile": "Mon Profil",
+    "chat": "Chat"
+  }
+}

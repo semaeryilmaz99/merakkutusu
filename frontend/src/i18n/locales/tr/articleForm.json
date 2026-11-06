@@ -1,0 +1,11 @@
+{
+  "validationError": "Başlık ve içerik boş olamaz.",
+  "saveFailed": "Makale kaydedilemedi, tekrar deneyin.",
+  "modalTitle": "Makaleyi Düzenle",
+  "titleLabel": "Başlık",
+  "subtitleLabel": "Alt başlık (opsiyonel)",
+  "contentPlaceholder": "Makale içeriği...",
+  "markdownHint": "Markdown desteklenir: **kalın**, # başlık, - liste, [link](url), ```kod```",
+  "changeImage": "Görseli Değiştir (opsiyonel)",
+  "saveAria": "Değişiklikleri kaydet"
+}

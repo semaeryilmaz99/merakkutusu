@@ -1,0 +1,11 @@
+{
+  "validationError": "Titel und Inhalt dürfen nicht leer sein.",
+  "saveFailed": "Artikel konnte nicht gespeichert werden, versuch es erneut.",
+  "modalTitle": "Artikel Bearbeiten",
+  "titleLabel": "Titel",
+  "subtitleLabel": "Untertitel (optional)",
+  "contentPlaceholder": "Artikelinhalt...",
+  "markdownHint": "Markdown wird unterstützt: **fett**, # Überschrift, - Liste, [Link](url), ```Code```",
+  "changeImage": "Bild Ändern (optional)",
+  "saveAria": "Änderungen speichern"
+}

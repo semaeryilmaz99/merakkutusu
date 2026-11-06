@@ -1,0 +1,22 @@
+{
+  "search": {
+    "placeholder": "Busca un artículo, usuario o tema...",
+    "searchAria": "Buscar",
+    "filterAria": "Filtrar por etiqueta",
+    "clearAria": "Borrar filtro"
+  },
+  "users": {
+    "heading": "Usuarios"
+  },
+  "empty": {
+    "noMatchButUsers": "No hay artículos coincidentes, pero hay resultados de usuarios arriba.",
+    "noResults": "No se encontraron resultados.",
+    "noFeed": "Aún no hay artículos en tu feed.",
+    "noFeedDescription": "Elige algunos intereses o sigue a otras personas.",
+    "exploreAction": "Empezar a explorar"
+  },
+  "loadMore": {
+    "button": "Cargar Más",
+    "loading": "Cargando..."
+  }
+}

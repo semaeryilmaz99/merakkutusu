@@ -1,0 +1,12 @@
+{
+  "libraryHeading": "kütüphanen",
+  "loading": "Yükleniyor...",
+  "empty": "Kütüphaneniz boş — beğendiğiniz makaleleri ekleyin.",
+  "authorFallback": "yazar",
+  "tabs": {
+    "library": "Kütüphane",
+    "chat": "Sohbet"
+  },
+  "expandAria": "Paneli genişlet",
+  "collapseAria": "Paneli daralt"
+}

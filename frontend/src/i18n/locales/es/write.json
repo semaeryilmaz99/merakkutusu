@@ -1,0 +1,99 @@
+{
+  "slash": {
+    "suggestSources": { "title": "Sugerir fuentes", "description": "Busca fuentes académicas según tu borrador" },
+    "notes": { "title": "Añadir desde Mis Notas", "description": "Lleva uno de tus resúmenes de PDF al borrador" },
+    "heading": { "title": "Título", "description": "Título de sección" },
+    "quote": { "title": "Cita", "description": "Cita en bloque" },
+    "list": { "title": "Lista", "description": "Lista con viñetas" },
+    "code": { "title": "Código", "description": "Bloque de código" },
+    "image": { "title": "Imagen", "description": "Imagen en línea" },
+    "table": { "title": "Tabla", "description": "Tabla de dos columnas" },
+    "commandsLabel": "Comandos",
+    "noMatch": "Ningún comando coincide."
+  },
+  "toolbar": {
+    "aria": "Formato",
+    "heading": "Título",
+    "bold": "Negrita",
+    "italic": "Cursiva",
+    "quote": "Cita",
+    "list": "Lista con viñetas",
+    "link": "Enlace",
+    "image": "Insertar imagen",
+    "code": "Bloque de código",
+    "citation": "Añadir cita",
+    "citationLabel": "Citar"
+  },
+  "snippets": {
+    "boldPlaceholder": "texto en negrita",
+    "italicPlaceholder": "texto en cursiva",
+    "linkPlaceholder": "descripción",
+    "imagePlaceholder": "descripción",
+    "imageUrlPlaceholder": "url-de-imagen",
+    "tableHeader1": "Encabezado",
+    "tableHeader2": "Valor"
+  },
+  "draft": {
+    "kicker": "Borrador",
+    "notPublished": "Aún no publicado",
+    "untitled": "Sin título",
+    "titlePlaceholder": "Título",
+    "subtitlePlaceholder": "Resume tu artículo en una frase (opcional)",
+    "editorPlaceholder": "Empieza a escribir. Escribe / para ver comandos — sugerencias de fuentes, citas de tus notas, títulos, listas.",
+    "emptyPreview": "Aún no hay nada que previsualizar.",
+    "slashHint": "paleta de comandos",
+    "tabHint": "aceptar sugerencia"
+  },
+  "errors": {
+    "needTitleAndContent": "Primero escribe un título y algo de contenido.",
+    "sourcesFetchFailed": "No se pudieron obtener las fuentes, inténtalo de nuevo.",
+    "emptyFields": "El título y el contenido no pueden estar vacíos.",
+    "publishFailed": "No se pudo guardar el artículo, inténtalo de nuevo."
+  },
+  "rail": {
+    "tip": "Ayuda de Escritura",
+    "sources": "Sugerencias de Fuentes",
+    "notes": "Mis Notas",
+    "close": "cerrar",
+    "sourcesActionTitle": "Sugerir fuentes",
+    "sourcesActionDescription": "Busca fuentes académicas según tu borrador, añade una cita",
+    "notesActionTitle": "Añadir desde Mis Notas",
+    "notesActionDescription": "Lleva uno de tus resúmenes de PDF al borrador",
+    "sourcesLoading": "Buscando fuentes académicas según tu borrador…"
+  },
+  "cover": {
+    "title": "Imagen de Portada",
+    "optional": "Opcional",
+    "remove": "quitar",
+    "select": "Elegir imagen",
+    "hint": "Si lo omites, el artículo se publica sin portada — no se deja ningún espacio vacío."
+  },
+  "stats": {
+    "words": "palabras",
+    "chars": "caracteres",
+    "readTime": "min de lectura"
+  },
+  "header": {
+    "notSavedYet": "aún no guardado",
+    "savedAt": "{{time}} · guardado automáticamente",
+    "preview": "Vista previa",
+    "edit": "Editar",
+    "publish": "Publicar",
+    "publishing": "Publicando…"
+  },
+  "sources": {
+    "aiSuggested": "Sugerido por IA",
+    "noMatch": "No se encontró ninguna fuente académica relacionada con tu borrador.",
+    "visitSource": "Ir a la fuente ↗",
+    "added": "Añadido ✓",
+    "addCitation": "Añadir cita"
+  },
+  "notes": {
+    "loading": "Cargando…",
+    "fetchFailed": "No se pudieron cargar las notas, inténtalo de nuevo.",
+    "empty": "Aún no tienes notas en \"Mis Notas\".",
+    "aiSummary": "Resumen de IA",
+    "added": "Añadido ✓",
+    "addToDraft": "Añadir al borrador"
+  }
+}

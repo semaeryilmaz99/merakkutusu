@@ -1,0 +1,18 @@
+{
+  "skip": "Überspringen",
+  "next": "Weiter",
+  "finish": "Fertig",
+  "nav": {
+    "explore": { "title": "Entdecken", "text": "Finde hier die neuesten und beliebtesten Artikel der Community." },
+    "write": { "title": "Artikel schreiben", "text": "Teile dein Wissen — die KI schlägt dir beim Schreiben wissenschaftliche Quellen vor." },
+    "profile": { "title": "Dein Profil", "text": "Bearbeite deine Biografie, aktualisiere deine Interessen und sieh dir hier deine Beiträge an." }
+  },
+  "write": {
+    "tags": { "title": "Tags", "text": "Versieh deinen Artikel mit passenden Tags, damit er die richtigen Leser erreicht." },
+    "editor": { "title": "Befehlspalette", "text": "Drücke beim Schreiben '/': Überschriften, Listen, Zitate, Quellenvorschläge und mehr – nur einen Tastendruck entfernt." },
+    "sources": { "title": "Quellen vorschlagen", "text": "Die KI schlägt basierend auf deinem Entwurf wissenschaftliche Quellen vor — füge eine Zitation mit einem Klick hinzu." },
+    "notes": { "title": "Aus Meinen Notizen hinzufügen", "text": "Übertrage eine der auf der Notizen-Seite hochgeladenen PDF-Zusammenfassungen mit einem Klick in deinen Entwurf." },
+    "cover": { "title": "Titelbild", "text": "Füge bei Bedarf ein Titelbild hinzu — optional, du kannst auch ohne veröffentlichen." },
+    "publish": { "title": "Veröffentlichen", "text": "Veröffentliche deinen Artikel von hier aus, sobald du bereit bist." }
+  }
+}

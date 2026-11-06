@@ -1,0 +1,18 @@
+{
+  "skip": "Atla",
+  "next": "Sonraki",
+  "finish": "Bitir",
+  "nav": {
+    "explore": { "title": "Keşfet", "text": "Topluluktaki en yeni ve popüler makaleleri burada bulabilirsin." },
+    "write": { "title": "Makale Yaz", "text": "Bildiklerini paylaş — yazarken AI sana akademik kaynak önerilerinde bulunur." },
+    "profile": { "title": "Profilin", "text": "Biyografini düzenle, ilgi alanlarını güncelle ve paylaşımlarını buradan gör." }
+  },
+  "write": {
+    "tags": { "title": "Etiketler", "text": "Makaleni ilgili etiketlerle işaretle, doğru okuyuculara ulaşsın." },
+    "editor": { "title": "Komut paleti", "text": "Yazarken '/' tuşuna bas: başlık, liste, alıntı, kaynak önerisi ve daha fazlasına tek tuşla ulaş." },
+    "sources": { "title": "Kaynak öner", "text": "AI, taslağına göre akademik kaynak önerir — tek tıkla atıf ekleyebilirsin." },
+    "notes": { "title": "Notlarımdan ekle", "text": "Not sayfanda yüklediğin PDF özetlerinden birini tek tıkla taslağına taşı." },
+    "cover": { "title": "Kapak görseli", "text": "İstersen bir kapak görseli ekle — opsiyonel, boş da yayınlayabilirsin." },
+    "publish": { "title": "Yayınla", "text": "Hazır olduğunda makaleni buradan yayınla." }
+  }
+}

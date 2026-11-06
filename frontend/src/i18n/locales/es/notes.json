@@ -1,0 +1,26 @@
+{
+  "upload": {
+    "title": "Subir Apuntes de Clase",
+    "description": "Sube una captura de pantalla/foto o un PDF, y la IA lo resumirá y lo guardará en tu biblioteca.",
+    "chooseFile": "Elegir Archivo (imagen o PDF)",
+    "button": "Subir y Resumir",
+    "summarizing": "Resumiendo...",
+    "failed": "No se pudo subir la nota, inténtalo de nuevo."
+  },
+  "empty": {
+    "title": "Aún no has subido ninguna nota.",
+    "description": "Empieza subiendo una captura de pantalla o un PDF arriba."
+  },
+  "loadMore": {
+    "button": "Cargar Más",
+    "loading": "Cargando..."
+  },
+  "detail": {
+    "openOriginal": "Abrir archivo original",
+    "confirmDelete": "¿Seguro que quieres eliminar esta nota?",
+    "deleteYes": "Sí, eliminar",
+    "deleting": "Eliminando...",
+    "cancel": "Cancelar",
+    "delete": "Eliminar Nota"
+  }
+}

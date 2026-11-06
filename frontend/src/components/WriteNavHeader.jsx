@@ -1,9 +1,11 @@
 import { Link, NavLink } from "react-router-dom";
 import { Menu, Bell, Eye, Send } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import { useWriteHeader } from "../context/WriteHeaderContext";
 import { formatTime } from "../utils/formatDate";
 import WriteOnboardingHint from "./WriteOnboardingHint";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const navLinkClass = ({ isActive }) =>
   `rounded-full px-5 py-2 text-sm font-medium transition-colors ${
@@ -19,6 +21,7 @@ const navLinkClass = ({ isActive }) =>
 // yanında, ayrı bir dalda render ediyor (prop ile aktarılamaz). Diğer
 // sayfalarda bu bileşen hiç mount olmaz, Navbar.jsx aynen kullanılmaya devam eder.
 export default function WriteNavHeader({ onOpenSidebar, onOpenNotifications, unreadCount = 0 }) {
+  const { t } = useTranslation(["write", "common"]);
   const { user } = useAuth();
   const { actions } = useWriteHeader();
 
@@ -29,7 +32,7 @@ export default function WriteNavHeader({ onOpenSidebar, onOpenNotifications, unr
       <div className="flex flex-wrap items-center gap-2">
         <button
           onClick={onOpenSidebar}
-          aria-label="Menüyü aç"
+          aria-label={t("common:nav.openMenu")}
           className="rounded-md p-2 text-white hover:bg-white/10"
         >
           <Menu size={24} />
@@ -37,17 +40,19 @@ export default function WriteNavHeader({ onOpenSidebar, onOpenNotifications, unr
 
         <div className="hidden gap-3 sm:flex">
           <NavLink to="/" end className={navLinkClass}>
-            Ana Sayfa
+            {t("common:nav.home")}
           </NavLink>
           <NavLink to="/explore" className={navLinkClass}>
-            Keşfet
+            {t("common:nav.explore")}
           </NavLink>
         </div>
 
         <div className="hidden items-center gap-2 pl-2 text-xs text-white/60 lg:flex">
           <span className="h-2 w-2 flex-none rounded-full bg-teal-500" aria-hidden="true" />
           <span>
-            {actions?.lastSavedAt ? `${formatTime(actions.lastSavedAt)} · otomatik kaydedildi` : "henüz kaydedilmedi"}
+            {actions?.lastSavedAt
+              ? t("header.savedAt", { time: formatTime(actions.lastSavedAt) })
+              : t("header.notSavedYet")}
           </span>
         </div>
       </div>
@@ -60,7 +65,7 @@ export default function WriteNavHeader({ onOpenSidebar, onOpenNotifications, unr
           className="hidden items-center gap-2 rounded-full bg-white/10 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-white/20 disabled:opacity-50 sm:flex"
         >
           <Eye size={16} />
-          {previewMode === "preview" ? "Düzenle" : "Önizle"}
+          {previewMode === "preview" ? t("header.edit") : t("header.preview")}
         </button>
 
         <WriteOnboardingHint stepId="write-publish">
@@ -71,13 +76,15 @@ export default function WriteNavHeader({ onOpenSidebar, onOpenNotifications, unr
             className="flex items-center gap-2 rounded-full bg-accent-gold px-5 py-2 text-sm font-medium text-brand-900 transition-colors hover:brightness-95 disabled:opacity-50"
           >
             <Send size={16} />
-            {actions?.isSubmitting ? "Yayınlanıyor…" : "Yayınla"}
+            {actions?.isSubmitting ? t("header.publishing") : t("header.publish")}
           </button>
         </WriteOnboardingHint>
 
+        <LanguageSwitcher dark />
+
         <button
           onClick={onOpenNotifications}
-          aria-label="Bildirimler"
+          aria-label={t("common:nav.notifications")}
           className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
         >
           <Bell size={18} />
@@ -90,7 +97,7 @@ export default function WriteNavHeader({ onOpenSidebar, onOpenNotifications, unr
 
         <Link
           to="/userpage"
-          aria-label="Profilim"
+          aria-label={t("common:nav.profile")}
           className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-accent-gold bg-white/20 text-sm font-semibold text-white"
         >
           {user?.avatar ? (

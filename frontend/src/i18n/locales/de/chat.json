@@ -1,0 +1,19 @@
+{
+  "defaultTitle": "Chat",
+  "dashboardTitle": "Dashboard-Chat",
+  "articleTitleFallback": "Artikel-Chat",
+  "articleActivated": "Du kannst jetzt mit diesem Autor chatten.",
+  "activated": "Chat ist aktiv.",
+  "loadFailed": "Chat konnte nicht geladen werden.",
+  "imageSendFailed": "Bild konnte nicht gesendet werden.",
+  "connecting": "Verbindung wird aufgebaut...",
+  "libraryHint": "Um mit dem Autor dieses Artikels zu chatten, musst du den Artikel erst zu deiner Bibliothek hinzufügen.",
+  "understood": "Verstanden",
+  "noMessages": "Noch keine Nachrichten, sende die erste.",
+  "typing": "{{names}} schreibt...",
+  "emojiAria": "Emoji hinzufügen",
+  "imageAria": "Bild senden",
+  "placeholder": "Schreib deine Nachricht hier...",
+  "sendAria": "Senden",
+  "closeAria": "Schließen"
+}

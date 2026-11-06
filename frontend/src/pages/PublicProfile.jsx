@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Library, NotebookPen } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import { getArticlesByAuthor } from "../services/articleService";
 import { getPublicProfile, followUser, getUserLibrary } from "../services/userService";
@@ -11,6 +12,7 @@ import ArticleGrid from "../components/UI/ArticleGrid";
 import EmptyState from "../components/UI/EmptyState";
 
 export default function PublicProfile() {
+  const { t } = useTranslation("profile");
   const { id } = useParams();
   const { user: currentUser } = useAuth();
 
@@ -44,7 +46,7 @@ export default function PublicProfile() {
         if (!ignore) setLibrary(data);
       })
       .catch(() => {
-        if (!ignore) setLibraryError("Bu kullanıcının kütüphanesi gizli.");
+        if (!ignore) setLibraryError(t("libraryHidden"));
       });
 
     return () => {
@@ -67,17 +69,17 @@ export default function PublicProfile() {
         isFollowing: wasFollowing,
         followersCount: prev.followersCount + (wasFollowing ? 1 : -1),
       }));
-      setFollowError("İşlem başarısız, tekrar dene.");
+      setFollowError(t("followFailed"));
       setTimeout(() => setFollowError(""), 3000);
     }
   };
 
   if (isLoading) {
-    return <p className="text-sm text-gray-500">Yükleniyor...</p>;
+    return <p className="text-sm text-gray-500">{t("loading")}</p>;
   }
 
   if (!profile) {
-    return <p className="text-sm text-accent-coral">Kullanıcı bulunamadı.</p>;
+    return <p className="text-sm text-accent-coral">{t("notFound")}</p>;
   }
 
   const isOwnProfile = currentUser?._id === profile._id;
@@ -94,13 +96,13 @@ export default function PublicProfile() {
         </p>
 
         <p className="rounded-2xl bg-gray-100 px-4 py-2 text-xs text-brand-800">
-          {profile.bio || "Henüz biyografi eklenmedi."}
+          {profile.bio || t("bioEmpty")}
         </p>
 
         <div className="flex gap-2">
-          <StatPill label="takipçi" value={profile.followersCount} />
-          <StatPill label="favori" value={profile.favoritesCount} />
-          <StatPill label="makale" value={profile.articlesCount} />
+          <StatPill label={t("stats.followers")} value={profile.followersCount} />
+          <StatPill label={t("stats.favorites")} value={profile.favoritesCount} />
+          <StatPill label={t("stats.articles")} value={profile.articlesCount} />
         </div>
 
         {!isOwnProfile && (
@@ -110,7 +112,7 @@ export default function PublicProfile() {
               onClick={handleToggleFollow}
               className="mt-2"
             >
-              {profile.isFollowing ? "Takibi Bırak" : "Takip Et"}
+              {profile.isFollowing ? t("unfollow") : t("follow")}
             </Button>
             {followError && <p className="text-xs text-accent-coral">{followError}</p>}
           </>
@@ -118,10 +120,10 @@ export default function PublicProfile() {
       </div>
 
       <div className="flex-1">
-        <h2 className="mb-3 text-sm font-semibold text-brand-900">Makaleleri</h2>
+        <h2 className="mb-3 text-sm font-semibold text-brand-900">{t("articlesHeading")}</h2>
         {articles.length === 0 ? (
           <div className="mb-6">
-            <EmptyState icon={NotebookPen} title="Henüz makale yazmamış." />
+            <EmptyState icon={NotebookPen} title={t("emptyArticlesOther")} />
           </div>
         ) : (
           <ArticleGrid className="mb-6">
@@ -131,11 +133,11 @@ export default function PublicProfile() {
           </ArticleGrid>
         )}
 
-        <h2 className="mb-3 text-sm font-semibold text-brand-900">Kütüphanesi</h2>
+        <h2 className="mb-3 text-sm font-semibold text-brand-900">{t("libraryHeading")}</h2>
         {libraryError ? (
           <p className="text-sm text-gray-500">{libraryError}</p>
         ) : !library || library.length === 0 ? (
-          <EmptyState icon={Library} title="Kütüphane boş." />
+          <EmptyState icon={Library} title={t("libraryEmpty")} />
         ) : (
           <ArticleGrid>
             {library.map((article) => (

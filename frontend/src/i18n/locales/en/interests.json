@@ -1,0 +1,7 @@
+{
+  "title": "What topics interest you?",
+  "subtitle": "Pick a few, and we'll build you a feed of your own. You can always change this later.",
+  "selectedCount": "{{count}} topics selected",
+  "submit": "Create My Personal Feed",
+  "submitting": "Saving..."
+}

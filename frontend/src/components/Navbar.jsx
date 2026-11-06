@@ -1,7 +1,9 @@
 import { Link, NavLink } from "react-router-dom";
 import { Menu, NotebookPen, Bell } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import OnboardingHint from "./OnboardingHint";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const navLinkClass = ({ isActive }) =>
   `rounded-full px-5 py-2 text-sm font-medium transition-colors ${
@@ -11,13 +13,14 @@ const navLinkClass = ({ isActive }) =>
   }`;
 
 export default function Navbar({ onOpenSidebar, onOpenNotifications, unreadCount = 0 }) {
+  const { t } = useTranslation("common");
   const { user } = useAuth();
 
   return (
     <nav className="flex h-16 items-center justify-between bg-brand-900 px-4 sm:px-6">
       <button
         onClick={onOpenSidebar}
-        aria-label="Menüyü aç"
+        aria-label={t("nav.openMenu")}
         className="rounded-md p-2 text-white hover:bg-white/10"
       >
         <Menu size={24} />
@@ -25,11 +28,11 @@ export default function Navbar({ onOpenSidebar, onOpenNotifications, unreadCount
 
       <div className="hidden gap-3 sm:flex">
         <NavLink to="/" end className={navLinkClass}>
-          Ana Sayfa
+          {t("nav.home")}
         </NavLink>
         <OnboardingHint stepId="explore" bubbleBreakpoint="hidden lg:block">
           <NavLink to="/explore" className={navLinkClass}>
-            Keşfet
+            {t("nav.explore")}
           </NavLink>
         </OnboardingHint>
       </div>
@@ -43,7 +46,7 @@ export default function Navbar({ onOpenSidebar, onOpenNotifications, unreadCount
           <OnboardingHint stepId="write" bubbleBreakpoint="hidden lg:block">
             <Link
               to="/write"
-              aria-label="Makale yaz"
+              aria-label={t("nav.write")}
               className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
             >
               <NotebookPen size={18} />
@@ -51,7 +54,7 @@ export default function Navbar({ onOpenSidebar, onOpenNotifications, unreadCount
           </OnboardingHint>
           <button
             onClick={onOpenNotifications}
-            aria-label="Bildirimler"
+            aria-label={t("nav.notifications")}
             className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
           >
             <Bell size={18} />
@@ -63,10 +66,12 @@ export default function Navbar({ onOpenSidebar, onOpenNotifications, unreadCount
           </button>
         </div>
 
+        <LanguageSwitcher dark />
+
         <OnboardingHint stepId="profile" align="right">
           <Link
             to="/userpage"
-            aria-label="Profilim"
+            aria-label={t("nav.profile")}
             className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-accent-gold bg-white/20 text-sm font-semibold text-white"
           >
             {user?.avatar ? (

@@ -1,0 +1,99 @@
+{
+  "slash": {
+    "suggestSources": { "title": "Kaynak öner", "description": "Taslağına göre akademik kaynak tara" },
+    "notes": { "title": "Notlarımdan ekle", "description": "PDF özetlerinden birini taslağa taşı" },
+    "heading": { "title": "Başlık", "description": "Bölüm başlığı" },
+    "quote": { "title": "Alıntı", "description": "Blok alıntı" },
+    "list": { "title": "Liste", "description": "Madde işaretli liste" },
+    "code": { "title": "Kod", "description": "Kod bloğu" },
+    "image": { "title": "Görsel", "description": "Metin içine görsel" },
+    "table": { "title": "Tablo", "description": "İki kolonlu tablo" },
+    "commandsLabel": "Komutlar",
+    "noMatch": "Eşleşen komut yok."
+  },
+  "toolbar": {
+    "aria": "Biçimlendirme",
+    "heading": "Başlık",
+    "bold": "Kalın",
+    "italic": "İtalik",
+    "quote": "Alıntı",
+    "list": "Madde listesi",
+    "link": "Bağlantı",
+    "image": "Görsel ekle",
+    "code": "Kod bloğu",
+    "citation": "Atıf ekle",
+    "citationLabel": "Atıf"
+  },
+  "snippets": {
+    "boldPlaceholder": "kalın metin",
+    "italicPlaceholder": "italik metin",
+    "linkPlaceholder": "açıklama",
+    "imagePlaceholder": "açıklama",
+    "imageUrlPlaceholder": "görsel-url",
+    "tableHeader1": "Başlık",
+    "tableHeader2": "Değer"
+  },
+  "draft": {
+    "kicker": "Taslak",
+    "notPublished": "Henüz yayınlanmadı",
+    "untitled": "Başlıksız",
+    "titlePlaceholder": "Başlık",
+    "subtitlePlaceholder": "Yazının özünü bir cümleyle anlat (opsiyonel)",
+    "editorPlaceholder": "Yazmaya başla. Komutlar için / yaz — kaynak önerisi, notlarından alıntı, başlık, liste.",
+    "emptyPreview": "Henüz önizlenecek bir şey yok.",
+    "slashHint": "komut paleti",
+    "tabHint": "öneriyi kabul et"
+  },
+  "errors": {
+    "needTitleAndContent": "Önce bir başlık ve biraz içerik yaz.",
+    "sourcesFetchFailed": "Kaynaklar getirilemedi, tekrar deneyin.",
+    "emptyFields": "Başlık ve içerik boş olamaz.",
+    "publishFailed": "Makale kaydedilemedi, tekrar deneyin."
+  },
+  "rail": {
+    "tip": "Yazma Yardımı",
+    "sources": "Kaynak Önerileri",
+    "notes": "Notlarım",
+    "close": "kapat",
+    "sourcesActionTitle": "Kaynak öner",
+    "sourcesActionDescription": "Taslağına göre akademik kaynak tara, atıf ekle",
+    "notesActionTitle": "Notlarımdan ekle",
+    "notesActionDescription": "PDF özetlerinden birini taslağa taşı",
+    "sourcesLoading": "Taslağına göre akademik kaynak taranıyor…"
+  },
+  "cover": {
+    "title": "Kapak Görseli",
+    "optional": "Opsiyonel",
+    "remove": "kaldır",
+    "select": "Görsel seç",
+    "hint": "Eklemezsen makale kapaksız yayınlanır, boş bir alan bırakılmaz."
+  },
+  "stats": {
+    "words": "kelime",
+    "chars": "karakter",
+    "readTime": "dk okuma"
+  },
+  "header": {
+    "notSavedYet": "henüz kaydedilmedi",
+    "savedAt": "{{time}} · otomatik kaydedildi",
+    "preview": "Önizle",
+    "edit": "Düzenle",
+    "publish": "Yayınla",
+    "publishing": "Yayınlanıyor…"
+  },
+  "sources": {
+    "aiSuggested": "AI tarafından önerildi",
+    "noMatch": "Taslağınla alakalı bir akademik kaynak bulunamadı.",
+    "visitSource": "Kaynağa git ↗",
+    "added": "Eklendi ✓",
+    "addCitation": "Atıf ekle"
+  },
+  "notes": {
+    "loading": "Yükleniyor…",
+    "fetchFailed": "Notlar getirilemedi, tekrar deneyin.",
+    "empty": "Henüz \"Notlarım\"da bir not yok.",
+    "aiSummary": "AI özeti",
+    "added": "Eklendi ✓",
+    "addToDraft": "Taslağa ekle"
+  }
+}

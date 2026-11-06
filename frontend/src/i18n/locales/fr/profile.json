@@ -1,0 +1,65 @@
+{
+  "loading": "Chargement...",
+  "notFound": "Utilisateur introuvable.",
+  "bioEmpty": "Aucune biographie ajoutée pour le moment.",
+  "stats": {
+    "followers": "abonnés",
+    "favorites": "favoris",
+    "articles": "articles"
+  },
+  "tagRemoveFailed": "Impossible de supprimer le centre d'intérêt, réessaie.",
+  "noInterests": {
+    "text": "Tu n'as encore choisi aucun centre d'intérêt —",
+    "link": "choisis-en ici"
+  },
+  "emptyArticles": {
+    "title": "Tu n'as encore écrit aucun article.",
+    "action": "Écris ton premier article"
+  },
+  "emptyArticlesOther": "N'a encore écrit aucun article.",
+  "followersModal": {
+    "title": "Abonnés",
+    "empty": "Aucun abonné pour le moment."
+  },
+  "followingModal": {
+    "title": "Abonnements",
+    "empty": "Tu ne suis encore personne."
+  },
+  "removeTagAria": "Supprimer le tag {{tag}}",
+  "followingHeading": "Auteurs suivis",
+  "showMoreAria": "Voir {{count}} de plus",
+  "editProfileButton": "Mettre à Jour le Profil",
+  "editModal": {
+    "title": "Mettre à Jour le Profil",
+    "usernameLabel": "Nom d'utilisateur :",
+    "avatarPlaceholder": "Photo de Profil",
+    "bioPlaceholder": "Biographie",
+    "libraryVisibility": "Visibilité de la bibliothèque",
+    "private": "Privée",
+    "public": "Publique",
+    "saveError": "Impossible de mettre à jour le profil, réessaie.",
+    "save": "Enregistrer les Modifications",
+    "saving": "Enregistrement...",
+    "changePasswordTitle": "Changer le Mot de Passe",
+    "currentPasswordPlaceholder": "Mot de passe actuel",
+    "newPasswordPlaceholder": "Nouveau mot de passe",
+    "passwordChanged": "Mot de passe changé.",
+    "passwordChangeFailed": "Impossible de changer le mot de passe.",
+    "changePassword": "Changer le Mot de Passe",
+    "changingPassword": "Changement en cours...",
+    "deleteWarning": "Ton compte sera définitivement supprimé. Entre ton mot de passe pour confirmer.",
+    "deletePasswordPlaceholder": "Ton mot de passe",
+    "deleteFailed": "Impossible de supprimer le compte.",
+    "deleteConfirmYes": "Oui, supprimer mon compte",
+    "deleting": "Suppression...",
+    "cancel": "Annuler",
+    "deleteAccount": "Supprimer mon compte"
+  },
+  "followFailed": "Échec de l'action, réessaie.",
+  "follow": "Suivre",
+  "unfollow": "Ne plus suivre",
+  "libraryHidden": "La bibliothèque de cet utilisateur est privée.",
+  "articlesHeading": "Articles",
+  "libraryHeading": "Bibliothèque",
+  "libraryEmpty": "La bibliothèque est vide."
+}

@@ -1,0 +1,19 @@
+{
+  "defaultTitle": "Chat",
+  "dashboardTitle": "Dashboard Chat",
+  "articleTitleFallback": "Article Chat",
+  "articleActivated": "You can now chat with this author.",
+  "activated": "Chat is active.",
+  "loadFailed": "Couldn't load chat.",
+  "imageSendFailed": "Couldn't send image.",
+  "connecting": "Connecting...",
+  "libraryHint": "To chat with this article's author, you first need to add the article to your library.",
+  "understood": "Got it",
+  "noMessages": "No messages yet, send the first one.",
+  "typing": "{{names}} typing...",
+  "emojiAria": "Add emoji",
+  "imageAria": "Send image",
+  "placeholder": "Type your message here...",
+  "sendAria": "Send",
+  "closeAria": "Close"
+}

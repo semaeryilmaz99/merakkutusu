@@ -1,0 +1,99 @@
+{
+  "slash": {
+    "suggestSources": { "title": "Suggest sources", "description": "Scan for academic sources based on your draft" },
+    "notes": { "title": "Add from My Notes", "description": "Move one of your PDF summaries into the draft" },
+    "heading": { "title": "Heading", "description": "Section heading" },
+    "quote": { "title": "Quote", "description": "Block quote" },
+    "list": { "title": "List", "description": "Bulleted list" },
+    "code": { "title": "Code", "description": "Code block" },
+    "image": { "title": "Image", "description": "Inline image" },
+    "table": { "title": "Table", "description": "Two-column table" },
+    "commandsLabel": "Commands",
+    "noMatch": "No matching command."
+  },
+  "toolbar": {
+    "aria": "Formatting",
+    "heading": "Heading",
+    "bold": "Bold",
+    "italic": "Italic",
+    "quote": "Quote",
+    "list": "Bulleted list",
+    "link": "Link",
+    "image": "Insert image",
+    "code": "Code block",
+    "citation": "Add citation",
+    "citationLabel": "Cite"
+  },
+  "snippets": {
+    "boldPlaceholder": "bold text",
+    "italicPlaceholder": "italic text",
+    "linkPlaceholder": "description",
+    "imagePlaceholder": "description",
+    "imageUrlPlaceholder": "image-url",
+    "tableHeader1": "Header",
+    "tableHeader2": "Value"
+  },
+  "draft": {
+    "kicker": "Draft",
+    "notPublished": "Not published yet",
+    "untitled": "Untitled",
+    "titlePlaceholder": "Title",
+    "subtitlePlaceholder": "Sum up your article in one sentence (optional)",
+    "editorPlaceholder": "Start writing. Type / for commands — source suggestions, quotes from your notes, headings, lists.",
+    "emptyPreview": "Nothing to preview yet.",
+    "slashHint": "command palette",
+    "tabHint": "accept suggestion"
+  },
+  "errors": {
+    "needTitleAndContent": "Write a title and some content first.",
+    "sourcesFetchFailed": "Couldn't fetch sources, please try again.",
+    "emptyFields": "Title and content can't be empty.",
+    "publishFailed": "Couldn't save the article, please try again."
+  },
+  "rail": {
+    "tip": "Writing Help",
+    "sources": "Source Suggestions",
+    "notes": "My Notes",
+    "close": "close",
+    "sourcesActionTitle": "Suggest sources",
+    "sourcesActionDescription": "Scan for academic sources based on your draft, add a citation",
+    "notesActionTitle": "Add from My Notes",
+    "notesActionDescription": "Move one of your PDF summaries into the draft",
+    "sourcesLoading": "Scanning for academic sources based on your draft…"
+  },
+  "cover": {
+    "title": "Cover Image",
+    "optional": "Optional",
+    "remove": "remove",
+    "select": "Choose image",
+    "hint": "If you skip this, the article publishes without a cover — no empty space is left."
+  },
+  "stats": {
+    "words": "words",
+    "chars": "characters",
+    "readTime": "min read"
+  },
+  "header": {
+    "notSavedYet": "not saved yet",
+    "savedAt": "{{time}} · auto-saved",
+    "preview": "Preview",
+    "edit": "Edit",
+    "publish": "Publish",
+    "publishing": "Publishing…"
+  },
+  "sources": {
+    "aiSuggested": "Suggested by AI",
+    "noMatch": "No academic source related to your draft was found.",
+    "visitSource": "Visit source ↗",
+    "added": "Added ✓",
+    "addCitation": "Add citation"
+  },
+  "notes": {
+    "loading": "Loading…",
+    "fetchFailed": "Couldn't load notes, please try again.",
+    "empty": "You don't have any notes in \"My Notes\" yet.",
+    "aiSummary": "AI summary",
+    "added": "Added ✓",
+    "addToDraft": "Add to draft"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "skip": "Omitir",
+  "next": "Siguiente",
+  "finish": "Finalizar",
+  "nav": {
+    "explore": { "title": "Explorar", "text": "Encuentra aquí los artículos más nuevos y populares de la comunidad." },
+    "write": { "title": "Escribe un artículo", "text": "Comparte lo que sabes — la IA te sugiere fuentes académicas mientras escribes." },
+    "profile": { "title": "Tu perfil", "text": "Edita tu biografía, actualiza tus intereses y mira tus publicaciones desde aquí." }
+  },
+  "write": {
+    "tags": { "title": "Etiquetas", "text": "Marca tu artículo con etiquetas relevantes para que llegue a los lectores adecuados." },
+    "editor": { "title": "Paleta de comandos", "text": "Presiona '/' mientras escribes: títulos, listas, citas, sugerencias de fuentes y más, a un tecleo de distancia." },
+    "sources": { "title": "Sugerir fuentes", "text": "La IA sugiere fuentes académicas según tu borrador — añade una cita con un clic." },
+    "notes": { "title": "Añadir desde Mis Notas", "text": "Lleva uno de los resúmenes de PDF que subiste en la página de Notas a tu borrador con un clic." },
+    "cover": { "title": "Imagen de portada", "text": "Añade una imagen de portada si quieres — opcional, también puedes publicar sin ella." },
+    "publish": { "title": "Publicar", "text": "Publica tu artículo desde aquí cuando estés listo." }
+  }
+}

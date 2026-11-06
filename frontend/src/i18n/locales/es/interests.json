@@ -1,0 +1,7 @@
+{
+  "title": "¿Qué temas te interesan?",
+  "subtitle": "Elige algunos y crearemos un feed personalizado para ti. Puedes cambiarlo cuando quieras.",
+  "selectedCount": "{{count}} temas seleccionados",
+  "submit": "Crear Mi Feed Personal",
+  "submitting": "Guardando..."
+}

@@ -1,0 +1,13 @@
+{
+  "defaultUser": "Un usuario",
+  "defaultArticle": "uno de tus artículos",
+  "messages": {
+    "follow": "{{name}} empezó a seguirte.",
+    "favorite": "{{name}} marcó como favorito tu artículo \"{{title}}\".",
+    "comment": "{{name}} comentó tu artículo \"{{title}}\".",
+    "default": "{{name}} interactuó con tu contenido."
+  },
+  "title": "Notificaciones",
+  "close": "Cerrar",
+  "empty": "Aún no tienes notificaciones."
+}

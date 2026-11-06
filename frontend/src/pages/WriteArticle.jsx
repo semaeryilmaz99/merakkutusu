@@ -5,6 +5,8 @@ import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 import remarkGfm from "remark-gfm";
 import { ChevronRight, Code, FileText, Heading2, Image as ImageIcon, List, Quote, Sparkles, Table2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import i18next from "../i18n";
 import { useAuth } from "../context/AuthContext";
 import { useOnboarding } from "../context/OnboardingContext";
 import { useWriteHeader } from "../context/WriteHeaderContext";
@@ -37,26 +39,37 @@ function loadDraft(userId) {
 
 // "/" komut menüsü — statik metadata burada, gerçek eylemler (özellikle
 // AI olanlar bileşenin kendi state'ine eriştiği için) runSlashCommand'da.
+// title/description yerine titleKey/descriptionKey taşıyor — bu dizi modül
+// seviyesinde (bileşenin DIŞINDA) tanımlı, useTranslation() burada
+// çağrılamaz. Gerçek çeviri, render anında (JSX'te t(cmd.titleKey) ile) ve
+// filtrelemede (aşağıda i18next.t() ile, aynı sebepten) yapılıyor. keywords
+// bilinçli olarak SADECE Türkçe bırakıldı — zaten başlık/açıklama metni
+// üzerinden arama her dilde çalışıyor, eş anlamlıları her dile ayrıca
+// çevirmek orantısız bir ek iş olurdu.
 const SLASH_COMMANDS = [
-  { id: "suggest-sources", icon: Sparkles, ai: true, title: "Kaynak öner", description: "Taslağına göre akademik kaynak tara", keywords: ["kaynak", "atif", "ai"] },
-  { id: "notes", icon: FileText, ai: true, title: "Notlarımdan ekle", description: "PDF özetlerinden birini taslağa taşı", keywords: ["not", "pdf", "ai"] },
-  { id: "heading", icon: Heading2, title: "Başlık", description: "Bölüm başlığı", keywords: ["baslik", "heading", "h2"] },
-  { id: "quote", icon: Quote, title: "Alıntı", description: "Blok alıntı", keywords: ["alinti", "quote"] },
-  { id: "list", icon: List, title: "Liste", description: "Madde işaretli liste", keywords: ["liste", "list"] },
-  { id: "code", icon: Code, title: "Kod", description: "Kod bloğu", keywords: ["kod", "code"] },
-  { id: "image", icon: ImageIcon, title: "Görsel", description: "Metin içine görsel", keywords: ["gorsel", "image", "resim"] },
-  { id: "table", icon: Table2, title: "Tablo", description: "İki kolonlu tablo", keywords: ["tablo", "table"] }
+  { id: "suggest-sources", icon: Sparkles, ai: true, titleKey: "slash.suggestSources.title", descriptionKey: "slash.suggestSources.description", keywords: ["kaynak", "atif", "ai"] },
+  { id: "notes", icon: FileText, ai: true, titleKey: "slash.notes.title", descriptionKey: "slash.notes.description", keywords: ["not", "pdf", "ai"] },
+  { id: "heading", icon: Heading2, titleKey: "slash.heading.title", descriptionKey: "slash.heading.description", keywords: ["baslik", "heading", "h2"] },
+  { id: "quote", icon: Quote, titleKey: "slash.quote.title", descriptionKey: "slash.quote.description", keywords: ["alinti", "quote"] },
+  { id: "list", icon: List, titleKey: "slash.list.title", descriptionKey: "slash.list.description", keywords: ["liste", "list"] },
+  { id: "code", icon: Code, titleKey: "slash.code.title", descriptionKey: "slash.code.description", keywords: ["kod", "code"] },
+  { id: "image", icon: ImageIcon, titleKey: "slash.image.title", descriptionKey: "slash.image.description", keywords: ["gorsel", "image", "resim"] },
+  { id: "table", icon: Table2, titleKey: "slash.table.title", descriptionKey: "slash.table.description", keywords: ["tablo", "table"] }
 ];
 
 function filterSlashCommands(query) {
-  const q = query.trim().toLocaleLowerCase("tr");
+  const lang = i18next.language;
+  const q = query.trim().toLocaleLowerCase(lang);
   if (!q) return SLASH_COMMANDS;
   return SLASH_COMMANDS.filter(
-    (cmd) => cmd.title.toLocaleLowerCase("tr").includes(q) || cmd.keywords.some((k) => k.includes(q))
+    (cmd) =>
+      i18next.t(cmd.titleKey, { ns: "write" }).toLocaleLowerCase(lang).includes(q) ||
+      cmd.keywords.some((k) => k.includes(q))
   );
 }
 
 export default function WriteArticle() {
+  const { t } = useTranslation("write");
   const navigate = useNavigate();
   const { user } = useAuth();
   const { startWriteTour } = useOnboarding();
@@ -101,7 +114,7 @@ export default function WriteArticle() {
 
   const handleSuggestSources = async () => {
     if (!title.trim() || !content.trim()) {
-      setSuggestError("Önce bir başlık ve biraz içerik yaz.");
+      setSuggestError(t("errors.needTitleAndContent"));
       return;
     }
     setIsSuggesting(true);
@@ -110,7 +123,7 @@ export default function WriteArticle() {
       const { suggestions } = await suggestSources({ title, content, tags });
       setSourceSuggestions(suggestions);
     } catch (err) {
-      setSuggestError(err.response?.data?.message || "Kaynaklar getirilemedi, tekrar deneyin.");
+      setSuggestError(err.response?.data?.message || t("errors.sourcesFetchFailed"));
     } finally {
       setIsSuggesting(false);
     }
@@ -291,13 +304,14 @@ export default function WriteArticle() {
         cursorAfter = before.length + 4;
         break;
       case "image": {
-        const snippet = "![açıklama](görsel-url)";
+        const desc = t("snippets.imagePlaceholder");
+        const snippet = `![${desc}](${t("snippets.imageUrlPlaceholder")})`;
         newContent = before + snippet + after;
-        cursorAfter = { start: before.length + 2, end: before.length + 2 + "açıklama".length };
+        cursorAfter = { start: before.length + 2, end: before.length + 2 + desc.length };
         break;
       }
       case "table": {
-        const snippet = "| Başlık | Değer |\n| --- | --- |\n|  |  |";
+        const snippet = `| ${t("snippets.tableHeader1")} | ${t("snippets.tableHeader2")} |\n| --- | --- |\n|  |  |`;
         newContent = before + snippet + after;
         cursorAfter = before.length + snippet.length;
         break;
@@ -360,20 +374,21 @@ export default function WriteArticle() {
         insertAtLineStart("- ");
         break;
       case "bold":
-        wrapSelection("**", "**", "kalın metin");
+        wrapSelection("**", "**", t("snippets.boldPlaceholder"));
         break;
       case "italic":
-        wrapSelection("*", "*", "italik metin");
+        wrapSelection("*", "*", t("snippets.italicPlaceholder"));
         break;
       case "link":
-        wrapSelection("[", "](url)", "açıklama");
+        wrapSelection("[", "](url)", t("snippets.linkPlaceholder"));
         break;
       case "image": {
         const el = textareaRef.current;
         if (!el) return;
         const pos = el.selectionStart;
-        const snippet = "![açıklama](görsel-url)";
-        pendingCursorRef.current = { start: pos + 2, end: pos + 2 + "açıklama".length };
+        const desc = t("snippets.imagePlaceholder");
+        const snippet = `![${desc}](${t("snippets.imageUrlPlaceholder")})`;
+        pendingCursorRef.current = { start: pos + 2, end: pos + 2 + desc.length };
         setContent(content.slice(0, pos) + snippet + content.slice(pos));
         break;
       }
@@ -426,7 +441,7 @@ export default function WriteArticle() {
 
   const publishArticle = async () => {
     if (!title.trim() || !content.trim()) {
-      setError("Başlık ve içerik boş olamaz.");
+      setError(t("errors.emptyFields"));
       return;
     }
 
@@ -444,7 +459,7 @@ export default function WriteArticle() {
       if (user?._id) localStorage.removeItem(draftKey(user._id));
       navigate(`/articles/${created._id}`);
     } catch (err) {
-      setError(err.response?.data?.message || "Makale kaydedilemedi, tekrar deneyin.");
+      setError(err.response?.data?.message || t("errors.publishFailed"));
     } finally {
       setIsSubmitting(false);
     }
@@ -481,8 +496,8 @@ export default function WriteArticle() {
     >
       <div className="min-w-0 flex-1 lg:h-full lg:max-w-[700px] lg:overflow-y-auto lg:overflow-x-hidden lg:pb-10 lg:pr-1">
         <div className="mb-[18px] flex flex-wrap items-center gap-x-[10px] gap-y-1">
-          <span className="ed-kicker">Taslak</span>
-          <span className="text-[13px] text-ed-muted">Henüz yayınlanmadı</span>
+          <span className="ed-kicker">{t("draft.kicker")}</span>
+          <span className="text-[13px] text-ed-muted">{t("draft.notPublished")}</span>
         </div>
 
         {previewMode === "preview" ? (
@@ -491,7 +506,7 @@ export default function WriteArticle() {
           // sayfanın tamamının gerçek görünümü önizlensin diye.
           <div className="flex flex-col gap-3">
             <h1 className="font-ed-serif text-[clamp(28px,4.2vw,40px)] font-medium leading-[1.15] tracking-[-0.02em] text-ed-ink">
-              {title || "Başlıksız"}
+              {title || t("draft.untitled")}
             </h1>
             {subtitle && (
               <p className="font-ed-serif text-lg italic leading-[1.4] text-ed-ink-soft">{subtitle}</p>
@@ -529,7 +544,7 @@ export default function WriteArticle() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") e.preventDefault();
               }}
-              placeholder="Başlık"
+              placeholder={t("draft.titlePlaceholder")}
               maxLength={200}
               required
               className="w-full resize-none overflow-hidden border-0 bg-transparent p-0 font-ed-serif text-[clamp(28px,4.2vw,40px)] font-medium leading-[1.15] tracking-[-0.02em] text-ed-ink outline-none placeholder:text-ed-placeholder"
@@ -539,7 +554,7 @@ export default function WriteArticle() {
               type="text"
               value={subtitle}
               onChange={(e) => setSubtitle(e.target.value)}
-              placeholder="Yazının özünü bir cümleyle anlat (opsiyonel)"
+              placeholder={t("draft.subtitlePlaceholder")}
               maxLength={300}
               className="mt-3 w-full border-0 bg-transparent p-0 font-ed-serif text-lg italic leading-[1.4] text-ed-ink-soft outline-none placeholder:text-ed-placeholder"
             />
@@ -579,7 +594,7 @@ export default function WriteArticle() {
         >
           {previewMode === "preview" && !content.trim() ? (
             <p className="flex h-[480px] items-center rounded-[var(--radius-ed-lg)] border border-ed-border bg-ed-surface px-5 text-base italic text-ed-muted shadow-[var(--shadow-ed-soft)]">
-              Henüz önizlenecek bir şey yok.
+              {t("draft.emptyPreview")}
             </p>
           ) : (
             <MDEditor
@@ -595,8 +610,7 @@ export default function WriteArticle() {
                   "prose max-w-none prose-headings:font-ed-serif prose-headings:text-ed-ink prose-h2:text-[26px] prose-h2:mt-[26px] prose-h2:mb-[10px] prose-h3:text-[20px] prose-h3:mt-[22px] prose-h3:mb-2 prose-p:text-[18px] prose-p:leading-[1.75] prose-a:text-ed-navy prose-strong:text-ed-ink prose-blockquote:border-0 prose-blockquote:pl-5 prose-blockquote:italic prose-blockquote:text-ed-ink-soft prose-pre:bg-ed-info-bg prose-pre:text-sm prose-pre:p-[15px] prose-code:text-ed-ink"
               }}
               textareaProps={{
-                placeholder:
-                  "Yazmaya başla. Komutlar için / yaz — kaynak önerisi, notlarından alıntı, başlık, liste.",
+                placeholder: t("draft.editorPlaceholder"),
                 maxLength: 20000,
                 required: true,
                 ref: textareaRef,
@@ -614,10 +628,10 @@ export default function WriteArticle() {
               onMouseDown={(e) => e.preventDefault()}
             >
               <p className="px-[14px] pb-2 pt-[11px] text-[10px] font-semibold uppercase tracking-[0.12em] text-ed-muted">
-                Komutlar
+                {t("slash.commandsLabel")}
               </p>
               {slashItems.length === 0 ? (
-                <p className="border-t border-ed-border px-[14px] py-2 text-[13px] text-ed-ink-soft">Eşleşen komut yok.</p>
+                <p className="border-t border-ed-border px-[14px] py-2 text-[13px] text-ed-ink-soft">{t("slash.noMatch")}</p>
               ) : (
                 <div className="max-h-72 overflow-y-auto">
                   {slashItems.map((cmd, i) => {
@@ -635,10 +649,10 @@ export default function WriteArticle() {
                         <Icon size={17} className="mt-0.5 text-ed-ink-soft" />
                         <span>
                           <span className="flex items-center gap-[7px] text-sm font-semibold text-ed-ink">
-                            {cmd.title}
+                            {t(cmd.titleKey)}
                             {cmd.ai && <span className="ed-ai-badge">AI</span>}
                           </span>
-                          <span className="mt-0.5 block text-xs text-ed-muted">{cmd.description}</span>
+                          <span className="mt-0.5 block text-xs text-ed-muted">{t(cmd.descriptionKey)}</span>
                         </span>
                       </button>
                     );
@@ -653,10 +667,10 @@ export default function WriteArticle() {
         {/* Alt ipucu çubuğu — komut kısayolları + hata mesajı (varsa). */}
         <div className="mt-7 flex flex-wrap items-center gap-5 border-t border-ed-border pt-4 text-[13px] text-ed-muted">
           <span className="inline-flex items-center gap-2">
-            <kbd className="ed-kbd">/</kbd> komut paleti
+            <kbd className="ed-kbd">/</kbd> {t("draft.slashHint")}
           </span>
           <span className="inline-flex items-center gap-2">
-            <kbd className="ed-kbd">Tab</kbd> öneriyi kabul et
+            <kbd className="ed-kbd">Tab</kbd> {t("draft.tabHint")}
           </span>
           {error && <p className="text-ed-ai">{error}</p>}
         </div>
@@ -667,7 +681,7 @@ export default function WriteArticle() {
         <section className="ed-card">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-ed-muted">
-              {railState === "tip" ? "Yazma Yardımı" : railState === "sources" ? "Kaynak Önerileri" : "Notlarım"}
+              {railState === "tip" ? t("rail.tip") : railState === "sources" ? t("rail.sources") : t("rail.notes")}
             </h2>
             {railState === "tip" ? (
               <span className="ed-ai-badge">AI</span>
@@ -677,7 +691,7 @@ export default function WriteArticle() {
                 onClick={closeRail}
                 className="text-[13px] text-ed-muted underline underline-offset-[3px] hover:text-ed-ink"
               >
-                kapat
+                {t("rail.close")}
               </button>
             )}
           </div>
@@ -693,9 +707,9 @@ export default function WriteArticle() {
                     <Sparkles size={19} />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[15px] font-semibold text-ed-ink">Kaynak öner</span>
+                    <span className="block text-[15px] font-semibold text-ed-ink">{t("rail.sourcesActionTitle")}</span>
                     <span className="mt-0.5 block text-[13px] leading-[1.4] text-ed-muted">
-                      Taslağına göre akademik kaynak tara, atıf ekle
+                      {t("rail.sourcesActionDescription")}
                     </span>
                   </span>
                   <ChevronRight size={16} className="mt-2.5 flex-none text-ed-placeholder" />
@@ -711,9 +725,9 @@ export default function WriteArticle() {
                     <FileText size={19} />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[15px] font-semibold text-ed-ink">Notlarımdan ekle</span>
+                    <span className="block text-[15px] font-semibold text-ed-ink">{t("rail.notesActionTitle")}</span>
                     <span className="mt-0.5 block text-[13px] leading-[1.4] text-ed-muted">
-                      PDF özetlerinden birini taslağa taşı
+                      {t("rail.notesActionDescription")}
                     </span>
                   </span>
                   <ChevronRight size={16} className="mt-2.5 flex-none text-ed-placeholder" />
@@ -728,7 +742,7 @@ export default function WriteArticle() {
                 <span className="h-3 w-4/5 animate-pulse rounded bg-ed-border" />
                 <span className="h-3 w-3/5 animate-pulse rounded bg-ed-border" />
                 <span className="h-3 w-2/3 animate-pulse rounded bg-ed-border" />
-                <p className="mt-1 text-[13px] text-ed-muted">Taslağına göre akademik kaynak taranıyor…</p>
+                <p className="mt-1 text-[13px] text-ed-muted">{t("rail.sourcesLoading")}</p>
               </div>
             ) : (
               <SourceSuggestions
@@ -743,8 +757,8 @@ export default function WriteArticle() {
 
         <section className="ed-card">
           <div className="mb-3.5 flex items-baseline justify-between">
-            <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-ed-muted">Kapak Görseli</h2>
-            <span className="text-xs text-ed-muted">Opsiyonel</span>
+            <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-ed-muted">{t("cover.title")}</h2>
+            <span className="text-xs text-ed-muted">{t("cover.optional")}</span>
           </div>
           {imagePreview ? (
             <div>
@@ -757,7 +771,7 @@ export default function WriteArticle() {
                 }}
                 className="mt-2 border-0 bg-transparent p-0 text-[13px] text-ed-muted underline underline-offset-[3px] hover:text-ed-ink"
               >
-                kaldır
+                {t("cover.remove")}
               </button>
             </div>
           ) : (
@@ -769,28 +783,26 @@ export default function WriteArticle() {
                 >
                   <ImageIcon size={20} />
                 </span>
-                <span className="text-sm font-semibold text-ed-ink">Görsel seç</span>
+                <span className="text-sm font-semibold text-ed-ink">{t("cover.select")}</span>
                 <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
               </label>
             </WriteOnboardingHint>
           )}
-          <p className="mt-3 text-[13px] leading-[1.5] text-ed-muted">
-            Eklemezsen makale kapaksız yayınlanır, boş bir alan bırakılmaz.
-          </p>
+          <p className="mt-3 text-[13px] leading-[1.5] text-ed-muted">{t("cover.hint")}</p>
         </section>
 
         <section className="grid grid-cols-3 gap-2 px-1">
           <div className="flex flex-col gap-1">
             <span className="font-ed-serif text-[26px] leading-none text-ed-ink">{wordCount}</span>
-            <span className="text-xs text-ed-muted">kelime</span>
+            <span className="text-xs text-ed-muted">{t("stats.words")}</span>
           </div>
           <div className="flex flex-col gap-1">
             <span className="font-ed-serif text-[26px] leading-none text-ed-ink">{content.length}</span>
-            <span className="text-xs text-ed-muted">karakter</span>
+            <span className="text-xs text-ed-muted">{t("stats.chars")}</span>
           </div>
           <div className="flex flex-col gap-1">
             <span className="font-ed-serif text-[26px] leading-none text-ed-ink">{content.trim() ? readTime : "—"}</span>
-            <span className="text-xs text-ed-muted">dk okuma</span>
+            <span className="text-xs text-ed-muted">{t("stats.readTime")}</span>
           </div>
         </section>
       </aside>

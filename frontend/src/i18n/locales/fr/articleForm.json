@@ -1,0 +1,11 @@
+{
+  "validationError": "Le titre et le contenu ne peuvent pas être vides.",
+  "saveFailed": "Impossible d'enregistrer l'article, réessaie.",
+  "modalTitle": "Modifier l'Article",
+  "titleLabel": "Titre",
+  "subtitleLabel": "Sous-titre (facultatif)",
+  "contentPlaceholder": "Contenu de l'article...",
+  "markdownHint": "Markdown est supporté : **gras**, # titre, - liste, [lien](url), ```code```",
+  "changeImage": "Changer l'Image (facultatif)",
+  "saveAria": "Enregistrer les modifications"
+}

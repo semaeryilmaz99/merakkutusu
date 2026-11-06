@@ -1,0 +1,99 @@
+{
+  "slash": {
+    "suggestSources": { "title": "Quellen vorschlagen", "description": "Wissenschaftliche Quellen basierend auf deinem Entwurf durchsuchen" },
+    "notes": { "title": "Aus Meinen Notizen hinzufügen", "description": "Eine deiner PDF-Zusammenfassungen in den Entwurf übernehmen" },
+    "heading": { "title": "Überschrift", "description": "Abschnittsüberschrift" },
+    "quote": { "title": "Zitat", "description": "Blockzitat" },
+    "list": { "title": "Liste", "description": "Aufzählungsliste" },
+    "code": { "title": "Code", "description": "Codeblock" },
+    "image": { "title": "Bild", "description": "Bild im Text" },
+    "table": { "title": "Tabelle", "description": "Zweispaltige Tabelle" },
+    "commandsLabel": "Befehle",
+    "noMatch": "Kein passender Befehl."
+  },
+  "toolbar": {
+    "aria": "Formatierung",
+    "heading": "Überschrift",
+    "bold": "Fett",
+    "italic": "Kursiv",
+    "quote": "Zitat",
+    "list": "Aufzählungsliste",
+    "link": "Link",
+    "image": "Bild einfügen",
+    "code": "Codeblock",
+    "citation": "Zitat hinzufügen",
+    "citationLabel": "Zitieren"
+  },
+  "snippets": {
+    "boldPlaceholder": "fetter Text",
+    "italicPlaceholder": "kursiver Text",
+    "linkPlaceholder": "Beschreibung",
+    "imagePlaceholder": "Beschreibung",
+    "imageUrlPlaceholder": "bild-url",
+    "tableHeader1": "Titel",
+    "tableHeader2": "Wert"
+  },
+  "draft": {
+    "kicker": "Entwurf",
+    "notPublished": "Noch nicht veröffentlicht",
+    "untitled": "Ohne Titel",
+    "titlePlaceholder": "Titel",
+    "subtitlePlaceholder": "Fasse deinen Artikel in einem Satz zusammen (optional)",
+    "editorPlaceholder": "Beginne zu schreiben. Tippe / für Befehle — Quellenvorschläge, Zitate aus deinen Notizen, Überschriften, Listen.",
+    "emptyPreview": "Noch nichts zum Anzeigen.",
+    "slashHint": "Befehlspalette",
+    "tabHint": "Vorschlag übernehmen"
+  },
+  "errors": {
+    "needTitleAndContent": "Schreibe zuerst einen Titel und etwas Inhalt.",
+    "sourcesFetchFailed": "Quellen konnten nicht geladen werden, bitte versuche es erneut.",
+    "emptyFields": "Titel und Inhalt dürfen nicht leer sein.",
+    "publishFailed": "Artikel konnte nicht gespeichert werden, bitte versuche es erneut."
+  },
+  "rail": {
+    "tip": "Schreibhilfe",
+    "sources": "Quellenvorschläge",
+    "notes": "Meine Notizen",
+    "close": "schließen",
+    "sourcesActionTitle": "Quellen vorschlagen",
+    "sourcesActionDescription": "Wissenschaftliche Quellen basierend auf deinem Entwurf durchsuchen, Zitat hinzufügen",
+    "notesActionTitle": "Aus Meinen Notizen hinzufügen",
+    "notesActionDescription": "Eine deiner PDF-Zusammenfassungen in den Entwurf übernehmen",
+    "sourcesLoading": "Wissenschaftliche Quellen werden basierend auf deinem Entwurf durchsucht…"
+  },
+  "cover": {
+    "title": "Titelbild",
+    "optional": "Optional",
+    "remove": "entfernen",
+    "select": "Bild auswählen",
+    "hint": "Wenn du das überspringst, wird der Artikel ohne Titelbild veröffentlicht — es bleibt kein leerer Bereich."
+  },
+  "stats": {
+    "words": "Wörter",
+    "chars": "Zeichen",
+    "readTime": "Min. Lesezeit"
+  },
+  "header": {
+    "notSavedYet": "noch nicht gespeichert",
+    "savedAt": "{{time}} · automatisch gespeichert",
+    "preview": "Vorschau",
+    "edit": "Bearbeiten",
+    "publish": "Veröffentlichen",
+    "publishing": "Wird veröffentlicht…"
+  },
+  "sources": {
+    "aiSuggested": "Von KI vorgeschlagen",
+    "noMatch": "Keine wissenschaftliche Quelle zu deinem Entwurf gefunden.",
+    "visitSource": "Zur Quelle ↗",
+    "added": "Hinzugefügt ✓",
+    "addCitation": "Zitat hinzufügen"
+  },
+  "notes": {
+    "loading": "Wird geladen…",
+    "fetchFailed": "Notizen konnten nicht geladen werden, bitte versuche es erneut.",
+    "empty": "Du hast noch keine Notizen in \"Meine Notizen\".",
+    "aiSummary": "KI-Zusammenfassung",
+    "added": "Hinzugefügt ✓",
+    "addToDraft": "Zum Entwurf hinzufügen"
+  }
+}

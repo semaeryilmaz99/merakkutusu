@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Send, Image as ImageIcon, Smile } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 import { useOnboarding } from "../context/OnboardingContext";
@@ -25,11 +26,12 @@ const TYPING_TIMEOUT_MS = 3000;
 const TYPING_EMIT_THROTTLE_MS = 2000;
 
 export default function ChatPanel({ roomRequest }) {
+  const { t } = useTranslation("chat");
   const { user } = useAuth();
   const socket = useSocket();
   const { isChatHintVisible, dismissChatHint } = useOnboarding();
 
-  const [title, setTitle] = useState("Sohbet");
+  const [title, setTitle] = useState(t("defaultTitle"));
   const [isAuthorView, setIsAuthorView] = useState(false);
   const [roomId, setRoomId] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -66,14 +68,14 @@ export default function ChatPanel({ roomRequest }) {
         let roomRes;
         if (roomRequest.type === "dashboard") {
           roomRes = await getOrCreateDashboardRoom();
-          setTitle("Dashboard Sohbeti");
+          setTitle(t("dashboardTitle"));
         } else if (roomRequest.type === "article") {
           const [res, article] = await Promise.all([
             getOrCreateArticleRoom(roomRequest.articleId),
             getArticleById(roomRequest.articleId),
           ]);
           roomRes = res;
-          setTitle(article.author?.username || "Makale Sohbeti");
+          setTitle(article.author?.username || t("articleTitleFallback"));
           // Yazar kendi makalesinde "kütüphaneye ekle" ipucunu görmemeli —
           // backend zaten yazar için bu şartı aramıyor (resolveChatRoom.js).
           setIsAuthorView(Boolean(article.author?._id && article.author._id === user?._id));
@@ -95,7 +97,7 @@ export default function ChatPanel({ roomRequest }) {
         if (hadErrorRef.current) {
           hadErrorRef.current = false;
           setJustActivatedMessage(
-            roomRequest.type === "article" ? "Artık bu yazarla mesajlaşabilirsiniz." : "Sohbet aktif."
+            roomRequest.type === "article" ? t("articleActivated") : t("activated")
           );
         }
 
@@ -129,7 +131,7 @@ export default function ChatPanel({ roomRequest }) {
       } catch (err) {
         if (!cancelled) {
           hadErrorRef.current = true;
-          setError(err.response?.data?.message || "Sohbet yüklenemedi.");
+          setError(err.response?.data?.message || t("loadFailed"));
         }
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -212,7 +214,7 @@ export default function ChatPanel({ roomRequest }) {
         if (res?.error) setError(res.error);
       });
     } catch (err) {
-      setError(err.response?.data?.message || "Görsel gönderilemedi.");
+      setError(err.response?.data?.message || t("imageSendFailed"));
     } finally {
       setIsUploadingImage(false);
       e.target.value = "";
@@ -220,20 +222,20 @@ export default function ChatPanel({ roomRequest }) {
   };
 
   if (!socket || isLoading) {
-    return <p className="text-center text-sm text-white/70">Bağlanıyor...</p>;
+    return <p className="text-center text-sm text-white/70">{t("connecting")}</p>;
   }
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       {roomRequest.type === "article" && !isAuthorView && isChatHintVisible && (
         <div className="mb-3 rounded-xl bg-white/10 p-3 text-xs text-white">
-          <p>Bu makalenin yazarıyla sohbet edebilmek için önce makaleyi kütüphanene eklemen gerekir.</p>
+          <p>{t("libraryHint")}</p>
           <button
             type="button"
             onClick={dismissChatHint}
             className="mt-2 font-medium text-accent-gold hover:underline"
           >
-            Anladım
+            {t("understood")}
           </button>
         </div>
       )}
@@ -255,7 +257,7 @@ export default function ChatPanel({ roomRequest }) {
 
           <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
             {messages.length === 0 ? (
-              <p className="text-center text-sm text-white/60">Henüz mesaj yok, ilk mesajı sen gönder.</p>
+              <p className="text-center text-sm text-white/60">{t("noMessages")}</p>
             ) : (
               messages.map((message, i) => {
                 const isOwn = message.sender?._id === user?._id;
@@ -297,7 +299,7 @@ export default function ChatPanel({ roomRequest }) {
 
           {Object.keys(typingUsers).length > 0 && (
             <p className="mt-1 text-xs italic text-white/60">
-              {Object.values(typingUsers).join(", ")} yazıyor...
+              {t("typing", { names: Object.values(typingUsers).join(", ") })}
             </p>
           )}
 
@@ -323,14 +325,14 @@ export default function ChatPanel({ roomRequest }) {
               <button
                 type="button"
                 onClick={() => setIsEmojiOpen((v) => !v)}
-                aria-label="Emoji ekle"
+                aria-label={t("emojiAria")}
                 className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
               >
                 <Smile size={16} />
               </button>
 
               <label
-                aria-label="Görsel gönder"
+                aria-label={t("imageAria")}
                 className={`flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 ${
                   isUploadingImage ? "opacity-60" : "cursor-pointer"
                 }`}
@@ -349,12 +351,12 @@ export default function ChatPanel({ roomRequest }) {
                 type="text"
                 value={text}
                 onChange={handleTextChange}
-                placeholder="Mesajınızı buraya yazın..."
+                placeholder={t("placeholder")}
                 className="flex-1 rounded-full bg-white px-4 py-2 text-sm text-brand-900 outline-none"
               />
               <button
                 type="submit"
-                aria-label="Gönder"
+                aria-label={t("sendAria")}
                 className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-accent-gold text-brand-900 hover:brightness-95"
               >
                 <Send size={16} />

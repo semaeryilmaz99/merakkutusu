@@ -1,0 +1,43 @@
+{
+  "loading": "Yükleniyor...",
+  "notFound": "Makale bulunamadı.",
+  "readTime": "{{time}} dk okuma",
+  "readTimeShort": "{{time}} dk",
+  "readTimeTooltip": "Tahmini okuma süresi",
+  "errors": {
+    "favoriteUpdateFailed": "Favori durumu güncellenemedi, tekrar dene.",
+    "libraryUpdateFailed": "Kütüphane durumu güncellenemedi, tekrar dene.",
+    "followUpdateFailed": "Takip durumu güncellenemedi, tekrar dene.",
+    "shareFailed": "Paylaşılamadı, tekrar dene.",
+    "linkCopyFailed": "Bağlantı kopyalanamadı.",
+    "commentUpdateFailed": "Yorum güncellenemedi.",
+    "commentDeleteFailed": "Yorum silinemedi."
+  },
+  "actions": {
+    "favoriteAria": "Favorilere ekle/çıkar",
+    "libraryAria": "Kütüphaneye ekle/çıkar",
+    "save": "Kaydet",
+    "editAria": "Makaleyi düzenle",
+    "deleteAria": "Makaleyi sil",
+    "deleteConfirmQuestion": "Silinsin mi?",
+    "deleteConfirmYes": "Evet, sil",
+    "deleteCancel": "Vazgeç",
+    "shareAria": "Paylaş",
+    "linkCopied": "Bağlantı kopyalandı"
+  },
+  "follow": {
+    "follow": "Takip Et",
+    "unfollow": "Takibi Bırak"
+  },
+  "comments": {
+    "heading": "Yorumlar {{count}}",
+    "placeholder": "Yorumunu buraya yaz...",
+    "sendAria": "Yorum gönder",
+    "empty": "Henüz yorum yok.",
+    "unknownUser": "kullanıcı",
+    "editAria": "Yorumu düzenle",
+    "deleteAria": "Yorumu sil",
+    "saveEdit": "Kaydet",
+    "cancelEdit": "Vazgeç"
+  }
+}

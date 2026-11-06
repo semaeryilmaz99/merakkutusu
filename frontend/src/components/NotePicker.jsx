@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { FileText, Image as ImageIcon, Check, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { getMyNotes } from "../services/noteService";
 
 // Makale yazarken kullanıcının "Notlarım"da biriktirdiği AI özetlerini
@@ -9,6 +10,7 @@ import { getMyNotes } from "../services/noteService";
 // bloğunu içerip içermediğine bakılıyor (isNoteAdded) — kullanıcı metni elle
 // silerse buton da otomatik "Ekle"ye geri döner.
 export default function NotePicker({ isNoteAdded, onToggleNote }) {
+  const { t } = useTranslation("write");
   const [notes, setNotes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -16,12 +18,13 @@ export default function NotePicker({ isNoteAdded, onToggleNote }) {
   useEffect(() => {
     getMyNotes(1)
       .then((data) => setNotes(data.notes))
-      .catch(() => setError("Notlar getirilemedi, tekrar deneyin."))
+      .catch(() => setError(t("notes.fetchFailed")))
       .finally(() => setIsLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (isLoading) {
-    return <p className="text-[13px] text-ed-muted">Yükleniyor…</p>;
+    return <p className="text-[13px] text-ed-muted">{t("notes.loading")}</p>;
   }
 
   if (error) {
@@ -29,7 +32,7 @@ export default function NotePicker({ isNoteAdded, onToggleNote }) {
   }
 
   if (notes.length === 0) {
-    return <p className="text-[13px] text-ed-muted">Henüz "Notlarım"da bir not yok.</p>;
+    return <p className="text-[13px] text-ed-muted">{t("notes.empty")}</p>;
   }
 
   return (
@@ -46,7 +49,7 @@ export default function NotePicker({ isNoteAdded, onToggleNote }) {
               )}
               <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-ed-ai">
                 <Sparkles size={9} />
-                AI özeti
+                {t("notes.aiSummary")}
               </span>
             </div>
             <p className="text-[15px] font-semibold leading-[1.4] text-ed-ink">{note.title}</p>
@@ -61,7 +64,7 @@ export default function NotePicker({ isNoteAdded, onToggleNote }) {
               }`}
             >
               {added && <Check size={12} />}
-              {added ? "Eklendi ✓" : "Taslağa ekle"}
+              {added ? t("notes.added") : t("notes.addToDraft")}
             </button>
           </div>
         );

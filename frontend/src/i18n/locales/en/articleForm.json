@@ -1,0 +1,11 @@
+{
+  "validationError": "Title and content can't be empty.",
+  "saveFailed": "Couldn't save the article, try again.",
+  "modalTitle": "Edit Article",
+  "titleLabel": "Title",
+  "subtitleLabel": "Subtitle (optional)",
+  "contentPlaceholder": "Article content...",
+  "markdownHint": "Markdown is supported: **bold**, # heading, - list, [link](url), ```code```",
+  "changeImage": "Change Image (optional)",
+  "saveAria": "Save changes"
+}

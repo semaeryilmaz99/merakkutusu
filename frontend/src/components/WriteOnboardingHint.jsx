@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useOnboarding } from "../context/OnboardingContext";
 
 // Navbar/BottomBar'daki OnboardingHint'in Editorial (WriteArticle.jsx +
@@ -15,6 +16,7 @@ const ARROW_CLASSES = {
 };
 
 export default function WriteOnboardingHint({ stepId, placement = "bottom", children }) {
+  const { t } = useTranslation("onboarding");
   const { writeStepId, writeStep, writeStepNumber, writeTotalSteps, writeNext, writeSkip } = useOnboarding();
   const isActive = writeStepId === stepId;
 
@@ -35,19 +37,19 @@ export default function WriteOnboardingHint({ stepId, placement = "bottom", chil
             className={`absolute left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-ed-border bg-ed-surface ${ARROW_CLASSES[placement]}`}
           />
 
-          <span className="ed-kicker">{writeStep.title}</span>
-          <p className="mt-1.5 text-[13px] leading-[1.5] text-ed-muted">{writeStep.text}</p>
+          <span className="ed-kicker">{t(writeStep.titleKey)}</span>
+          <p className="mt-1.5 text-[13px] leading-[1.5] text-ed-muted">{t(writeStep.textKey)}</p>
 
           <div className="mt-3 flex items-center justify-between">
             <button type="button" onClick={writeSkip} className="text-xs text-ed-placeholder hover:text-ed-ink-soft">
-              Atla
+              {t("skip")}
             </button>
             <div className="flex items-center gap-2">
               <span className="text-xs text-ed-placeholder">
                 {writeStepNumber}/{writeTotalSteps}
               </span>
               <button type="button" onClick={writeNext} className="ed-btn ed-btn-primary h-7 px-3 text-xs">
-                {writeStepNumber === writeTotalSteps ? "Bitir" : "Sonraki"}
+                {writeStepNumber === writeTotalSteps ? t("finish") : t("next")}
               </button>
             </div>
           </div>

@@ -1,0 +1,15 @@
+{
+  "nav": {
+    "home": "Ana Sayfa",
+    "explore": "Keşfet",
+    "library": "Kütüphane",
+    "notes": "Notlarım",
+    "admin": "Admin Paneli",
+    "logout": "Çıkış Yap",
+    "openMenu": "Menüyü aç",
+    "write": "Makale yaz",
+    "notifications": "Bildirimler",
+    "profile": "Profilim",
+    "chat": "Sohbet"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "upload": {
+    "title": "Importer des Notes de Cours",
+    "description": "Importe une capture d'écran/photo ou un PDF, l'IA le résumera et l'enregistrera dans ta bibliothèque.",
+    "chooseFile": "Choisir un Fichier (image ou PDF)",
+    "button": "Importer et Résumer",
+    "summarizing": "Résumé en cours...",
+    "failed": "Impossible d'importer la note, réessaie."
+  },
+  "empty": {
+    "title": "Tu n'as encore importé aucune note.",
+    "description": "Commence en important une capture d'écran ou un PDF ci-dessus."
+  },
+  "loadMore": {
+    "button": "Charger plus",
+    "loading": "Chargement..."
+  },
+  "detail": {
+    "openOriginal": "Ouvrir le fichier original",
+    "confirmDelete": "Es-tu sûr de vouloir supprimer cette note ?",
+    "deleteYes": "Oui, supprimer",
+    "deleting": "Suppression...",
+    "cancel": "Annuler",
+    "delete": "Supprimer la Note"
+  }
+}

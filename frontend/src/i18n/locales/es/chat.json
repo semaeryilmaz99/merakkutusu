@@ -1,0 +1,19 @@
+{
+  "defaultTitle": "Chat",
+  "dashboardTitle": "Chat del Panel",
+  "articleTitleFallback": "Chat del Artículo",
+  "articleActivated": "Ahora puedes chatear con este autor.",
+  "activated": "El chat está activo.",
+  "loadFailed": "No se pudo cargar el chat.",
+  "imageSendFailed": "No se pudo enviar la imagen.",
+  "connecting": "Conectando...",
+  "libraryHint": "Para chatear con el autor de este artículo, primero debes añadirlo a tu biblioteca.",
+  "understood": "Entendido",
+  "noMessages": "Aún no hay mensajes, envía el primero.",
+  "typing": "{{names}} escribiendo...",
+  "emojiAria": "Añadir emoji",
+  "imageAria": "Enviar imagen",
+  "placeholder": "Escribe tu mensaje aquí...",
+  "sendAria": "Enviar",
+  "closeAria": "Cerrar"
+}

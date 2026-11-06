@@ -1,0 +1,26 @@
+{
+  "upload": {
+    "title": "Ders Notu Yükle",
+    "description": "Bir ekran görüntüsü/fotoğraf ya da PDF yükle, AI senin için özetleyip kütüphanene kaydetsin.",
+    "chooseFile": "Dosya Seç (görsel veya PDF)",
+    "button": "Yükle ve Özetle",
+    "summarizing": "Özetleniyor...",
+    "failed": "Not yüklenemedi, tekrar deneyin."
+  },
+  "empty": {
+    "title": "Henüz not yüklemedin.",
+    "description": "Yukarıdan bir ekran görüntüsü ya da PDF yükleyerek başla."
+  },
+  "loadMore": {
+    "button": "Daha Fazla Yükle",
+    "loading": "Yükleniyor..."
+  },
+  "detail": {
+    "openOriginal": "Orijinal dosyayı aç",
+    "confirmDelete": "Bu notu silmek istediğine emin misin?",
+    "deleteYes": "Evet, sil",
+    "deleting": "Siliniyor...",
+    "cancel": "Vazgeç",
+    "delete": "Notu Sil"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "search": {
+    "placeholder": "Artikel, Benutzer oder Thema suchen...",
+    "searchAria": "Suchen",
+    "filterAria": "Nach Tag filtern",
+    "clearAria": "Filter zurücksetzen"
+  },
+  "users": {
+    "heading": "Benutzer"
+  },
+  "empty": {
+    "noMatchButUsers": "Keine passenden Artikel, aber oben gibt es Benutzerergebnisse.",
+    "noResults": "Keine Ergebnisse gefunden.",
+    "noFeed": "Dein Feed enthält noch keine Artikel.",
+    "noFeedDescription": "Wähle Interessen aus oder folge anderen Nutzern.",
+    "exploreAction": "Jetzt entdecken"
+  },
+  "loadMore": {
+    "button": "Mehr laden",
+    "loading": "Wird geladen..."
+  }
+}

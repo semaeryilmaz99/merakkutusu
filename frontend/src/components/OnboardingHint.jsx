@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useOnboarding } from "../context/OnboardingContext";
 
 // Navbar'da baloncuk altta açılır (nav üstte), BottomBar'da üstte açılır
@@ -32,6 +33,7 @@ const ARROW_ALIGN_CLASSES = {
 // ek bir görünürlük sınırı verir — anchor elemanın kendi breakpoint'inden
 // bağımsız olarak.
 export default function OnboardingHint({ stepId, placement = "bottom", align = "center", bubbleBreakpoint = "", children }) {
+  const { t } = useTranslation("onboarding");
   const { activeStepId, step, stepNumber, totalSteps, next, skip } = useOnboarding();
   const isActive = activeStepId === stepId;
 
@@ -53,12 +55,12 @@ export default function OnboardingHint({ stepId, placement = "bottom", align = "
         >
           <div className={`absolute h-3 w-3 rotate-45 border-gray-200 bg-white ${ARROW_CLASSES[placement]} ${ARROW_ALIGN_CLASSES[align]}`} />
 
-          <p className="text-xs font-semibold text-brand-900">{step.title}</p>
-          <p className="mt-1 text-xs text-gray-600">{step.text}</p>
+          <p className="text-xs font-semibold text-brand-900">{t(step.titleKey)}</p>
+          <p className="mt-1 text-xs text-gray-600">{t(step.textKey)}</p>
 
           <div className="mt-3 flex items-center justify-between">
             <button type="button" onClick={skip} className="text-xs text-gray-400 hover:text-gray-600">
-              Atla
+              {t("skip")}
             </button>
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-400">
@@ -69,7 +71,7 @@ export default function OnboardingHint({ stepId, placement = "bottom", align = "
                 onClick={next}
                 className="rounded-full bg-brand-700 px-3 py-1 text-xs font-medium text-white hover:bg-brand-800"
               >
-                {stepNumber === totalSteps ? "Bitir" : "Sonraki"}
+                {stepNumber === totalSteps ? t("finish") : t("next")}
               </button>
             </div>
           </div>

@@ -1,0 +1,32 @@
+{
+  "accessDenied": "Du hast keinen Zugriff auf diese Seite.",
+  "loading": "Wird geladen...",
+  "heading": "Admin-Panel — Benutzer",
+  "table": {
+    "username": "Benutzername",
+    "email": "E-Mail",
+    "role": "Rolle",
+    "verified": "Verifiziert",
+    "joined": "Beigetreten",
+    "actions": "Aktionen"
+  },
+  "yes": "Ja",
+  "no": "Nein",
+  "activity": "Aktivität",
+  "deleteConfirmYes": "Ja, löschen",
+  "cancel": "Abbrechen",
+  "deleteUserAria": "Benutzer {{username}} löschen",
+  "prevPageAria": "Vorherige Seite",
+  "nextPageAria": "Nächste Seite",
+  "pageIndicator": "Seite {{page}} von {{totalPages}}",
+  "activityModal": {
+    "title": "Benutzeraktivität",
+    "articles": "Artikel",
+    "receivedFavorites": "erhaltene Favoriten",
+    "receivedComments": "erhaltene Kommentare",
+    "madeComments": "verfasste Kommentare",
+    "recentArticles": "Neueste Artikel",
+    "noArticles": "Noch keine Artikel.",
+    "statsLine": "{{favorites}} Favoriten · {{comments}} Kommentare"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "loading": "Yükleniyor...",
+  "notFound": "Kullanıcı bulunamadı.",
+  "bioEmpty": "Henüz biyografi eklenmedi.",
+  "stats": {
+    "followers": "takipçi",
+    "favorites": "favori",
+    "articles": "makale"
+  },
+  "tagRemoveFailed": "İlgi alanı kaldırılamadı, tekrar dene.",
+  "noInterests": {
+    "text": "Henüz ilgi alanı seçmedin —",
+    "link": "buradan seç"
+  },
+  "emptyArticles": {
+    "title": "Henüz makale yazmadın.",
+    "action": "İlk makaleni yaz"
+  },
+  "emptyArticlesOther": "Henüz makale yazmamış.",
+  "followersModal": {
+    "title": "Takipçiler",
+    "empty": "Henüz takipçin yok."
+  },
+  "followingModal": {
+    "title": "Takip Edilenler",
+    "empty": "Henüz kimseyi takip etmiyorsun."
+  },
+  "removeTagAria": "{{tag}} etiketini kaldır",
+  "followingHeading": "Takip edilen yazarlar",
+  "showMoreAria": "{{count}} kişi daha gör",
+  "editProfileButton": "Profil Bilgilerini Güncelle",
+  "editModal": {
+    "title": "Profil Bilgilerini Güncelle",
+    "usernameLabel": "Kullanıcı adı:",
+    "avatarPlaceholder": "Profil Resmi",
+    "bioPlaceholder": "Biyografi",
+    "libraryVisibility": "Kütüphane görünürlüğü",
+    "private": "Gizli",
+    "public": "Açık",
+    "saveError": "Profil güncellenemedi, tekrar deneyin.",
+    "save": "Değişiklikleri Kaydet",
+    "saving": "Kaydediliyor...",
+    "changePasswordTitle": "Şifre Değiştir",
+    "currentPasswordPlaceholder": "Mevcut şifre",
+    "newPasswordPlaceholder": "Yeni şifre",
+    "passwordChanged": "Şifre değiştirildi.",
+    "passwordChangeFailed": "Şifre değiştirilemedi.",
+    "changePassword": "Şifreyi Değiştir",
+    "changingPassword": "Değiştiriliyor...",
+    "deleteWarning": "Hesabın kalıcı olarak silinecek. Onaylamak için şifreni gir.",
+    "deletePasswordPlaceholder": "Şifren",
+    "deleteFailed": "Hesap silinemedi.",
+    "deleteConfirmYes": "Evet, hesabımı sil",
+    "deleting": "Siliniyor...",
+    "cancel": "Vazgeç",
+    "deleteAccount": "Hesabımı sil"
+  },
+  "followFailed": "İşlem başarısız, tekrar dene.",
+  "follow": "Takip Et",
+  "unfollow": "Takibi Bırak",
+  "libraryHidden": "Bu kullanıcının kütüphanesi gizli.",
+  "articlesHeading": "Makaleleri",
+  "libraryHeading": "Kütüphanesi",
+  "libraryEmpty": "Kütüphane boş."
+}

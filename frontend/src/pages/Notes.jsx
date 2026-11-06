@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FileText, Image as ImageIcon, Trash2, Upload, ExternalLink } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { createNote, getMyNotes, deleteNote } from "../services/noteService";
 import { formatShortDate } from "../utils/formatDate";
 import Modal from "../components/UI/Modal";
@@ -20,6 +21,7 @@ function NoteCardSkeleton() {
 }
 
 export default function Notes() {
+  const { t } = useTranslation("notes");
   const [notes, setNotes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -68,7 +70,7 @@ export default function Notes() {
       setFile(null);
       e.target.reset();
     } catch (err) {
-      setUploadError(err.response?.data?.message || "Not yüklenemedi, tekrar deneyin.");
+      setUploadError(err.response?.data?.message || t("upload.failed"));
     } finally {
       setIsUploading(false);
     }
@@ -111,14 +113,12 @@ export default function Notes() {
   return (
     <div className="flex flex-col gap-6">
       <form onSubmit={handleUpload} className="flex flex-col gap-3 rounded-2xl bg-brand-800 p-4">
-        <p className="text-sm font-semibold text-white">Ders Notu Yükle</p>
-        <p className="text-xs text-white/70">
-          Bir ekran görüntüsü/fotoğraf ya da PDF yükle, AI senin için özetleyip kütüphanene kaydetsin.
-        </p>
+        <p className="text-sm font-semibold text-white">{t("upload.title")}</p>
+        <p className="text-xs text-white/70">{t("upload.description")}</p>
         <div className="flex flex-wrap items-center gap-3">
           <label className="flex w-fit cursor-pointer items-center gap-2 rounded-full bg-white/10 px-3 py-2 text-xs text-white/80 hover:bg-white/20">
             <Upload size={14} />
-            {file ? file.name : "Dosya Seç (görsel veya PDF)"}
+            {file ? file.name : t("upload.chooseFile")}
             <input type="file" accept="image/*,application/pdf" onChange={handleFileChange} className="hidden" />
           </label>
           <button
@@ -126,7 +126,7 @@ export default function Notes() {
             disabled={!file || isUploading}
             className="rounded-full bg-accent-gold px-4 py-2 text-xs font-semibold text-brand-900 hover:brightness-95 disabled:opacity-50"
           >
-            {isUploading ? "Özetleniyor..." : "Yükle ve Özetle"}
+            {isUploading ? t("upload.summarizing") : t("upload.button")}
           </button>
         </div>
         {uploadError && <p className="text-xs text-accent-coral">{uploadError}</p>}
@@ -139,11 +139,7 @@ export default function Notes() {
           ))}
         </ArticleGrid>
       ) : notes.length === 0 ? (
-        <EmptyState
-          icon={Upload}
-          title="Henüz not yüklemedin."
-          description="Yukarıdan bir ekran görüntüsü ya da PDF yükleyerek başla."
-        />
+        <EmptyState icon={Upload} title={t("empty.title")} description={t("empty.description")} />
       ) : (
         <>
           <ArticleGrid>
@@ -174,7 +170,7 @@ export default function Notes() {
                 disabled={isLoadingMore}
                 className="rounded-full bg-brand-700 px-6 py-2 text-sm font-medium text-white hover:bg-brand-800 disabled:opacity-50"
               >
-                {isLoadingMore ? "Yükleniyor..." : "Daha Fazla Yükle"}
+                {isLoadingMore ? t("loadMore.loading") : t("loadMore.button")}
               </button>
             </div>
           )}
@@ -195,26 +191,26 @@ export default function Notes() {
               className="flex w-fit items-center gap-1 text-xs font-medium text-accent-gold hover:underline"
             >
               <ExternalLink size={12} />
-              Orijinal dosyayı aç
+              {t("detail.openOriginal")}
             </a>
 
             {isConfirmingDelete ? (
               <div className="flex items-center justify-end gap-2">
-                <span className="text-xs text-white/70">Bu notu silmek istediğine emin misin?</span>
+                <span className="text-xs text-white/70">{t("detail.confirmDelete")}</span>
                 <button
                   type="button"
                   onClick={() => handleDelete(activeNote._id)}
                   disabled={isDeleting}
                   className="rounded-full bg-accent-coral px-3 py-1.5 text-xs font-semibold text-white hover:brightness-95 disabled:opacity-50"
                 >
-                  {isDeleting ? "Siliniyor..." : "Evet, sil"}
+                  {isDeleting ? t("detail.deleting") : t("detail.deleteYes")}
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsConfirmingDelete(false)}
                   className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/20"
                 >
-                  Vazgeç
+                  {t("detail.cancel")}
                 </button>
               </div>
             ) : (
@@ -224,7 +220,7 @@ export default function Notes() {
                 className="flex w-fit items-center gap-1 self-end rounded-full bg-accent-coral px-3 py-1.5 text-xs font-semibold text-white hover:brightness-95"
               >
                 <Trash2 size={12} />
-                Notu Sil
+                {t("detail.delete")}
               </button>
             )}
           </div>

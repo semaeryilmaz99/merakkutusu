@@ -6,22 +6,16 @@ const OnboardingContext = createContext(null);
 // Sıra, kullanıcının önce içerik keşfetmesi, sonra yazmayı denemesi, sonra
 // profilini öğrenmesi mantığına göre seçildi. Bildirimler çıkarıldı — zil
 // ikonu kendini açıklıyor, ayrıca bir baloncuğa gerek yok.
+//
+// title/text yerine titleKey/textKey taşıyor — bu dizi modül seviyesinde
+// (bileşenin DIŞINDA) tanımlı, useTranslation() burada çağrılamaz. Gerçek
+// çeviri, bu diziyi tüketen OnboardingHint.jsx/WriteOnboardingHint.jsx'te
+// render anında t(anahtar) ile yapılıyor — böylece dil değişince bu
+// metinler de anında güncelleniyor, import anında donmuyor.
 const NAV_STEPS = [
-  {
-    id: "explore",
-    title: "Keşfet",
-    text: "Topluluktaki en yeni ve popüler makaleleri burada bulabilirsin.",
-  },
-  {
-    id: "write",
-    title: "Makale Yaz",
-    text: "Bildiklerini paylaş — yazarken AI sana akademik kaynak önerilerinde bulunur.",
-  },
-  {
-    id: "profile",
-    title: "Profilin",
-    text: "Biyografini düzenle, ilgi alanlarını güncelle ve paylaşımlarını buradan gör.",
-  },
+  { id: "explore", titleKey: "nav.explore.title", textKey: "nav.explore.text" },
+  { id: "write", titleKey: "nav.write.title", textKey: "nav.write.text" },
+  { id: "profile", titleKey: "nav.profile.title", textKey: "nav.profile.text" },
 ];
 
 // WriteArticle.jsx'teki bütün anahtar özellikleri sırayla tanıtan, sayfaya
@@ -29,36 +23,12 @@ const NAV_STEPS = [
 // farklı bir localStorage bayrağıyla, WriteArticle.jsx'in kendi mount'unda
 // başlatılıyor — Layout'un mount'unda değil).
 const WRITE_STEPS = [
-  {
-    id: "write-tags",
-    title: "Etiketler",
-    text: "Makaleni ilgili etiketlerle işaretle, doğru okuyuculara ulaşsın.",
-  },
-  {
-    id: "write-editor",
-    title: "Komut paleti",
-    text: "Yazarken '/' tuşuna bas: başlık, liste, alıntı, kaynak önerisi ve daha fazlasına tek tuşla ulaş.",
-  },
-  {
-    id: "write-sources",
-    title: "Kaynak öner",
-    text: "AI, taslağına göre akademik kaynak önerir — tek tıkla atıf ekleyebilirsin.",
-  },
-  {
-    id: "write-notes",
-    title: "Notlarımdan ekle",
-    text: "Not sayfanda yüklediğin PDF özetlerinden birini tek tıkla taslağına taşı.",
-  },
-  {
-    id: "write-cover",
-    title: "Kapak görseli",
-    text: "İstersen bir kapak görseli ekle — opsiyonel, boş da yayınlayabilirsin.",
-  },
-  {
-    id: "write-publish",
-    title: "Yayınla",
-    text: "Hazır olduğunda makaleni buradan yayınla.",
-  },
+  { id: "write-tags", titleKey: "write.tags.title", textKey: "write.tags.text" },
+  { id: "write-editor", titleKey: "write.editor.title", textKey: "write.editor.text" },
+  { id: "write-sources", titleKey: "write.sources.title", textKey: "write.sources.text" },
+  { id: "write-notes", titleKey: "write.notes.title", textKey: "write.notes.text" },
+  { id: "write-cover", titleKey: "write.cover.title", textKey: "write.cover.text" },
+  { id: "write-publish", titleKey: "write.publish.title", textKey: "write.publish.text" },
 ];
 
 const flagKey = (name, userId) => `onboardingSeen_${name}_${userId}`;

@@ -1,0 +1,43 @@
+{
+  "loading": "Cargando...",
+  "notFound": "Artículo no encontrado.",
+  "readTime": "{{time}} min de lectura",
+  "readTimeShort": "{{time}} min",
+  "readTimeTooltip": "Tiempo de lectura estimado",
+  "errors": {
+    "favoriteUpdateFailed": "No se pudo actualizar el estado de favorito, inténtalo de nuevo.",
+    "libraryUpdateFailed": "No se pudo actualizar el estado de la biblioteca, inténtalo de nuevo.",
+    "followUpdateFailed": "No se pudo actualizar el estado de seguimiento, inténtalo de nuevo.",
+    "shareFailed": "No se pudo compartir, inténtalo de nuevo.",
+    "linkCopyFailed": "No se pudo copiar el enlace.",
+    "commentUpdateFailed": "No se pudo actualizar el comentario.",
+    "commentDeleteFailed": "No se pudo eliminar el comentario."
+  },
+  "actions": {
+    "favoriteAria": "Añadir/quitar de favoritos",
+    "libraryAria": "Añadir/quitar de la biblioteca",
+    "save": "Guardar",
+    "editAria": "Editar artículo",
+    "deleteAria": "Eliminar artículo",
+    "deleteConfirmQuestion": "¿Eliminar esto?",
+    "deleteConfirmYes": "Sí, eliminar",
+    "deleteCancel": "Cancelar",
+    "shareAria": "Compartir",
+    "linkCopied": "Enlace copiado"
+  },
+  "follow": {
+    "follow": "Seguir",
+    "unfollow": "Dejar de seguir"
+  },
+  "comments": {
+    "heading": "Comentarios {{count}}",
+    "placeholder": "Escribe tu comentario aquí...",
+    "sendAria": "Enviar comentario",
+    "empty": "Aún no hay comentarios.",
+    "unknownUser": "usuario",
+    "editAria": "Editar comentario",
+    "deleteAria": "Eliminar comentario",
+    "saveEdit": "Guardar",
+    "cancelEdit": "Cancelar"
+  }
+}

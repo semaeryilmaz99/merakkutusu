@@ -1,0 +1,32 @@
+{
+  "accessDenied": "Bu sayfaya erişim yetkiniz yok.",
+  "loading": "Yükleniyor...",
+  "heading": "Admin Paneli — Kullanıcılar",
+  "table": {
+    "username": "Kullanıcı Adı",
+    "email": "Email",
+    "role": "Rol",
+    "verified": "Doğrulanmış",
+    "joined": "Katılım",
+    "actions": "İşlemler"
+  },
+  "yes": "Evet",
+  "no": "Hayır",
+  "activity": "Aktivite",
+  "deleteConfirmYes": "Evet, sil",
+  "cancel": "Vazgeç",
+  "deleteUserAria": "{{username}} kullanıcısını sil",
+  "prevPageAria": "Önceki sayfa",
+  "nextPageAria": "Sonraki sayfa",
+  "pageIndicator": "Sayfa {{page}} / {{totalPages}}",
+  "activityModal": {
+    "title": "Kullanıcı Aktivitesi",
+    "articles": "makale",
+    "receivedFavorites": "alınan favori",
+    "receivedComments": "alınan yorum",
+    "madeComments": "yaptığı yorum",
+    "recentArticles": "Son Makaleleri",
+    "noArticles": "Henüz makale yok.",
+    "statsLine": "{{favorites}} favori · {{comments}} yorum"
+  }
+}

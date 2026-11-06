@@ -37,6 +37,24 @@ const ARTICLE_SEEDS = [
   { author: "burakaydin", tags: ["finans"], title: "Acil Durum Fonu Neden Şart", content: "3-6 aylık gideri karşılayacak bir acil durum fonu, finansal stresin önündeki en büyük tampondur. Nasıl biriktirilir?" },
 ];
 
+// İngilizce demo makaleleri — aynı tag taksonomisini (teknoloji/tasarım/sanat/yazılım/
+// gelişim/psikoloji/finans) kullanıyor, ayrı bir İngilizce tag seti açmıyor; amaç
+// platformun içerik tarafında da çok dilli olduğunu göstermek (Upwork portföyü için).
+const ENGLISH_ARTICLE_SEEDS = [
+  { author: "elifyilmaz", tags: ["teknoloji", "yazılım"], title: "What's New in React 19", content: "React 19 brings Server Components and new hooks that meaningfully improve the developer experience. In this piece we cover the most notable changes and how to fold them into your existing projects — Suspense and concurrent rendering are now more stable, and form actions are natively supported." },
+  { author: "elifyilmaz", tags: ["tasarım"], title: "Building a Consistent Color Palette", content: "A solid design system starts with a consistent color palette. Here's how to define your brand colors, preserve accessible contrast ratios, and implement all of it with tools like Tailwind." },
+  { author: "canozturk", tags: ["yazılım", "teknoloji"], title: "Async Error Handling in Node.js", content: "The cleanest way to escape repetitive try/catch blocks in Express apps is a centralized error handler. This article walks through the asyncHandler pattern, centralized middleware, and real-world examples." },
+  { author: "canozturk", tags: ["teknoloji"], title: "MongoDB Indexing Strategies", content: "The right index can speed up a query by an order of magnitude. Compound indexes, TTL indexes, and reading a query plan with explain() are the focus of this piece." },
+  { author: "zeynepkaya", tags: ["sanat", "tasarım"], title: "A Beginner's Guide to Digital Illustration", content: "From getting your brush settings right to managing layers, here's everything you need to know to get started with digital illustration — including a Procreate vs. Photoshop comparison." },
+  { author: "zeynepkaya", tags: ["sanat"], title: "The Fundamentals of Color Theory", content: "Complementary colors, analogous palettes, and their emotional weight — understand how color choices shape the way your work is read." },
+  { author: "mertdemir", tags: ["gelişim"], title: "How to Practice Deep Work", content: "Focused blocks of work, free of distraction, can multiply your output. Practical takeaways drawn from Cal Newport's methods." },
+  { author: "mertdemir", tags: ["gelişim", "psikoloji"], title: "Understanding the Habit Loop", content: "Cue, routine, reward — understanding the neurological basis of habits is the first step toward making change that actually lasts." },
+  { author: "ayseinal", tags: ["psikoloji"], title: "Techniques for Coping with Anxiety", content: "A roundup of cognitive behavioral therapy-based techniques for managing anxiety that you can apply in everyday life." },
+  { author: "ayseinal", tags: ["psikoloji", "gelişim"], title: "Why Emotional Intelligence Matters", content: "Emotional intelligence can be as decisive as IQ — sometimes more so. Its core components, and how to actually build them." },
+];
+
+const ALL_ARTICLE_SEEDS = [...ARTICLE_SEEDS, ...ENGLISH_ARTICLE_SEEDS];
+
 const seed = async () => {
   await connectDB();
 
@@ -88,7 +106,7 @@ const seed = async () => {
     }
 
     // her kullanıcıya makalelerindeki tag'lerden birkaçını favori ilgi alanı yap
-    const authored = ARTICLE_SEEDS.filter((a) => a.author === usernames[i]);
+    const authored = ALL_ARTICLE_SEEDS.filter((a) => a.author === usernames[i]);
     const favTagNames = [...new Set(authored.flatMap((a) => a.tags))];
     user.favoriteTags = favTagNames.map((name) => tagDocs[name]._id);
   }
@@ -101,7 +119,7 @@ const seed = async () => {
   // 4) Makaleler (aynı başlık zaten varsa atla)
   let createdCount = 0;
   const createdArticles = [];
-  for (const seedArticle of ARTICLE_SEEDS) {
+  for (const seedArticle of ALL_ARTICLE_SEEDS) {
     const existing = await Article.findOne({ title: seedArticle.title });
     if (existing) {
       createdArticles.push(existing);
@@ -122,7 +140,7 @@ const seed = async () => {
     createdArticles.push(article);
     createdCount++;
   }
-  console.log(`${createdCount} yeni makale oluşturuldu (toplam ${ARTICLE_SEEDS.length} makale tanımı).`);
+  console.log(`${createdCount} yeni makale oluşturuldu (toplam ${ALL_ARTICLE_SEEDS.length} makale tanımı).`);
 
   // 5) Rastgele favori/yorum/kütüphane ekleme (sadece bu scriptin oluşturduğu yeni makalelere)
   const allUserIds = usernames.map((u) => userDocs[u]._id);

@@ -1,4 +1,5 @@
 import { Library as LibraryIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useLibrary } from "../context/LibraryContext";
 import ArticleCard from "../components/ArticleCard";
 import ArticleGrid from "../components/UI/ArticleGrid";
@@ -6,6 +7,7 @@ import ArticleCardSkeleton from "../components/UI/ArticleCardSkeleton";
 import EmptyState from "../components/UI/EmptyState";
 
 export default function Library() {
+  const { t } = useTranslation("library");
   const { library, isLoading } = useLibrary();
 
   if (isLoading) {
@@ -22,9 +24,9 @@ export default function Library() {
     return (
       <EmptyState
         icon={LibraryIcon}
-        title="Kütüphaneniz boş."
-        description="Beğendiğiniz makaleleri daha sonra okumak için kütüphanenize ekleyin."
-        action={{ label: "Keşfetmeye başla", to: "/explore" }}
+        title={t("empty.title")}
+        description={t("empty.description")}
+        action={{ label: t("empty.action"), to: "/explore" }}
       />
     );
   }

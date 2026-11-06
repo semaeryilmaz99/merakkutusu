@@ -1,0 +1,15 @@
+{
+  "nav": {
+    "home": "Home",
+    "explore": "Explore",
+    "library": "Library",
+    "notes": "My Notes",
+    "admin": "Admin Panel",
+    "logout": "Log Out",
+    "openMenu": "Open menu",
+    "write": "Write article",
+    "notifications": "Notifications",
+    "profile": "My Profile",
+    "chat": "Chat"
+  }
+}

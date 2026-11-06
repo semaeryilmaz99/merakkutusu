@@ -1,11 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Compass, Library, StickyNote, LogOut, ShieldCheck } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 
 const linkClass =
   "flex items-center gap-3 rounded-full bg-white px-4 py-3 text-sm font-medium text-brand-900 hover:bg-accent-gold transition-colors";
 
 export default function Sidebar({ isOpen, onClose }) {
+  const { t } = useTranslation("common");
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -39,20 +41,20 @@ export default function Sidebar({ isOpen, onClose }) {
               (mobil) üzerinden zaten ulaşılabiliyor — her ikisi her genişlikte
               en az bir yerden erişilebilir olduğundan burada tekrar etmiyor. */}
           <Link to="/explore" onClick={onClose} className={linkClass}>
-            <Compass size={18} /> Keşfet
+            <Compass size={18} /> {t("nav.explore")}
           </Link>
           <Link to="/library" onClick={onClose} className={linkClass}>
-            <Library size={18} /> Kütüphane
+            <Library size={18} /> {t("nav.library")}
           </Link>
           <Link to="/notes" onClick={onClose} className={linkClass}>
-            <StickyNote size={18} /> Notlarım
+            <StickyNote size={18} /> {t("nav.notes")}
           </Link>
 
           {user?.role === "admin" && (
             <>
               <div className="my-2 border-t border-white/20" />
               <Link to="/admin" onClick={onClose} className={linkClass}>
-                <ShieldCheck size={18} /> Admin Paneli
+                <ShieldCheck size={18} /> {t("nav.admin")}
               </Link>
             </>
           )}
@@ -67,7 +69,7 @@ export default function Sidebar({ isOpen, onClose }) {
             onClick={handleLogout}
             className="flex items-center gap-3 rounded-full bg-white px-4 py-3 text-sm font-medium text-accent-coral transition-colors hover:bg-accent-coral/10"
           >
-            <LogOut size={18} /> Çıkış Yap
+            <LogOut size={18} /> {t("nav.logout")}
           </button>
         </div>
 

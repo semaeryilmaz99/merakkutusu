@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, SearchX, Sparkles, SlidersHorizontal, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { getPersonalizedFeed, searchArticles } from "../services/articleService";
 import { searchUsers } from "../services/userService";
 import api from "../services/api";
@@ -13,6 +14,7 @@ import ScrollToTopButton from "../components/ScrollToTopButton";
 const PAGE_SIZE = 12;
 
 export default function Home() {
+  const { t } = useTranslation("home");
   const [articles, setArticles] = useState([]);
   const [matchedUsers, setMatchedUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -170,11 +172,11 @@ export default function Home() {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Makale, kullanıcı veya konu arayın..."
+            placeholder={t("search.placeholder")}
             maxLength={200}
             className="flex-1 text-sm text-brand-900 outline-none"
           />
-          <button type="submit" aria-label="Ara" className="text-brand-700">
+          <button type="submit" aria-label={t("search.searchAria")} className="text-brand-700">
             <Search size={18} />
           </button>
         </div>
@@ -183,7 +185,7 @@ export default function Home() {
           <button
             type="button"
             onClick={() => setIsFilterOpen((v) => !v)}
-            aria-label="Tag filtrele"
+            aria-label={t("search.filterAria")}
             className={`flex h-11 w-11 items-center justify-center rounded-full border shadow-sm ${
               selectedTag ? "border-accent-gold bg-accent-gold text-brand-900" : "border-gray-300 bg-white text-brand-700"
             }`}
@@ -213,7 +215,7 @@ export default function Home() {
           <button
             type="button"
             onClick={clearFilters}
-            aria-label="Filtreyi temizle"
+            aria-label={t("search.clearAria")}
             className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-gray-200 text-brand-900 hover:bg-gray-300"
           >
             <X size={18} />
@@ -223,7 +225,7 @@ export default function Home() {
 
       {!isLoading && matchedUsers.length > 0 && (
         <div className="mb-6">
-          <h2 className="mb-2 text-sm font-semibold text-brand-900">Kullanıcılar</h2>
+          <h2 className="mb-2 text-sm font-semibold text-brand-900">{t("users.heading")}</h2>
           <div className="flex flex-wrap gap-2">
             {matchedUsers.map((matchedUser) => (
               <Link
@@ -250,12 +252,12 @@ export default function Home() {
           title={
             isFiltering
               ? matchedUsers.length > 0
-                ? "Eşleşen makale yok, ama yukarıda kullanıcı sonuçları var."
-                : "Sonuç bulunamadı."
-              : "Henüz feed'inizde makale yok."
+                ? t("empty.noMatchButUsers")
+                : t("empty.noResults")
+              : t("empty.noFeed")
           }
-          description={isFiltering ? undefined : "İlgi alanı seçin veya birilerini takip edin."}
-          action={isFiltering ? undefined : { label: "Keşfetmeye başla", to: "/explore" }}
+          description={isFiltering ? undefined : t("empty.noFeedDescription")}
+          action={isFiltering ? undefined : { label: t("empty.exploreAction"), to: "/explore" }}
         />
       ) : (
         <>
@@ -273,7 +275,7 @@ export default function Home() {
                 disabled={isLoadingMore}
                 className="rounded-full bg-brand-700 px-6 py-2 text-sm font-medium text-white hover:bg-brand-800 disabled:opacity-50"
               >
-                {isLoadingMore ? "Yükleniyor..." : "Daha Fazla Yükle"}
+                {isLoadingMore ? t("loadMore.loading") : t("loadMore.button")}
               </button>
             </div>
           )}

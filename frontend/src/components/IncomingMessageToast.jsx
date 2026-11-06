@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useMatch } from "react-router-dom";
 import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useIncomingMessages } from "../context/SocketContext";
 import Modal from "./UI/Modal";
 import ChatPanel from "./ChatPanel";
@@ -8,6 +9,7 @@ import ChatPanel from "./ChatPanel";
 const AUTO_DISMISS_MS = 6000;
 
 export default function IncomingMessageToast() {
+  const { t } = useTranslation("chat");
   const { incomingMessages, dismissIncomingMessage } = useIncomingMessages();
   const profileMatch = useMatch("/users/:id");
   const [replyTarget, setReplyTarget] = useState(null);
@@ -72,7 +74,7 @@ export default function IncomingMessageToast() {
             </button>
             <button
               onClick={() => dismissIncomingMessage(message.id)}
-              aria-label="Kapat"
+              aria-label={t("closeAria")}
               className="flex-none rounded-full p-1 hover:bg-white/10"
             >
               <X size={14} />

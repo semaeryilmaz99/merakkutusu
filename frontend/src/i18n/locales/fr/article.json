@@ -1,0 +1,43 @@
+{
+  "loading": "Chargement...",
+  "notFound": "Article introuvable.",
+  "readTime": "{{time}} min de lecture",
+  "readTimeShort": "{{time}} min",
+  "readTimeTooltip": "Temps de lecture estimé",
+  "errors": {
+    "favoriteUpdateFailed": "Impossible de mettre à jour les favoris, réessaie.",
+    "libraryUpdateFailed": "Impossible de mettre à jour la bibliothèque, réessaie.",
+    "followUpdateFailed": "Impossible de mettre à jour le suivi, réessaie.",
+    "shareFailed": "Impossible de partager, réessaie.",
+    "linkCopyFailed": "Impossible de copier le lien.",
+    "commentUpdateFailed": "Impossible de modifier le commentaire.",
+    "commentDeleteFailed": "Impossible de supprimer le commentaire."
+  },
+  "actions": {
+    "favoriteAria": "Ajouter/retirer des favoris",
+    "libraryAria": "Ajouter/retirer de la bibliothèque",
+    "save": "Enregistrer",
+    "editAria": "Modifier l'article",
+    "deleteAria": "Supprimer l'article",
+    "deleteConfirmQuestion": "Supprimer ?",
+    "deleteConfirmYes": "Oui, supprimer",
+    "deleteCancel": "Annuler",
+    "shareAria": "Partager",
+    "linkCopied": "Lien copié"
+  },
+  "follow": {
+    "follow": "Suivre",
+    "unfollow": "Ne plus suivre"
+  },
+  "comments": {
+    "heading": "Commentaires {{count}}",
+    "placeholder": "Écris ton commentaire ici...",
+    "sendAria": "Envoyer le commentaire",
+    "empty": "Pas encore de commentaires.",
+    "unknownUser": "utilisateur",
+    "editAria": "Modifier le commentaire",
+    "deleteAria": "Supprimer le commentaire",
+    "saveEdit": "Enregistrer",
+    "cancelEdit": "Annuler"
+  }
+}

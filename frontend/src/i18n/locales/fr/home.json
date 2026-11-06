@@ -1,0 +1,22 @@
+{
+  "search": {
+    "placeholder": "Rechercher un article, un utilisateur ou un sujet...",
+    "searchAria": "Rechercher",
+    "filterAria": "Filtrer par tag",
+    "clearAria": "Effacer le filtre"
+  },
+  "users": {
+    "heading": "Utilisateurs"
+  },
+  "empty": {
+    "noMatchButUsers": "Aucun article correspondant, mais il y a des résultats d'utilisateurs ci-dessus.",
+    "noResults": "Aucun résultat trouvé.",
+    "noFeed": "Il n'y a pas encore d'articles dans ton fil.",
+    "noFeedDescription": "Choisis des centres d'intérêt ou suis des personnes.",
+    "exploreAction": "Commencer à explorer"
+  },
+  "loadMore": {
+    "button": "Charger plus",
+    "loading": "Chargement..."
+  }
+}

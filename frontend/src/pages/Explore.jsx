@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronRight, Compass, Flame } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { getExploreFeed, getCategories, getTrendingArticles, getTrendingTags } from "../services/articleService";
 import ArticleCard from "../components/ArticleCard";
 import ArticleGrid from "../components/UI/ArticleGrid";
@@ -9,6 +10,7 @@ import EmptyState from "../components/UI/EmptyState";
 import ScrollToTopButton from "../components/ScrollToTopButton";
 
 export default function Explore() {
+  const { t } = useTranslation("explore");
   const [categories, setCategories] = useState([]);
   const [feed, setFeed] = useState([]);
   const [trending, setTrending] = useState([]);
@@ -41,7 +43,7 @@ export default function Explore() {
       {trending.length > 0 && (
         <section>
           <h2 className="mb-2 flex items-center gap-2 text-lg font-semibold text-brand-900">
-            <Flame size={18} className="text-accent-coral" /> Trend Makaleler
+            <Flame size={18} className="text-accent-coral" /> {t("trending")}
           </h2>
 
           {trendingTags.length > 0 && (
@@ -67,7 +69,7 @@ export default function Explore() {
       )}
 
       <section>
-        <h2 className="mb-4 text-lg font-semibold text-brand-900">Kategoriler</h2>
+        <h2 className="mb-4 text-lg font-semibold text-brand-900">{t("categories")}</h2>
         <div className="flex flex-col gap-6">
           {categories.map(({ tag, articleCount, articles }) => (
             <div key={tag._id}>
@@ -79,7 +81,7 @@ export default function Explore() {
                   to={`/explore/${tag.name}`}
                   className="flex items-center gap-1 text-xs font-medium text-brand-600 hover:underline"
                 >
-                  Tümünü gör <ChevronRight size={14} />
+                  {t("viewAll")} <ChevronRight size={14} />
                 </Link>
               </div>
               <ArticleGrid>
@@ -93,9 +95,9 @@ export default function Explore() {
       </section>
 
       <section>
-        <h2 className="mb-4 text-lg font-semibold text-brand-900">Senin İçin Keşfet</h2>
+        <h2 className="mb-4 text-lg font-semibold text-brand-900">{t("forYou")}</h2>
         {feed.length === 0 ? (
-          <EmptyState icon={Compass} title="Şu an gösterilecek makale yok." />
+          <EmptyState icon={Compass} title={t("emptyFeed")} />
         ) : (
           <ArticleGrid>
             {feed.map((article) => (

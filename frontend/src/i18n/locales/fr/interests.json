@@ -1,0 +1,7 @@
+{
+  "title": "Quels sujets t'intéressent ?",
+  "subtitle": "Choisis-en quelques-uns, et nous te créerons un fil personnalisé. Tu peux toujours changer cela plus tard.",
+  "selectedCount": "{{count}} sujets sélectionnés",
+  "submit": "Créer Mon Fil Personnel",
+  "submitting": "Enregistrement..."
+}

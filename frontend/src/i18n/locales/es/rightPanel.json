@@ -1,0 +1,12 @@
+{
+  "libraryHeading": "tu biblioteca",
+  "loading": "Cargando...",
+  "empty": "Tu biblioteca está vacía — añade los artículos que te gusten.",
+  "authorFallback": "autor",
+  "tabs": {
+    "library": "Biblioteca",
+    "chat": "Chat"
+  },
+  "expandAria": "Expandir panel",
+  "collapseAria": "Contraer panel"
+}

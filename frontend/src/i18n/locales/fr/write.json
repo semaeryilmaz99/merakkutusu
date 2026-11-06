@@ -1,0 +1,99 @@
+{
+  "slash": {
+    "suggestSources": { "title": "Suggérer des sources", "description": "Rechercher des sources académiques selon ton brouillon" },
+    "notes": { "title": "Ajouter depuis Mes Notes", "description": "Transférer l'un de tes résumés de PDF dans le brouillon" },
+    "heading": { "title": "Titre", "description": "Titre de section" },
+    "quote": { "title": "Citation", "description": "Citation en bloc" },
+    "list": { "title": "Liste", "description": "Liste à puces" },
+    "code": { "title": "Code", "description": "Bloc de code" },
+    "image": { "title": "Image", "description": "Image dans le texte" },
+    "table": { "title": "Tableau", "description": "Tableau à deux colonnes" },
+    "commandsLabel": "Commandes",
+    "noMatch": "Aucune commande correspondante."
+  },
+  "toolbar": {
+    "aria": "Mise en forme",
+    "heading": "Titre",
+    "bold": "Gras",
+    "italic": "Italique",
+    "quote": "Citation",
+    "list": "Liste à puces",
+    "link": "Lien",
+    "image": "Insérer une image",
+    "code": "Bloc de code",
+    "citation": "Ajouter une citation",
+    "citationLabel": "Citer"
+  },
+  "snippets": {
+    "boldPlaceholder": "texte en gras",
+    "italicPlaceholder": "texte en italique",
+    "linkPlaceholder": "description",
+    "imagePlaceholder": "description",
+    "imageUrlPlaceholder": "url-image",
+    "tableHeader1": "Titre",
+    "tableHeader2": "Valeur"
+  },
+  "draft": {
+    "kicker": "Brouillon",
+    "notPublished": "Pas encore publié",
+    "untitled": "Sans titre",
+    "titlePlaceholder": "Titre",
+    "subtitlePlaceholder": "Résume ton article en une phrase (facultatif)",
+    "editorPlaceholder": "Commence à écrire. Tape / pour les commandes — suggestions de sources, citations de tes notes, titres, listes.",
+    "emptyPreview": "Rien à prévisualiser pour le moment.",
+    "slashHint": "palette de commandes",
+    "tabHint": "accepter la suggestion"
+  },
+  "errors": {
+    "needTitleAndContent": "Écris d'abord un titre et un peu de contenu.",
+    "sourcesFetchFailed": "Impossible de récupérer les sources, réessaie.",
+    "emptyFields": "Le titre et le contenu ne peuvent pas être vides.",
+    "publishFailed": "Impossible d'enregistrer l'article, réessaie."
+  },
+  "rail": {
+    "tip": "Aide à l'écriture",
+    "sources": "Suggestions de Sources",
+    "notes": "Mes Notes",
+    "close": "fermer",
+    "sourcesActionTitle": "Suggérer des sources",
+    "sourcesActionDescription": "Rechercher des sources académiques selon ton brouillon, ajouter une citation",
+    "notesActionTitle": "Ajouter depuis Mes Notes",
+    "notesActionDescription": "Transférer l'un de tes résumés de PDF dans le brouillon",
+    "sourcesLoading": "Recherche de sources académiques selon ton brouillon…"
+  },
+  "cover": {
+    "title": "Image de Couverture",
+    "optional": "Facultatif",
+    "remove": "retirer",
+    "select": "Choisir une image",
+    "hint": "Si tu ignores cette étape, l'article est publié sans couverture — aucun espace vide n'est laissé."
+  },
+  "stats": {
+    "words": "mots",
+    "chars": "caractères",
+    "readTime": "min de lecture"
+  },
+  "header": {
+    "notSavedYet": "pas encore enregistré",
+    "savedAt": "{{time}} · enregistré automatiquement",
+    "preview": "Aperçu",
+    "edit": "Modifier",
+    "publish": "Publier",
+    "publishing": "Publication…"
+  },
+  "sources": {
+    "aiSuggested": "Suggéré par l'IA",
+    "noMatch": "Aucune source académique liée à ton brouillon n'a été trouvée.",
+    "visitSource": "Voir la source ↗",
+    "added": "Ajouté ✓",
+    "addCitation": "Ajouter une citation"
+  },
+  "notes": {
+    "loading": "Chargement…",
+    "fetchFailed": "Impossible de charger les notes, réessaie.",
+    "empty": "Tu n'as pas encore de notes dans \"Mes Notes\".",
+    "aiSummary": "Résumé IA",
+    "added": "Ajouté ✓",
+    "addToDraft": "Ajouter au brouillon"
+  }
+}

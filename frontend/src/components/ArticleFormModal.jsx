@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Image as ImageIcon, Send } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { updateArticle } from "../services/articleService";
 import Input from "./UI/Input";
 import Modal from "./UI/Modal";
@@ -9,6 +10,7 @@ import TagInput from "./TagInput";
 // oluşturma akışı tamamen /write (WriteArticle.jsx) sayfasına taşındı,
 // o yüzden burada "oluştur"a özel dallanma yok.
 export default function ArticleFormModal({ onClose, article, onSaved }) {
+  const { t } = useTranslation("articleForm");
   const [title, setTitle] = useState(article.title);
   const [subtitle, setSubtitle] = useState(article.subtitle || "");
   const [content, setContent] = useState(article.content);
@@ -28,7 +30,7 @@ export default function ArticleFormModal({ onClose, article, onSaved }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) {
-      setError("Başlık ve içerik boş olamaz.");
+      setError(t("validationError"));
       return;
     }
 
@@ -46,17 +48,17 @@ export default function ArticleFormModal({ onClose, article, onSaved }) {
       onSaved?.(updated);
       onClose();
     } catch (err) {
-      setError(err.response?.data?.message || "Makale kaydedilemedi, tekrar deneyin.");
+      setError(err.response?.data?.message || t("saveFailed"));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Modal title="Makaleyi Düzenle" onClose={onClose}>
+    <Modal title={t("modalTitle")} onClose={onClose}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <Input
-          label="Başlık"
+          label={t("titleLabel")}
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -65,7 +67,7 @@ export default function ArticleFormModal({ onClose, article, onSaved }) {
         />
 
         <Input
-          label="Alt başlık (opsiyonel)"
+          label={t("subtitleLabel")}
           type="text"
           value={subtitle}
           onChange={(e) => setSubtitle(e.target.value)}
@@ -75,20 +77,20 @@ export default function ArticleFormModal({ onClose, article, onSaved }) {
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="Makale içeriği..."
+          placeholder={t("contentPlaceholder")}
           rows={8}
           maxLength={20000}
           required
           className="w-full rounded-xl bg-white p-3 text-sm text-brand-900 outline-none"
         />
         <div className="mt-1 flex items-center justify-between px-2 text-[10px] text-white/60">
-          <span>Markdown desteklenir: **kalın**, # başlık, - liste, [link](url), ```kod```</span>
+          <span>{t("markdownHint")}</span>
           <span className="flex-none">{content.length}/20000</span>
         </div>
 
         <label className="flex w-fit cursor-pointer items-center gap-2 rounded-full bg-white/10 px-3 py-2 text-xs text-white/80 hover:bg-white/20">
           <ImageIcon size={14} />
-          {imageFile ? imageFile.name : "Görseli Değiştir (opsiyonel)"}
+          {imageFile ? imageFile.name : t("changeImage")}
           <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
         </label>
 
@@ -103,7 +105,7 @@ export default function ArticleFormModal({ onClose, article, onSaved }) {
         <button
           type="submit"
           disabled={isSubmitting}
-          aria-label="Değişiklikleri kaydet"
+          aria-label={t("saveAria")}
           className="ml-auto flex h-10 w-10 flex-none items-center justify-center rounded-full bg-accent-gold text-brand-900 hover:brightness-95 disabled:opacity-60"
         >
           <Send size={18} />

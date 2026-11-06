@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { NotebookPen, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import { getArticlesByAuthor } from "../services/articleService";
 import {
@@ -19,6 +20,7 @@ import ArticleCardSkeleton from "../components/UI/ArticleCardSkeleton";
 import EmptyState from "../components/UI/EmptyState";
 
 export default function UserPage() {
+  const { t } = useTranslation("profile");
   const { user, refreshUser, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -54,7 +56,7 @@ export default function UserPage() {
       if (removedTag) {
         setFavoriteTags((prev) => [...prev, removedTag]);
       }
-      setTagError("İlgi alanı kaldırılamadı, tekrar dene.");
+      setTagError(t("tagRemoveFailed"));
       setTimeout(() => setTagError(""), 3000);
     }
   };
@@ -65,6 +67,7 @@ export default function UserPage() {
     <div className="flex flex-col gap-6 lg:flex-row">
       <ProfilePanel
         user={user}
+        t={t}
         onOpenEdit={() => setIsEditOpen(true)}
         onOpenFollowers={() => setIsFollowersOpen(true)}
         onOpenFollowing={() => setIsFollowingOpen(true)}
@@ -75,9 +78,9 @@ export default function UserPage() {
         <div className="mb-4 flex flex-wrap gap-2">
           {favoriteTags.length === 0 ? (
             <p className="text-sm text-gray-500">
-              Henüz ilgi alanı seçmedin —{" "}
+              {t("noInterests.text")}{" "}
               <Link to="/select-interests" className="font-semibold text-brand-700 hover:underline">
-                buradan seç
+                {t("noInterests.link")}
               </Link>
               .
             </p>
@@ -90,7 +93,7 @@ export default function UserPage() {
                 #{tag.name}
                 <button
                   onClick={() => handleRemoveTag(tag._id)}
-                  aria-label={`${tag.name} etiketini kaldır`}
+                  aria-label={t("removeTagAria", { tag: tag.name })}
                   className="rounded-full hover:bg-white/20"
                 >
                   <X size={12} />
@@ -109,8 +112,8 @@ export default function UserPage() {
         ) : articles.length === 0 ? (
           <EmptyState
             icon={NotebookPen}
-            title="Henüz makale yazmadın."
-            action={{ label: "İlk makaleni yaz", to: "/write" }}
+            title={t("emptyArticles.title")}
+            action={{ label: t("emptyArticles.action"), to: "/write" }}
           />
         ) : (
           <ArticleGrid>
@@ -135,18 +138,18 @@ export default function UserPage() {
 
       {isFollowersOpen && (
         <UserListModal
-          title="Takipçiler"
+          title={t("followersModal.title")}
           users={user.followers || []}
-          emptyMessage="Henüz takipçin yok."
+          emptyMessage={t("followersModal.empty")}
           onClose={() => setIsFollowersOpen(false)}
         />
       )}
 
       {isFollowingOpen && (
         <UserListModal
-          title="Takip Edilenler"
+          title={t("followingModal.title")}
           users={user.following || []}
-          emptyMessage="Henüz kimseyi takip etmiyorsun."
+          emptyMessage={t("followingModal.empty")}
           onClose={() => setIsFollowingOpen(false)}
         />
       )}
@@ -160,7 +163,7 @@ export default function UserPage() {
 // "Takip Edilenler" versiyonunda açılıyor.
 const FOLLOWING_PREVIEW_LIMIT = 5;
 
-function ProfilePanel({ user, onOpenEdit, onOpenFollowers, onOpenFollowing }) {
+function ProfilePanel({ user, t, onOpenEdit, onOpenFollowers, onOpenFollowing }) {
   const following = user.following || [];
   const visibleFollowing = following.slice(0, FOLLOWING_PREVIEW_LIMIT);
   const remainingFollowing = following.length - visibleFollowing.length;
@@ -176,18 +179,18 @@ function ProfilePanel({ user, onOpenEdit, onOpenFollowers, onOpenFollowing }) {
       </p>
 
       <p className="rounded-2xl bg-gray-100 px-4 py-2 text-xs text-brand-800">
-        {user.bio || "Henüz biyografi eklenmedi."}
+        {user.bio || t("bioEmpty")}
       </p>
 
       <div className="flex gap-2">
-        <StatPill label="takipçi" value={user.followers?.length ?? 0} onClick={onOpenFollowers} />
-        <StatPill label="favori" value={user.favoritesCount ?? 0} />
-        <StatPill label="makale" value={user.articlesCount ?? 0} />
+        <StatPill label={t("stats.followers")} value={user.followers?.length ?? 0} onClick={onOpenFollowers} />
+        <StatPill label={t("stats.favorites")} value={user.favoritesCount ?? 0} />
+        <StatPill label={t("stats.articles")} value={user.articlesCount ?? 0} />
       </div>
 
-      <p className="mt-2 text-xs font-semibold text-brand-700">Takip edilen yazarlar</p>
+      <p className="mt-2 text-xs font-semibold text-brand-700">{t("followingHeading")}</p>
       {following.length === 0 ? (
-        <p className="text-xs text-gray-400">Henüz kimseyi takip etmiyorsun.</p>
+        <p className="text-xs text-gray-400">{t("followingModal.empty")}</p>
       ) : (
         <div className="grid grid-cols-5 gap-2">
           {visibleFollowing.map((author) => (
@@ -208,7 +211,7 @@ function ProfilePanel({ user, onOpenEdit, onOpenFollowers, onOpenFollowing }) {
             <button
               type="button"
               onClick={onOpenFollowing}
-              aria-label={`${remainingFollowing} kişi daha gör`}
+              aria-label={t("showMoreAria", { count: remainingFollowing })}
               className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-[10px] font-semibold text-brand-700 hover:bg-gray-200"
             >
               +{remainingFollowing}
@@ -218,7 +221,7 @@ function ProfilePanel({ user, onOpenEdit, onOpenFollowers, onOpenFollowing }) {
       )}
 
       <Button variant="gold" onClick={onOpenEdit} className="mt-2">
-        Profil Bilgilerini Güncelle
+        {t("editProfileButton")}
       </Button>
     </div>
   );
@@ -257,6 +260,7 @@ function UserListModal({ title, users, emptyMessage, onClose }) {
 }
 
 function EditProfileModal({ user, onClose, onSaved, onAccountDeleted }) {
+  const { t } = useTranslation("profile");
   const [bio, setBio] = useState(user.bio || "");
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(user.avatar || "");
@@ -298,7 +302,7 @@ function EditProfileModal({ user, onClose, onSaved, onAccountDeleted }) {
       await onSaved();
       onClose();
     } catch (err) {
-      setError(err.response?.data?.message || "Profil güncellenemedi, tekrar deneyin.");
+      setError(err.response?.data?.message || t("editModal.saveError"));
     } finally {
       setIsSaving(false);
     }
@@ -310,11 +314,11 @@ function EditProfileModal({ user, onClose, onSaved, onAccountDeleted }) {
     setPasswordSuccess("");
     try {
       await changePassword(currentPassword, newPassword);
-      setPasswordSuccess("Şifre değiştirildi.");
+      setPasswordSuccess(t("editModal.passwordChanged"));
       setCurrentPassword("");
       setNewPassword("");
     } catch (err) {
-      setPasswordError(err.response?.data?.message || "Şifre değiştirilemedi.");
+      setPasswordError(err.response?.data?.message || t("editModal.passwordChangeFailed"));
     } finally {
       setIsChangingPassword(false);
     }
@@ -327,24 +331,24 @@ function EditProfileModal({ user, onClose, onSaved, onAccountDeleted }) {
       await deleteMyAccount(deletePassword);
       await onAccountDeleted();
     } catch (err) {
-      setDeleteError(err.response?.data?.message || "Hesap silinemedi.");
+      setDeleteError(err.response?.data?.message || t("editModal.deleteFailed"));
     } finally {
       setIsDeleting(false);
     }
   };
 
   return (
-    <Modal title="Profil Bilgilerini Güncelle" onClose={onClose}>
+    <Modal title={t("editModal.title")} onClose={onClose}>
       <div className="flex flex-col items-center gap-4">
         <p className="rounded-full bg-white/10 px-4 py-2 text-sm text-white/80">
-          Kullanıcı adı: <span className="font-semibold text-white">{user.username}</span>
+          {t("editModal.usernameLabel")} <span className="font-semibold text-white">{user.username}</span>
         </p>
 
         <label className="flex h-20 w-20 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-white/20">
           {avatarPreview ? (
             <img src={avatarPreview} alt="" className="h-full w-full object-cover" />
           ) : (
-            <span className="text-xs text-white/70">Profil Resmi</span>
+            <span className="text-xs text-white/70">{t("editModal.avatarPlaceholder")}</span>
           )}
           <input type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
         </label>
@@ -354,13 +358,13 @@ function EditProfileModal({ user, onClose, onSaved, onAccountDeleted }) {
           onChange={(e) => setBio(e.target.value)}
           maxLength={300}
           rows={3}
-          placeholder="Biyografi"
+          placeholder={t("editModal.bioPlaceholder")}
           className="w-full rounded-xl bg-white/10 p-3 text-sm text-white placeholder-white/50 outline-none"
         />
         <p className="w-full px-2 text-right text-[10px] text-white/50">{bio.length}/300</p>
 
         <div className="flex w-full items-center justify-between gap-2">
-          <span className="text-xs text-white/80">Kütüphane görünürlüğü</span>
+          <span className="text-xs text-white/80">{t("editModal.libraryVisibility")}</span>
           <div className="flex gap-2">
             <button
               onClick={() => handleVisibilityChange("private")}
@@ -368,7 +372,7 @@ function EditProfileModal({ user, onClose, onSaved, onAccountDeleted }) {
                 visibility === "private" ? "bg-accent-gold text-brand-900" : "bg-white/10 text-white"
               }`}
             >
-              Gizli
+              {t("editModal.private")}
             </button>
             <button
               onClick={() => handleVisibilityChange("public")}
@@ -376,7 +380,7 @@ function EditProfileModal({ user, onClose, onSaved, onAccountDeleted }) {
                 visibility === "public" ? "bg-accent-gold text-brand-900" : "bg-white/10 text-white"
               }`}
             >
-              Açık
+              {t("editModal.public")}
             </button>
           </div>
         </div>
@@ -384,16 +388,16 @@ function EditProfileModal({ user, onClose, onSaved, onAccountDeleted }) {
         {error && <p className="text-center text-sm text-accent-coral">{error}</p>}
 
         <Button variant="gold" onClick={handleSave} disabled={isSaving}>
-          {isSaving ? "Kaydediliyor..." : "Değişiklikleri Kaydet"}
+          {isSaving ? t("editModal.saving") : t("editModal.save")}
         </Button>
 
         <div className="w-full border-t border-white/20 pt-4">
-          <p className="mb-2 text-xs font-semibold text-white/80">Şifre Değiştir</p>
+          <p className="mb-2 text-xs font-semibold text-white/80">{t("editModal.changePasswordTitle")}</p>
           <input
             type="password"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
-            placeholder="Mevcut şifre"
+            placeholder={t("editModal.currentPasswordPlaceholder")}
             autoComplete="current-password"
             className="mb-2 w-full rounded-full bg-white/10 px-4 py-2 text-sm text-white placeholder-white/50 outline-none"
           />
@@ -401,7 +405,7 @@ function EditProfileModal({ user, onClose, onSaved, onAccountDeleted }) {
             type="password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="Yeni şifre"
+            placeholder={t("editModal.newPasswordPlaceholder")}
             autoComplete="new-password"
             className="w-full rounded-full bg-white/10 px-4 py-2 text-sm text-white placeholder-white/50 outline-none"
           />
@@ -413,7 +417,7 @@ function EditProfileModal({ user, onClose, onSaved, onAccountDeleted }) {
             disabled={isChangingPassword || !currentPassword || !newPassword}
             className="mt-2"
           >
-            {isChangingPassword ? "Değiştiriliyor..." : "Şifreyi Değiştir"}
+            {isChangingPassword ? t("editModal.changingPassword") : t("editModal.changePassword")}
           </Button>
         </div>
 
@@ -421,13 +425,13 @@ function EditProfileModal({ user, onClose, onSaved, onAccountDeleted }) {
           {isConfirmingDelete ? (
             <div className="flex flex-col gap-2">
               <p className="text-center text-xs text-accent-coral">
-                Hesabın kalıcı olarak silinecek. Onaylamak için şifreni gir.
+                {t("editModal.deleteWarning")}
               </p>
               <input
                 type="password"
                 value={deletePassword}
                 onChange={(e) => setDeletePassword(e.target.value)}
-                placeholder="Şifren"
+                placeholder={t("editModal.deletePasswordPlaceholder")}
                 autoComplete="current-password"
                 className="w-full rounded-full bg-white/10 px-4 py-2 text-sm text-white placeholder-white/50 outline-none"
               />
@@ -438,13 +442,13 @@ function EditProfileModal({ user, onClose, onSaved, onAccountDeleted }) {
                   disabled={isDeleting || !deletePassword}
                   className="flex-1 rounded-full bg-accent-coral px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
                 >
-                  {isDeleting ? "Siliniyor..." : "Evet, hesabımı sil"}
+                  {isDeleting ? t("editModal.deleting") : t("editModal.deleteConfirmYes")}
                 </button>
                 <button
                   onClick={() => setIsConfirmingDelete(false)}
                   className="flex-1 rounded-full bg-white/10 px-4 py-2 text-xs text-white"
                 >
-                  Vazgeç
+                  {t("editModal.cancel")}
                 </button>
               </div>
             </div>
@@ -453,7 +457,7 @@ function EditProfileModal({ user, onClose, onSaved, onAccountDeleted }) {
               onClick={() => setIsConfirmingDelete(true)}
               className="w-full text-center text-xs text-white/50 hover:text-accent-coral"
             >
-              Hesabımı sil
+              {t("editModal.deleteAccount")}
             </button>
           )}
         </div>

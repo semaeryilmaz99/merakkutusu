@@ -1,0 +1,32 @@
+{
+  "accessDenied": "Tu n'as pas accès à cette page.",
+  "loading": "Chargement...",
+  "heading": "Panneau d'Administration — Utilisateurs",
+  "table": {
+    "username": "Nom d'Utilisateur",
+    "email": "E-mail",
+    "role": "Rôle",
+    "verified": "Vérifié",
+    "joined": "Inscription",
+    "actions": "Actions"
+  },
+  "yes": "Oui",
+  "no": "Non",
+  "activity": "Activité",
+  "deleteConfirmYes": "Oui, supprimer",
+  "cancel": "Annuler",
+  "deleteUserAria": "Supprimer l'utilisateur {{username}}",
+  "prevPageAria": "Page précédente",
+  "nextPageAria": "Page suivante",
+  "pageIndicator": "Page {{page}} sur {{totalPages}}",
+  "activityModal": {
+    "title": "Activité de l'Utilisateur",
+    "articles": "articles",
+    "receivedFavorites": "favoris reçus",
+    "receivedComments": "commentaires reçus",
+    "madeComments": "commentaires faits",
+    "recentArticles": "Articles Récents",
+    "noArticles": "Pas encore d'articles.",
+    "statsLine": "{{favorites}} favoris · {{comments}} commentaires"
+  }
+}

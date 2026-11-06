@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ChevronLeft, Hash } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { filterByTag } from "../services/articleService";
 import ArticleCard from "../components/ArticleCard";
 import ArticleGrid from "../components/UI/ArticleGrid";
@@ -8,6 +9,7 @@ import ArticleCardSkeleton from "../components/UI/ArticleCardSkeleton";
 import EmptyState from "../components/UI/EmptyState";
 
 export default function CategoryDetail() {
+  const { t } = useTranslation("category");
   const { tagName } = useParams();
   const [articles, setArticles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -24,7 +26,7 @@ export default function CategoryDetail() {
       <div className="mb-4 flex items-center gap-3">
         <Link
           to="/explore"
-          aria-label="Keşfet'e dön"
+          aria-label={t("backAria")}
           className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-brand-700 hover:bg-gray-100"
         >
           <ChevronLeft size={18} />
@@ -39,7 +41,7 @@ export default function CategoryDetail() {
           ))}
         </ArticleGrid>
       ) : articles.length === 0 ? (
-        <EmptyState icon={Hash} title="Bu kategoride henüz makale yok." />
+        <EmptyState icon={Hash} title={t("empty")} />
       ) : (
         <ArticleGrid>
           {articles.map((article) => (

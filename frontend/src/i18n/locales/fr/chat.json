@@ -1,0 +1,19 @@
+{
+  "defaultTitle": "Discussion",
+  "dashboardTitle": "Discussion du Tableau de Bord",
+  "articleTitleFallback": "Discussion sur l'Article",
+  "articleActivated": "Tu peux maintenant discuter avec cet auteur.",
+  "activated": "La discussion est active.",
+  "loadFailed": "Impossible de charger la discussion.",
+  "imageSendFailed": "Impossible d'envoyer l'image.",
+  "connecting": "Connexion...",
+  "libraryHint": "Pour discuter avec l'auteur de cet article, tu dois d'abord l'ajouter à ta bibliothèque.",
+  "understood": "Compris",
+  "noMessages": "Pas encore de messages, envoie le premier.",
+  "typing": "{{names}} est en train d'écrire...",
+  "emojiAria": "Ajouter un emoji",
+  "imageAria": "Envoyer une image",
+  "placeholder": "Écris ton message ici...",
+  "sendAria": "Envoyer",
+  "closeAria": "Fermer"
+}

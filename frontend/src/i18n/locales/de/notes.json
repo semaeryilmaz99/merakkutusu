@@ -1,0 +1,26 @@
+{
+  "upload": {
+    "title": "Unterrichtsnotizen Hochladen",
+    "description": "Lade einen Screenshot/ein Foto oder ein PDF hoch, die KI fasst es für dich zusammen und speichert es in deiner Bibliothek.",
+    "chooseFile": "Datei Auswählen (Bild oder PDF)",
+    "button": "Hochladen & Zusammenfassen",
+    "summarizing": "Wird zusammengefasst...",
+    "failed": "Notiz konnte nicht hochgeladen werden, versuche es erneut."
+  },
+  "empty": {
+    "title": "Du hast noch keine Notizen hochgeladen.",
+    "description": "Lade oben einen Screenshot oder ein PDF hoch, um zu beginnen."
+  },
+  "loadMore": {
+    "button": "Mehr laden",
+    "loading": "Wird geladen..."
+  },
+  "detail": {
+    "openOriginal": "Originaldatei öffnen",
+    "confirmDelete": "Bist du sicher, dass du diese Notiz löschen möchtest?",
+    "deleteYes": "Ja, löschen",
+    "deleting": "Wird gelöscht...",
+    "cancel": "Abbrechen",
+    "delete": "Notiz Löschen"
+  }
+}

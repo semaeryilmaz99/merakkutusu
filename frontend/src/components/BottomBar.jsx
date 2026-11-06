@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Home, Compass, Plus, Bell, MessageCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import OnboardingHint from "./OnboardingHint";
 
 // Masaüstünde (lg+) Navbar (Ana Sayfa/Keşfet/profil) ve RightPanel zaten tüm
@@ -13,11 +14,13 @@ export default function BottomBar({
   onOpenChat,
   showChat = false,
 }) {
+  const { t } = useTranslation("common");
+
   return (
     <footer className="flex h-16 items-center justify-around bg-brand-700 px-4 lg:hidden">
       <Link
         to="/"
-        aria-label="Ana sayfa"
+        aria-label={t("nav.home")}
         className="flex h-11 w-11 items-center justify-center rounded-full text-white hover:bg-white/10 transition-colors"
       >
         <Home size={20} />
@@ -26,7 +29,7 @@ export default function BottomBar({
       <OnboardingHint stepId="explore" placement="top" bubbleBreakpoint="lg:hidden">
         <Link
           to="/explore"
-          aria-label="Keşfet"
+          aria-label={t("nav.explore")}
           className="flex h-11 w-11 items-center justify-center rounded-full text-white hover:bg-white/10 transition-colors"
         >
           <Compass size={20} />
@@ -36,7 +39,7 @@ export default function BottomBar({
       {showChat && (
         <button
           onClick={onOpenChat}
-          aria-label="Sohbet"
+          aria-label={t("nav.chat")}
           className="flex h-11 w-11 items-center justify-center rounded-full bg-teal-900 text-white hover:brightness-110 transition-[filter]"
         >
           <MessageCircle size={20} />
@@ -46,7 +49,7 @@ export default function BottomBar({
       <OnboardingHint stepId="write" placement="top" bubbleBreakpoint="lg:hidden">
         <Link
           to="/write"
-          aria-label="Makale yaz"
+          aria-label={t("nav.write")}
           className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-900 text-white hover:bg-brand-800 transition-colors"
         >
           <Plus size={20} />
@@ -55,7 +58,7 @@ export default function BottomBar({
 
       <button
         onClick={onOpenNotifications}
-        aria-label="Bildirimler"
+        aria-label={t("nav.notifications")}
         className="relative flex h-11 w-11 items-center justify-center rounded-full bg-accent-coral text-white hover:opacity-90 transition-opacity"
       >
         <Bell size={20} />

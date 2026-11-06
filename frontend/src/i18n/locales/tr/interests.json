@@ -1,0 +1,7 @@
+{
+  "title": "Hangi konular ilgini çekiyor?",
+  "subtitle": "Birkaç tanesini seç, sana özel bir akış oluşturalım. İstediğin zaman değiştirebilirsin.",
+  "selectedCount": "{{count}} konu seçildi",
+  "submit": "Kişisel Feed'ini Oluştur",
+  "submitting": "Kaydediliyor..."
+}

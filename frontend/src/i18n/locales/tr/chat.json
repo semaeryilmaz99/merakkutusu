@@ -1,0 +1,19 @@
+{
+  "defaultTitle": "Sohbet",
+  "dashboardTitle": "Dashboard Sohbeti",
+  "articleTitleFallback": "Makale Sohbeti",
+  "articleActivated": "Artık bu yazarla mesajlaşabilirsiniz.",
+  "activated": "Sohbet aktif.",
+  "loadFailed": "Sohbet yüklenemedi.",
+  "imageSendFailed": "Görsel gönderilemedi.",
+  "connecting": "Bağlanıyor...",
+  "libraryHint": "Bu makalenin yazarıyla sohbet edebilmek için önce makaleyi kütüphanene eklemen gerekir.",
+  "understood": "Anladım",
+  "noMessages": "Henüz mesaj yok, ilk mesajı sen gönder.",
+  "typing": "{{names}} yazıyor...",
+  "emojiAria": "Emoji ekle",
+  "imageAria": "Görsel gönder",
+  "placeholder": "Mesajınızı buraya yazın...",
+  "sendAria": "Gönder",
+  "closeAria": "Kapat"
+}
