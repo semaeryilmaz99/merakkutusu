@@ -13,7 +13,7 @@ export const getOrCreateDashboardRoom = asyncHandler(async (req, res) => {
     res.json({ roomId: room._id });
 });
 
-// Makaleye özel chat odasını getirir/oluşturur (sadece kütüphanesinde olanlar)
+// Makaleye özel chat odasını getirir/oluşturur (yazar ya da kütüphanesinde olanlar)
 export const getOrCreateArticleRoom = asyncHandler(async (req, res) => {
     const { room, error } = await resolveChatRoom({
       type: "article",

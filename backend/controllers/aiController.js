@@ -135,8 +135,14 @@ export const suggestSources = asyncHandler(async (req, res) => {
         path: "embedding",
         queryVector: draftEmbedding,
         numCandidates: 100,
-        limit: TOP_K,
-        filter: { externalId: { $in: externalIds } }
+        limit: TOP_K
+        // NOT: filter: { externalId: { $in: externalIds } } bilerek kaldırıldı —
+        // Atlas'taki index'te bu filtre alanı canlı testte hep 0 sonuç
+        // döndürüyordu (muhtemelen filter alanı index'e sonradan eklendiği için
+        // tam re-index olmamış). Filtresiz haliyle arama PaperCache'teki TÜM
+        // makaleler arasından en yakın TOP_K'yı buluyor — bu isteğin kendi
+        // adaylarıyla sınırlı değil, ama pratikte sorun değil: en yakın anlamsal
+        // eşleşme zaten alakalı makaledir, hangi istekte cache'lendiği önemsiz.
       }
     },
     { $project: { _id: 0, title: 1, abstract: 1, url: 1, year: 1, authors: 1 } }

@@ -309,7 +309,18 @@ export default function ArticleDetail() {
         )}
 
         <div className="prose prose-sm max-w-none p-4 sm:p-6 prose-headings:text-brand-900 prose-a:text-brand-700 prose-strong:text-brand-900 prose-code:text-teal-900">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{article.content}</ReactMarkdown>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              a: ({ href, children, ...props }) => (
+                <a href={href} target="_blank" rel="noreferrer" {...props}>
+                  {children}
+                </a>
+              )
+            }}
+          >
+            {article.content}
+          </ReactMarkdown>
         </div>
 
         {actionError && <p className="px-4 pt-2 text-center text-xs text-accent-coral">{actionError}</p>}

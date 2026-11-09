@@ -14,9 +14,9 @@ export default function SourceSuggestions({ error, suggestions, onToggleCitation
 
   // Buton hem ekleme hem çıkarma için — zaten eklenmişse tekrar tıklamak
   // taslaktan kaldırır ve butonu eski haline döndürür.
-  const handleToggle = (index, citation) => {
+  const handleToggle = (index, citation, url) => {
     const wasAdded = addedIndices.has(index);
-    onToggleCitation(citation, wasAdded);
+    onToggleCitation(citation, url, wasAdded);
     setAddedIndices((prev) => {
       const next = new Set(prev);
       if (wasAdded) next.delete(index);
@@ -69,7 +69,7 @@ export default function SourceSuggestions({ error, suggestions, onToggleCitation
 
             <button
               type="button"
-              onClick={() => handleToggle(i, s.suggestedCitation)}
+              onClick={() => handleToggle(i, s.suggestedCitation, s.url)}
               className={`inline-flex flex-none items-center gap-1 rounded-full px-[11px] py-[5px] text-[13px] transition-colors ${
                 addedIndices.has(i)
                   ? "border border-ed-navy text-ed-navy"

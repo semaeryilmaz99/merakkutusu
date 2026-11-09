@@ -136,8 +136,12 @@ export default function WriteArticle() {
   const openNotes = () => setRailState("notes");
   const closeRail = () => setRailState("tip");
 
-  const handleToggleCitation = (citation, wasAdded) => {
-    const citationBlock = `\n\n> Kaynak: ${citation}`;
+  const handleToggleCitation = (citation, url, wasAdded) => {
+    // url varsa markdown link olarak ekleniyor ([başlık](url)) — ReactMarkdown
+    // bunu makale görüntülenirken tıklanabilir bir bağlantıya çeviriyor, kaynağa
+    // gidiş sağlanıyor. url yoksa (bazı makalelerde olmayabilir) düz metin kalır.
+    const citationText = url ? `[${citation}](${url})` : citation;
+    const citationBlock = `\n\n> Kaynak: ${citationText}`;
     setContent((prev) => (wasAdded ? prev.replace(citationBlock, "") : `${prev.trim()}${citationBlock}`));
   };
 

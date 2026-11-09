@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import Article from "../models/Article.js";
 
 // Bir kullanıcının bir chat odasına erişim/mesaj gönderme yetkisi olup
 // olmadığını kontrol eder — "direct" odalarda üye olma, "article" odalarda
@@ -15,10 +16,18 @@ export default async function authorizeChatRoomAccess(userId, room) {
   }
 
   if (room.type === "article") {
-    const user = await User.findById(userId).select("library");
-    const inLibrary = user?.library?.some((id) => id.toString() === room.article.toString());
-    if (!inLibrary) {
-      return { ok: false, message: "Bu chat odasına erişmek için makaleyi kütüphanenize eklemelisiniz." };
+    // Yazar kendi makalesinin sohbetine her zaman erişebilir — resolveChatRoom.js
+    // ile aynı istisna burada da uygulanmazsa yazar odayı açabilir ama mesajları
+    // okuyamaz/gönderemez (bu fonksiyon odanın AÇILMASINDAN SONRA, her mesaj
+    // okuma/gönderme isteğinde ayrıca çağrılıyor).
+    const article = await Article.findById(room.article).select("author");
+    const isAuthor = article?.author?.toString() === userIdStr;
+    if (!isAuthor) {
+      const user = await User.findById(userId).select("library");
+      const inLibrary = user?.library?.some((id) => id.toString() === room.article.toString());
+      if (!inLibrary) {
+        return { ok: false, message: "Bu chat odasına erişmek için makaleyi kütüphanenize eklemelisiniz." };
+      }
     }
   }
 
