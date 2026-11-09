@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { io } from "socket.io-client";
 import { useAuth } from "./AuthContext";
 
 const SocketContext = createContext(null);
@@ -18,15 +17,29 @@ export function SocketProvider({ children }) {
       return;
     }
 
-    const token = localStorage.getItem("token");
-    const instance = io(SOCKET_URL, { auth: { token } });
+    // socket.io-client artık burada, sadece giriş yapmış bir kullanıcı olduğunda
+    // dinamik import ediliyor — önceden dosyanın en üstünde statik import
+    // edildiği için kütüphanenin tamamı (engine.io-client dahil) Login/Register
+    // gibi anonim sayfalarda bile ana bundle'a gömülüyordu.
+    let cancelled = false;
+    let instance;
 
-    instance.on("direct_message", (message) => {
-      setIncomingMessages((prev) => [...prev, { ...message, id: `${message.roomId}-${message.createdAt}` }]);
+    import("socket.io-client").then(({ io }) => {
+      if (cancelled) return;
+      const token = localStorage.getItem("token");
+      instance = io(SOCKET_URL, { auth: { token } });
+
+      instance.on("direct_message", (message) => {
+        setIncomingMessages((prev) => [...prev, { ...message, id: `${message.roomId}-${message.createdAt}` }]);
+      });
+
+      setSocket(instance);
     });
 
-    setSocket(instance);
-    return () => instance.disconnect();
+    return () => {
+      cancelled = true;
+      instance?.disconnect();
+    };
   }, [user?._id]);
 
   const dismissIncomingMessage = (id) => {

@@ -3,9 +3,14 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import Blacklist from "../models/Blacklist.js";
 import ChatRoom from "../models/ChatRoom.js";
+import ChatMessage from "../models/ChatMessage.js";
 import resolveChatRoom from "../utils/resolveChatRoom.js";
 import authorizeChatRoomAccess from "../utils/authorizeChatRoomAccess.js";
 import allowedOrigins from "../config/allowedOrigins.js";
+import { allowSocketAction, clearSocketBuckets } from "../utils/socketRateLimiter.js";
+
+const MAX_MESSAGE_LENGTH = 4000;
+const CLOUDINARY_IMAGE_PREFIX = `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/`;
 
 let ioInstance;
 
@@ -59,6 +64,10 @@ export default function initChatSocket(httpServer) {
     });
 
     socket.on("typing", ({ roomId }) => {
+      // Sıkı değil — sadece bir client'ın her tuşta event basıp odayı
+      // gereksiz yere meşgul etmesini önlüyor, aşımda sessizce yok sayılıyor.
+      if (!allowSocketAction(socket.id, "typing", { max: 5, windowMs: 3000 })) return;
+
       socket.to(roomId).emit("typing", {
         roomId,
         user: { _id: socket.user._id, username: socket.user.username }
@@ -66,8 +75,23 @@ export default function initChatSocket(httpServer) {
     });
 
     socket.on("send_message", async ({ roomId, text, image }, callback) => {
-      if (!text?.trim() && !image) {
+      if (!allowSocketAction(socket.id, "send_message", { max: 15, windowMs: 10000 })) {
+        return callback?.({ error: "Çok hızlı mesaj gönderiyorsunuz, biraz yavaşlayın." });
+      }
+
+      const trimmedText = text?.trim() || "";
+      if (!trimmedText && !image) {
         return callback?.({ error: "Mesaj boş olamaz" });
+      }
+      if (trimmedText.length > MAX_MESSAGE_LENGTH) {
+        return callback?.({ error: `Mesaj en fazla ${MAX_MESSAGE_LENGTH} karakter olabilir.` });
+      }
+      // image client'tan gelen serbest bir string — kendi Cloudinary
+      // hesabımıza (uploadChatImage ile) yüklenmiş bir dosya olduğunu
+      // doğrulamadan kaydedip yayınlamak, rastgele bir URL/uzun metin
+      // enjekte edilmesine izin verirdi.
+      if (image && !image.startsWith(CLOUDINARY_IMAGE_PREFIX)) {
+        return callback?.({ error: "Geçersiz görsel." });
       }
 
       const room = await ChatRoom.findById(roomId);
@@ -78,22 +102,23 @@ export default function initChatSocket(httpServer) {
       const authResult = await authorizeChatRoomAccess(socket.user._id, room);
       if (!authResult.ok) return callback?.({ error: authResult.message });
 
-      const message = {
+      // Mesajlar artık ayrı bir koleksiyonda (bkz. models/ChatMessage.js) —
+      // dashboard odası herkesin paylaştığı tek bir kayıt olduğu için embedded
+      // bir dizi sınırsız büyür ve MongoDB'nin 16MB doküman limitine çarpardı.
+      const savedMessage = await ChatMessage.create({
+        room: roomId,
         sender: socket.user._id,
-        text: text?.trim() || "",
-        image: image || undefined,
-        createdAt: new Date()
-      };
-
-      room.messages.push(message);
-      await room.save();
+        text: trimmedText,
+        image: image || undefined
+      });
 
       const payload = {
+        _id: savedMessage._id,
         roomId,
         sender: { _id: socket.user._id, username: socket.user.username, avatar: socket.user.avatar },
-        text: message.text,
-        image: message.image,
-        createdAt: message.createdAt
+        text: savedMessage.text,
+        image: savedMessage.image,
+        createdAt: savedMessage.createdAt
       };
 
       io.to(roomId).emit("new_message", payload);
@@ -101,13 +126,17 @@ export default function initChatSocket(httpServer) {
       // Direkt mesajlarda alıcı o an bu odaya join olmamış olabilir (örn. başka
       // bir sayfada) — kişisel odasına ayrıca gönderiyoruz ki bildirimi kaçırmasın.
       if (room.type === "direct") {
-        const recipientId = room.members.find(m => m.toString() !== userId);
+        const recipientId = room.members.find((m) => m.toString() !== socket.user._id.toString());
         if (recipientId) {
           io.to(`user:${recipientId}`).emit("direct_message", payload);
         }
       }
 
       callback?.({ success: true });
+    });
+
+    socket.on("disconnect", () => {
+      clearSocketBuckets(socket.id);
     });
   });
 

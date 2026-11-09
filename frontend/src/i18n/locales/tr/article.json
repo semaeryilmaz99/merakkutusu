@@ -15,6 +15,7 @@
   },
   "actions": {
     "favoriteAria": "Favorilere ekle/çıkar",
+    "favoritesCountAria": "{{count}} beğenmeyi gör",
     "libraryAria": "Kütüphaneye ekle/çıkar",
     "save": "Kaydet",
     "editAria": "Makaleyi düzenle",
@@ -24,6 +25,10 @@
     "deleteCancel": "Vazgeç",
     "shareAria": "Paylaş",
     "linkCopied": "Bağlantı kopyalandı"
+  },
+  "favoritesModal": {
+    "title": "Beğenenler",
+    "empty": "Henüz kimse beğenmedi."
   },
   "follow": {
     "follow": "Takip Et",

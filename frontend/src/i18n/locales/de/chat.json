@@ -15,5 +15,8 @@
   "imageAria": "Bild senden",
   "placeholder": "Schreib deine Nachricht hier...",
   "sendAria": "Senden",
-  "closeAria": "Schließen"
+  "closeAria": "Schließen",
+  "loadEarlier": "Ältere Nachrichten laden",
+  "loadingEarlier": "Wird geladen...",
+  "scrollToBottomAria": "Nach unten scrollen"
 }

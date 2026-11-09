@@ -15,6 +15,7 @@
   },
   "actions": {
     "favoriteAria": "Add/remove favorite",
+    "favoritesCountAria": "See {{count}} likes",
     "libraryAria": "Add/remove from library",
     "save": "Save",
     "editAria": "Edit article",
@@ -24,6 +25,10 @@
     "deleteCancel": "Cancel",
     "shareAria": "Share",
     "linkCopied": "Link copied"
+  },
+  "favoritesModal": {
+    "title": "Liked by",
+    "empty": "No one has liked this yet."
   },
   "follow": {
     "follow": "Follow",

@@ -581,7 +581,7 @@ export default function WriteArticle() {
           <FormatToolbar onAction={runToolbarAction} disabled={previewMode === "preview"} />
         </div>
 
-        <WriteOnboardingHint stepId="write-editor">
+        <WriteOnboardingHint stepId="write-editor" placement="top">
         <div
           className="merak-md-editor relative mt-3 w-full"
           data-color-mode="light"

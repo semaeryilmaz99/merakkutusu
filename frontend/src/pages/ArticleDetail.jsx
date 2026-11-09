@@ -19,6 +19,7 @@ import { followUser } from "../services/userService";
 import { formatFullDate } from "../utils/formatDate";
 import SproutCelebration from "../components/SproutCelebration";
 import ArticleFormModal from "../components/ArticleFormModal";
+import UserListModal from "../components/UI/UserListModal";
 
 export default function ArticleDetail() {
   const { t } = useTranslation("article");
@@ -41,6 +42,7 @@ export default function ArticleDetail() {
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingCommentText, setEditingCommentText] = useState("");
   const [shareCopied, setShareCopied] = useState(false);
+  const [isFavoritesModalOpen, setIsFavoritesModalOpen] = useState(false);
 
   useEffect(() => {
     // PublicProfile.jsx'teki aynı race: id hızlıca değişirse (başka bir
@@ -53,7 +55,7 @@ export default function ArticleDetail() {
       .then(([articleData, library]) => {
         if (ignore) return;
         setArticle(articleData);
-        setIsFavorite(articleData.favorites?.includes(user?._id));
+        setIsFavorite(articleData.favorites?.some((f) => (f._id || f) === user?._id));
         setIsInLibrary(library.some((a) => a._id === articleData._id));
         setIsFollowing(Boolean(articleData.author?.isFollowing));
       })
@@ -74,11 +76,23 @@ export default function ArticleDetail() {
 
   const handleToggleFavorite = async () => {
     const previouslyFavorite = isFavorite;
+    const previousFavorites = article.favorites || [];
     setIsFavorite(!previouslyFavorite);
+    // Sayı ve "kimler beğendi" listesi sunucu cevabını beklemeden, iyimser
+    // güncelleniyor — kendimizi ekleyip/çıkarıyoruz, gerçek (populate edilmiş)
+    // liste cevap gelince res.data.favorites ile tam olarak senkronize ediliyor.
+    setArticle((prev) => ({
+      ...prev,
+      favorites: previouslyFavorite
+        ? previousFavorites.filter((f) => (f._id || f) !== user?._id)
+        : [...previousFavorites, { _id: user?._id, username: user?.username, avatar: user?.avatar }],
+    }));
     try {
-      await toggleFavorite(id);
+      const { favorites } = await toggleFavorite(id);
+      setArticle((prev) => ({ ...prev, favorites }));
     } catch {
       setIsFavorite(previouslyFavorite);
+      setArticle((prev) => ({ ...prev, favorites: previousFavorites }));
       setActionError(t("errors.favoriteUpdateFailed"));
     }
   };
@@ -302,17 +316,28 @@ export default function ArticleDetail() {
 
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-gray-100 p-4">
           <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={handleToggleFavorite}
-              aria-label={t("actions.favoriteAria")}
-              className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
-                isFavorite
-                  ? "bg-accent-coral text-white"
-                  : "border border-gray-300 bg-white text-brand-700 hover:bg-gray-50"
-              }`}
-            >
-              <Heart size={16} fill={isFavorite ? "currentColor" : "none"} />
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={handleToggleFavorite}
+                aria-label={t("actions.favoriteAria")}
+                className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
+                  isFavorite
+                    ? "bg-accent-coral text-white"
+                    : "border border-gray-300 bg-white text-brand-700 hover:bg-gray-50"
+                }`}
+              >
+                <Heart size={16} fill={isFavorite ? "currentColor" : "none"} />
+              </button>
+              {(article.favorites?.length || 0) > 0 && (
+                <button
+                  onClick={() => setIsFavoritesModalOpen(true)}
+                  aria-label={t("actions.favoritesCountAria", { count: article.favorites.length })}
+                  className="text-sm font-medium text-brand-700 hover:underline"
+                >
+                  {article.favorites.length}
+                </button>
+              )}
+            </div>
             <button
               onClick={handleToggleLibrary}
               className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
@@ -493,6 +518,15 @@ export default function ArticleDetail() {
           article={article}
           onClose={() => setIsEditingArticle(false)}
           onSaved={(updated) => setArticle((prev) => ({ ...prev, ...updated }))}
+        />
+      )}
+
+      {isFavoritesModalOpen && (
+        <UserListModal
+          title={t("favoritesModal.title")}
+          users={article.favorites || []}
+          emptyMessage={t("favoritesModal.empty")}
+          onClose={() => setIsFavoritesModalOpen(false)}
         />
       )}
     </div>

@@ -2,29 +2,45 @@ import i18next from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 
-// Her dil/namespace dosyasını otomatik yüklüyor — yeni bir sayfa çevrildiğinde
-// sadece locales/<dil>/<namespace>.json dosyasını eklemek yeterli, bu dosyaya
-// (önceden her yeni namespace'te tek tek import/resources/ns eklemek
-// gerekiyordu, dosya namespace sayısı arttıkça tekrar tekrar düzenlenen bir
-// yüke dönüşmüştü) artık hiç dokunmaya gerek yok.
-const modules = import.meta.glob("./locales/*/*.json", { eager: true });
+// NOT eager — glob'un anahtarları (dosya yolları) derleme zamanında zaten
+// biliniyor, bu yüzden "hangi dil/namespace çiftleri var" listesini
+// çıkarmak için dosyaların İÇERİĞİNİ hiç import etmemize gerek yok. Değerler
+// artık birer fonksiyon (() => import(...)) — sadece gerçekten çağrıldığında
+// ilgili JSON ağdan/chunk'tan çekiliyor.
+const localeLoaders = import.meta.glob("./locales/*/*.json");
 
-const resources = {};
-for (const path in modules) {
-  const match = path.match(/\.\/locales\/([a-z]{2})\/([a-zA-Z]+)\.json$/);
-  if (!match) continue;
-  const [, lang, ns] = match;
-  resources[lang] ??= {};
-  resources[lang][ns] = modules[path].default;
+const namespaceSet = new Set();
+for (const path in localeLoaders) {
+  const match = path.match(/\.\/locales\/[a-z]{2}\/([a-zA-Z]+)\.json$/);
+  if (match) namespaceSet.add(match[1]);
 }
+const namespaces = [...namespaceSet];
 
-const namespaces = [...new Set(Object.values(resources).flatMap((langResources) => Object.keys(langResources)))];
+// i18next'in "backend" arayüzü: read(dil, namespace, callback). Önceden TÜM
+// dillerin TÜM namespace'leri (5 dil × ~17 dosya) tek bir eager glob ile
+// bundle'a gömülüyordu — kullanıcı sadece bir dil kullansa bile diğer 4'ünü
+// de indiriyordu. Artık sadece AKTİF dilin dosyaları, ihtiyaç anında
+// dinamik import ile çekiliyor.
+const localeBackend = {
+  type: "backend",
+  init() {},
+  read(language, namespace, callback) {
+    const loader = localeLoaders[`./locales/${language}/${namespace}.json`];
+    if (!loader) return callback(new Error(`Missing locale file: ${language}/${namespace}`), null);
+    loader()
+      .then((mod) => callback(null, mod.default))
+      .catch((err) => callback(err, null));
+  },
+};
 
-i18next
+// init()'in döndürdüğü promise'i dışa veriyoruz — main.jsx uygulamayı bu
+// çözülmeden render etmiyor, aksi halde ilk açılışta çeviri anahtarları
+// ("home.search.placeholder" gibi) bir an için ham haliyle görünebilirdi.
+export const i18nReady = i18next
+  .use(localeBackend)
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    resources,
     fallbackLng: "tr",
     supportedLngs: ["tr", "en", "es", "de", "fr"],
     ns: namespaces,

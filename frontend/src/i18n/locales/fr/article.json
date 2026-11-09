@@ -15,6 +15,7 @@
   },
   "actions": {
     "favoriteAria": "Ajouter/retirer des favoris",
+    "favoritesCountAria": "Voir {{count}} mentions \"j'aime\"",
     "libraryAria": "Ajouter/retirer de la bibliothèque",
     "save": "Enregistrer",
     "editAria": "Modifier l'article",
@@ -24,6 +25,10 @@
     "deleteCancel": "Annuler",
     "shareAria": "Partager",
     "linkCopied": "Lien copié"
+  },
+  "favoritesModal": {
+    "title": "Aimé par",
+    "empty": "Personne n'a encore aimé cet article."
   },
   "follow": {
     "follow": "Suivre",

@@ -15,5 +15,8 @@
   "imageAria": "Görsel gönder",
   "placeholder": "Mesajınızı buraya yazın...",
   "sendAria": "Gönder",
-  "closeAria": "Kapat"
+  "closeAria": "Kapat",
+  "loadEarlier": "Daha eski mesajları yükle",
+  "loadingEarlier": "Yükleniyor...",
+  "scrollToBottomAria": "En alta in"
 }

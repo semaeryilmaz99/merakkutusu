@@ -9,8 +9,8 @@ export const getOrCreateArticleRoom = (articleId) =>
 export const getOrCreateDirectRoom = (userId) =>
   api.post(`/chat/rooms/direct/${userId}`).then((res) => res.data);
 
-export const getRoomMessages = (roomId) =>
-  api.get(`/chat/rooms/${roomId}/messages`).then((res) => res.data);
+export const getRoomMessages = (roomId, page = 1) =>
+  api.get(`/chat/rooms/${roomId}/messages`, { params: { page } }).then((res) => res.data);
 
 export const uploadChatImage = (formData) =>
   api

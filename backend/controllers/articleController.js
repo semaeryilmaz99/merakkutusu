@@ -63,7 +63,8 @@ export const getArticleById = asyncHandler(async (req, res) => {
     const article = await Article.findById(req.params.id)
     .populate("author", "username avatar followers")
     .populate("tags", "name")
-    .populate("comments.user", "username");
+    .populate("comments.user", "username")
+    .populate("favorites", "username avatar");
 
     if (!article) return res.status(404).json({message: "Makale bulunamadı."});
 
@@ -168,6 +169,7 @@ export const toggleFavorite = asyncHandler(async (req, res) => {
     }
 
     await article.save();
+    await article.populate("favorites", "username avatar");
     res.json({ favorites: article.favorites });
 });
 
