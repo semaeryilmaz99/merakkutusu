@@ -10,6 +10,8 @@
     "write": "Écrire un article",
     "notifications": "Notifications",
     "profile": "Mon Profil",
-    "chat": "Chat"
+    "chat": "Chat",
+    "collapseSidebar": "Réduire la barre latérale",
+    "expandSidebar": "Développer la barre latérale"
   }
 }

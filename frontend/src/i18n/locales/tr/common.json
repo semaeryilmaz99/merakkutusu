@@ -10,6 +10,8 @@
     "write": "Makale yaz",
     "notifications": "Bildirimler",
     "profile": "Profilim",
-    "chat": "Sohbet"
+    "chat": "Sohbet",
+    "collapseSidebar": "Kenar çubuğunu daralt",
+    "expandSidebar": "Kenar çubuğunu genişlet"
   }
 }

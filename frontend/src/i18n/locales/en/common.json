@@ -10,6 +10,8 @@
     "write": "Write article",
     "notifications": "Notifications",
     "profile": "My Profile",
-    "chat": "Chat"
+    "chat": "Chat",
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar"
   }
 }

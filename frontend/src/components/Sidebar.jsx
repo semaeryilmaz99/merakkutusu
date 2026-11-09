@@ -1,15 +1,39 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Compass, Library, StickyNote, LogOut, ShieldCheck } from "lucide-react";
+import { Compass, Library, StickyNote, LogOut, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 
-const linkClass =
-  "flex items-center gap-3 rounded-full bg-white px-4 py-3 text-sm font-medium text-brand-900 hover:bg-accent-gold transition-colors";
+const COLLAPSE_STORAGE_KEY = "sidebarCollapsed";
 
 export default function Sidebar({ isOpen, onClose }) {
   const { t } = useTranslation("common");
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  // Masaüstünde (lg+) sidebar artık kalıcı bir rail — "açık/kapalı" değil,
+  // "daraltılmış (sadece ikon) / genişletilmiş (ikon + etiket)" durumu var.
+  // Mobilde bu state'in etkisi yok (overlay her zaman tam genişlik açılır),
+  // sadece lg: öneki altındaki class'lar bu state'e göre değişiyor.
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem(COLLAPSE_STORAGE_KEY) === "true";
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleCollapsed = () => {
+    setIsCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(COLLAPSE_STORAGE_KEY, String(next));
+      } catch {
+        // localStorage erişilemezse (gizli sekme vb.) sessizce yoksay
+      }
+      return next;
+    });
+  };
 
   const handleLogout = async () => {
     onClose();
@@ -17,23 +41,39 @@ export default function Sidebar({ isOpen, onClose }) {
     navigate("/login", { replace: true });
   };
 
+  const linkClass = `flex items-center gap-3 rounded-full bg-white px-4 py-3 text-sm font-medium text-brand-900 hover:bg-accent-gold transition-colors ${
+    isCollapsed ? "lg:w-11 lg:justify-center lg:gap-0 lg:px-0" : ""
+  }`;
+  const labelClass = isCollapsed ? "lg:hidden" : "";
+
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop — sadece mobil overlay modunda gerekli, lg+'da kalıcı rail'in arkasında anlamsız */}
       <div
         onClick={onClose}
-        className={`fixed inset-0 z-40 bg-black/40 transition-opacity ${
+        className={`fixed inset-0 z-40 bg-black/40 transition-opacity lg:hidden ${
           isOpen ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       />
 
-      {/* Panel */}
+      {/* Panel — mobilde kayan tam genişlik overlay, lg+'da sayfa akışının
+          parçası (static) kalıcı rail; genişliği isCollapsed'e göre değişiyor */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col justify-between bg-brand-800 p-4 shadow-xl transition-transform duration-300 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-none flex-col justify-between bg-brand-800 p-4 shadow-xl transition-all duration-300 lg:static lg:inset-auto lg:z-auto lg:translate-x-0 lg:p-3 lg:shadow-none ${
           isOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        } ${isCollapsed ? "lg:w-16" : "lg:w-64"}`}
       >
         <div className="flex flex-col gap-2">
+          <button
+            onClick={toggleCollapsed}
+            aria-label={isCollapsed ? t("nav.expandSidebar") : t("nav.collapseSidebar")}
+            className={`mb-2 hidden items-center justify-center rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20 lg:flex ${
+              isCollapsed ? "" : "self-end"
+            }`}
+          >
+            {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          </button>
+
           {/* Ana Sayfa, Kullanıcı Profili, Makale Yaz ve Bildirimler kasıtlı
               olarak burada yok — profile Navbar'daki avatar (her ekran
               boyutunda), Ana Sayfa'ya Navbar (sm+)/BottomBar (mobil), Makale
@@ -41,20 +81,20 @@ export default function Sidebar({ isOpen, onClose }) {
               (mobil) üzerinden zaten ulaşılabiliyor — her ikisi her genişlikte
               en az bir yerden erişilebilir olduğundan burada tekrar etmiyor. */}
           <Link to="/explore" onClick={onClose} className={linkClass}>
-            <Compass size={18} /> {t("nav.explore")}
+            <Compass size={18} /> <span className={labelClass}>{t("nav.explore")}</span>
           </Link>
           <Link to="/library" onClick={onClose} className={linkClass}>
-            <Library size={18} /> {t("nav.library")}
+            <Library size={18} /> <span className={labelClass}>{t("nav.library")}</span>
           </Link>
           <Link to="/notes" onClick={onClose} className={linkClass}>
-            <StickyNote size={18} /> {t("nav.notes")}
+            <StickyNote size={18} /> <span className={labelClass}>{t("nav.notes")}</span>
           </Link>
 
           {user?.role === "admin" && (
             <>
               <div className="my-2 border-t border-white/20" />
               <Link to="/admin" onClick={onClose} className={linkClass}>
-                <ShieldCheck size={18} /> {t("nav.admin")}
+                <ShieldCheck size={18} /> <span className={labelClass}>{t("nav.admin")}</span>
               </Link>
             </>
           )}
@@ -67,9 +107,11 @@ export default function Sidebar({ isOpen, onClose }) {
               kullanmak Tailwind'de hangisinin kazanacağı belirsiz olurdu). */}
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 rounded-full bg-white px-4 py-3 text-sm font-medium text-accent-coral transition-colors hover:bg-accent-coral/10"
+            className={`flex items-center gap-3 rounded-full bg-white px-4 py-3 text-sm font-medium text-accent-coral transition-colors hover:bg-accent-coral/10 ${
+              isCollapsed ? "lg:w-11 lg:justify-center lg:gap-0 lg:px-0" : ""
+            }`}
           >
-            <LogOut size={18} /> {t("nav.logout")}
+            <LogOut size={18} /> <span className={labelClass}>{t("nav.logout")}</span>
           </button>
         </div>
 

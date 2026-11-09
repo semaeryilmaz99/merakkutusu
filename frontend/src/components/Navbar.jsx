@@ -17,14 +17,22 @@ export default function Navbar({ onOpenSidebar, onOpenNotifications, unreadCount
   const { user } = useAuth();
 
   return (
-    <nav className="flex h-16 items-center justify-between bg-brand-900 px-4 sm:px-6">
-      <button
-        onClick={onOpenSidebar}
-        aria-label={t("nav.openMenu")}
-        className="rounded-md p-2 text-white hover:bg-white/10"
-      >
-        <Menu size={24} />
-      </button>
+    // 3 kolonlu grid (sol/sağ 1fr, orta auto) ile Ana Sayfa/Keşfet gerçekten
+    // ortalanıyor — justify-between kullansaydık sol (hamburger, dar) ve sağ
+    // (ikon grubu, geniş) asimetrik olduğu için orta içerik tam merkezde
+    // durmazdı (lg+'da hamburger de kaybolunca bu kayma iyice belirginleşti).
+    <nav className="grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-2 bg-brand-900 px-4 sm:px-6">
+      <div className="flex items-center">
+        {/* lg+'da Sidebar artık kalıcı bir rail (bkz. Sidebar.jsx) — açmaya
+            gerek kalmadığı için buton sadece mobilde/tablette gösteriliyor. */}
+        <button
+          onClick={onOpenSidebar}
+          aria-label={t("nav.openMenu")}
+          className="rounded-md p-2 text-white hover:bg-white/10 lg:hidden"
+        >
+          <Menu size={24} />
+        </button>
+      </div>
 
       <div className="hidden gap-3 sm:flex">
         <NavLink to="/" end className={navLinkClass}>
@@ -37,7 +45,7 @@ export default function Navbar({ onOpenSidebar, onOpenNotifications, unreadCount
         </OnboardingHint>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-self-end gap-2">
         {/* Masaüstünde (lg+) BottomBar gizli olduğu için Makale Yaz/Bildirimler'e
             buradan da erişim şart — mobilde bu ikisi zaten BottomBar'da olduğundan
             burada sadece lg+ gösteriliyor, aynı hedefe iki yerden erişim tekrarı

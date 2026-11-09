@@ -30,10 +30,12 @@ export default function WriteNavHeader({ onOpenSidebar, onOpenNotifications, unr
   return (
     <nav className="flex h-16 flex-wrap items-center justify-between gap-2 bg-brand-900 px-4 sm:px-6">
       <div className="flex flex-wrap items-center gap-2">
+        {/* lg+'da Sidebar artık kalıcı bir rail (bkz. Sidebar.jsx) — açmaya
+            gerek kalmadığı için buton sadece mobilde/tablette gösteriliyor. */}
         <button
           onClick={onOpenSidebar}
           aria-label={t("common:nav.openMenu")}
-          className="rounded-md p-2 text-white hover:bg-white/10"
+          className="rounded-md p-2 text-white hover:bg-white/10 lg:hidden"
         >
           <Menu size={24} />
         </button>

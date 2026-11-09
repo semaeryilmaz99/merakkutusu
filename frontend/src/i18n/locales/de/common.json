@@ -10,6 +10,8 @@
     "write": "Artikel schreiben",
     "notifications": "Benachrichtigungen",
     "profile": "Mein Profil",
-    "chat": "Chat"
+    "chat": "Chat",
+    "collapseSidebar": "Seitenleiste einklappen",
+    "expandSidebar": "Seitenleiste ausklappen"
   }
 }
