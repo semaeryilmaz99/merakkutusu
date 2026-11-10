@@ -8,5 +8,7 @@
     "chat": "Chat"
   },
   "expandAria": "Expandir panel",
-  "collapseAria": "Contraer panel"
+  "collapseAria": "Contraer panel",
+  "resizeAria": "Arrastra para ajustar el ancho del panel",
+  "removeAria": "Quitar de la biblioteca"
 }

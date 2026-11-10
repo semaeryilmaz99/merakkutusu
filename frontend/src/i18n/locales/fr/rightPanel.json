@@ -8,5 +8,7 @@
     "chat": "Discussion"
   },
   "expandAria": "Agrandir le panneau",
-  "collapseAria": "Réduire le panneau"
+  "collapseAria": "Réduire le panneau",
+  "resizeAria": "Glisser pour ajuster la largeur du panneau",
+  "removeAria": "Retirer de la bibliothèque"
 }

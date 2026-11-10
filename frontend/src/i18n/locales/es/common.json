@@ -12,6 +12,7 @@
     "profile": "Mi Perfil",
     "chat": "Chat",
     "collapseSidebar": "Contraer barra lateral",
-    "expandSidebar": "Expandir barra lateral"
+    "expandSidebar": "Expandir barra lateral",
+    "resizeSidebar": "Arrastra para ajustar el ancho de la barra lateral"
   }
 }

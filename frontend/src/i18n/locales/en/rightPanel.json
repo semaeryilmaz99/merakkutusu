@@ -8,5 +8,7 @@
     "chat": "Chat"
   },
   "expandAria": "Expand panel",
-  "collapseAria": "Collapse panel"
+  "collapseAria": "Collapse panel",
+  "resizeAria": "Drag to resize panel",
+  "removeAria": "Remove from library"
 }

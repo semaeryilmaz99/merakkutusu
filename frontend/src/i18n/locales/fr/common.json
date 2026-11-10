@@ -12,6 +12,7 @@
     "profile": "Mon Profil",
     "chat": "Chat",
     "collapseSidebar": "Réduire la barre latérale",
-    "expandSidebar": "Développer la barre latérale"
+    "expandSidebar": "Développer la barre latérale",
+    "resizeSidebar": "Glisser pour ajuster la largeur de la barre latérale"
   }
 }

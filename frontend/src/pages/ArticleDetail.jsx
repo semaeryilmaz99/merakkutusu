@@ -17,7 +17,6 @@ import {
 } from "../services/articleService";
 import { followUser } from "../services/userService";
 import { formatFullDate } from "../utils/formatDate";
-import SproutCelebration from "../components/SproutCelebration";
 import ArticleFormModal from "../components/ArticleFormModal";
 import UserListModal from "../components/UI/UserListModal";
 
@@ -37,7 +36,6 @@ export default function ArticleDetail() {
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditingArticle, setIsEditingArticle] = useState(false);
-  const [readProgress, setReadProgress] = useState(0);
   const [actionError, setActionError] = useState("");
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingCommentText, setEditingCommentText] = useState("");
@@ -67,6 +65,17 @@ export default function ArticleDetail() {
       ignore = true;
     };
   }, [id, user?._id]);
+
+  // Makale başka bir yerden (ör. RightPanel'in kütüphane listesindeki eksi
+  // butonu) kütüphaneden çıkarılırsa/eklenirse, bu sayfadaki buton da senkron
+  // kalsın — bkz. ArticleCard.jsx'teki aynı mantık.
+  useEffect(() => {
+    const handleLibraryChanged = (e) => {
+      if (e.detail.articleId === id) setIsInLibrary(e.detail.isInLibrary);
+    };
+    window.addEventListener("library:changed", handleLibraryChanged);
+    return () => window.removeEventListener("library:changed", handleLibraryChanged);
+  }, [id]);
 
   useEffect(() => {
     if (!actionError) return;
@@ -183,25 +192,6 @@ export default function ArticleDetail() {
     }
   };
 
-  // İçerik artık kendi içinde scroll etmiyor, sayfanın kaydırma alanı olan
-  // Layout.jsx'teki <main> takip ediliyor — makale ne kadar uzun olursa olsun
-  // container aşağı doğru genişliyor, ilerleme sayfa scroll'undan hesaplanıyor.
-  useEffect(() => {
-    if (!article) return;
-    const mainEl = document.querySelector("main");
-    if (!mainEl) return;
-
-    const handleScroll = () => {
-      const scrollable = mainEl.scrollHeight - mainEl.clientHeight;
-      const progress = scrollable <= 0 ? 100 : Math.min(100, Math.round((mainEl.scrollTop / scrollable) * 100));
-      setReadProgress(progress);
-    };
-
-    handleScroll();
-    mainEl.addEventListener("scroll", handleScroll);
-    return () => mainEl.removeEventListener("scroll", handleScroll);
-  }, [article]);
-
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
@@ -229,31 +219,6 @@ export default function ArticleDetail() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      {/* Mobilde nokta sütunu için yatay boşluk yok — BottomBar'ın hemen üstünde
-          yatay bir ilerleme çubuğu gösteriliyor, büyük ekranda gizli. */}
-      <div className="fixed inset-x-0 bottom-16 z-20 h-1.5 bg-gray-200 lg:hidden">
-        <div
-          className="h-full bg-accent-gold transition-[width] duration-150"
-          style={{ width: `${readProgress}%` }}
-        />
-      </div>
-
-      <div className="fixed left-8 top-20 z-20 hidden w-24 flex-col items-center gap-2 lg:flex">
-        {Array.from({ length: 18 }).map((_, i) => {
-          const size = 22 - i * 1;
-          return (
-            <span
-              key={i}
-              style={{ width: size, height: size }}
-              className={`flex-none rounded-full transition-colors duration-200 ${
-                i < Math.round((readProgress / 100) * 18) ? "bg-accent-gold" : "bg-gray-200"
-              }`}
-            />
-          );
-        })}
-        {readProgress >= 100 && <SproutCelebration />}
-      </div>
-
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="p-4 sm:p-6">
           <div className="mb-3 flex flex-wrap items-center gap-2">

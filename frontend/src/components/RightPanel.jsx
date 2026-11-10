@@ -1,11 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Minus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useLibrary } from "../context/LibraryContext";
+import { toggleLibrary } from "../services/articleService";
+import useResizableWidth from "../hooks/useResizableWidth";
 import ChatPanel from "./ChatPanel";
 
 const COLLAPSE_STORAGE_KEY = "rightPanelCollapsed";
+const DEFAULT_WIDTH = 320; // w-80
+const MIN_WIDTH = 260;
+const MAX_WIDTH = 480;
 
 function LibraryPanel() {
   const { t } = useTranslation("rightPanel");
@@ -41,6 +46,22 @@ function LibraryPanel() {
     }
   }, [library]);
 
+  // ArticleCard'daki kütüphane toggle'ıyla aynı event'i yayınlıyor —
+  // LibraryContext bunu dinleyip listeyi kendisi yeniden çekiyor, burada
+  // ayrıca local state tutmaya gerek yok.
+  const handleRemove = async (e, articleId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await toggleLibrary(articleId);
+      window.dispatchEvent(
+        new CustomEvent("library:changed", { detail: { articleId, isInLibrary: false } })
+      );
+    } catch {
+      // istek başarısız olursa state değişmediği için kart olduğu gibi kalır
+    }
+  };
+
   return (
     <>
       <div className="mb-4 rounded-full bg-white px-4 py-2 text-center text-sm font-medium text-brand-900">
@@ -68,12 +89,20 @@ function LibraryPanel() {
                   <img src={article.image} alt="" loading="lazy" className="h-full w-full object-cover" />
                 )}
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-white">
                   {article.author?.username || t("authorFallback")}
                 </p>
                 <p className="truncate text-xs text-white/70">{article.title}</p>
               </div>
+              <button
+                type="button"
+                onClick={(e) => handleRemove(e, article._id)}
+                aria-label={t("removeAria")}
+                className="flex h-7 w-7 flex-none items-center justify-center rounded-full text-white/50 transition-colors hover:bg-accent-coral/20 hover:text-accent-coral"
+              >
+                <Minus size={14} />
+              </button>
             </Link>
           ))}
         </div>
@@ -130,6 +159,16 @@ export default function RightPanel({ variant = "library", roomRequest }) {
     });
   };
 
+  // Genişletilmişken sol kenardan sürükleyerek genişlik ayarlanabiliyor —
+  // panel ekranın sağında durduğu için sol kenarı sürükleyip genişletiyoruz.
+  const { width: panelWidth, isResizing, handleMouseDown } = useResizableWidth({
+    storageKey: "rightPanelWidth",
+    defaultWidth: DEFAULT_WIDTH,
+    min: MIN_WIDTH,
+    max: MAX_WIDTH,
+    edge: "left"
+  });
+
   // Sidebar.jsx'teki gibi TEK bir eleman, genişliği animasyonla değişiyor —
   // eskiden daraltma/genişletme iki ayrı JSX ağacı arasında anlık bir
   // sıçramaydı (koşullu return), artık Sidebar'ın transition-transform'una
@@ -140,10 +179,21 @@ export default function RightPanel({ variant = "library", roomRequest }) {
   // kırpılıyor, görünürde sadece şerit kalıyor.
   return (
     <aside
-      className={`relative hidden flex-none overflow-hidden bg-teal-900 text-white transition-[width] duration-300 ease-in-out lg:flex ${
-        isCollapsed ? "w-12" : "w-80"
+      style={{ width: isCollapsed ? "3rem" : `${panelWidth}px` }}
+      className={`relative hidden flex-none overflow-hidden bg-teal-900 text-white ease-in-out lg:flex ${
+        isResizing ? "" : "transition-[width] duration-300"
       }`}
     >
+      {!isCollapsed && (
+        <div
+          onMouseDown={handleMouseDown}
+          role="separator"
+          aria-orientation="vertical"
+          aria-label={t("resizeAria")}
+          className="absolute inset-y-0 left-0 z-10 w-1.5 cursor-col-resize select-none hover:bg-white/20"
+        />
+      )}
+
       <div
         className={`absolute inset-y-0 left-0 flex w-12 flex-col items-center py-4 transition-opacity duration-200 ${
           isCollapsed ? "opacity-100" : "pointer-events-none opacity-0"
@@ -159,7 +209,8 @@ export default function RightPanel({ variant = "library", roomRequest }) {
       </div>
 
       <div
-        className={`absolute inset-y-0 left-0 flex w-80 flex-col overflow-hidden p-4 transition-opacity duration-200 ${
+        style={{ width: `${panelWidth}px` }}
+        className={`absolute inset-y-0 left-0 flex flex-col overflow-hidden p-4 transition-opacity duration-200 ${
           isCollapsed ? "pointer-events-none opacity-0" : "opacity-100"
         }`}
       >

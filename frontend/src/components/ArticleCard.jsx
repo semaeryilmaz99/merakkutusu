@@ -42,6 +42,18 @@ export default function ArticleCard({ article, onLibraryChange }) {
     setIsInLibrary((user?.library || []).includes(article._id));
   }, [article._id, user?.library]);
 
+  // Aynı makale başka bir yerden (ör. RightPanel'in kütüphane listesindeki
+  // eksi butonu) kütüphaneden çıkarılırsa/eklenirse, burada da senkron kalsın —
+  // user.library sadece login/refreshUser'da tazeleniyor, her toggle'da
+  // güncellenmiyor, bu yüzden tek doğru kaynak bu global event.
+  useEffect(() => {
+    const handleLibraryChanged = (e) => {
+      if (e.detail.articleId === article._id) setIsInLibrary(e.detail.isInLibrary);
+    };
+    window.addEventListener("library:changed", handleLibraryChanged);
+    return () => window.removeEventListener("library:changed", handleLibraryChanged);
+  }, [article._id]);
+
   const openArticle = () => navigate(`/articles/${article._id}`);
 
   const handleToggleFavorite = async (e) => {

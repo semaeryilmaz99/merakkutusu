@@ -12,6 +12,7 @@
     "profile": "Profilim",
     "chat": "Sohbet",
     "collapseSidebar": "Kenar çubuğunu daralt",
-    "expandSidebar": "Kenar çubuğunu genişlet"
+    "expandSidebar": "Kenar çubuğunu genişlet",
+    "resizeSidebar": "Kenar çubuğu genişliğini sürükleyerek ayarla"
   }
 }

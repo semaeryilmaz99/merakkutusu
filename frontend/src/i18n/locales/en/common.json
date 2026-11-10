@@ -12,6 +12,7 @@
     "profile": "My Profile",
     "chat": "Chat",
     "collapseSidebar": "Collapse sidebar",
-    "expandSidebar": "Expand sidebar"
+    "expandSidebar": "Expand sidebar",
+    "resizeSidebar": "Drag to resize sidebar"
   }
 }

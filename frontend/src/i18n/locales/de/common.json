@@ -12,6 +12,7 @@
     "profile": "Mein Profil",
     "chat": "Chat",
     "collapseSidebar": "Seitenleiste einklappen",
-    "expandSidebar": "Seitenleiste ausklappen"
+    "expandSidebar": "Seitenleiste ausklappen",
+    "resizeSidebar": "Ziehen, um die Breite der Seitenleiste anzupassen"
   }
 }

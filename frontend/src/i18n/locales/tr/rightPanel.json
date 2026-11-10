@@ -8,5 +8,7 @@
     "chat": "Sohbet"
   },
   "expandAria": "Paneli genişlet",
-  "collapseAria": "Paneli daralt"
+  "collapseAria": "Paneli daralt",
+  "resizeAria": "Panel genişliğini sürükleyerek ayarla",
+  "removeAria": "Kütüphaneden çıkar"
 }

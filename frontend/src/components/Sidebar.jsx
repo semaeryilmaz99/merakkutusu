@@ -3,8 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { Compass, Library, StickyNote, LogOut, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
+import useResizableWidth from "../hooks/useResizableWidth";
 
 const COLLAPSE_STORAGE_KEY = "sidebarCollapsed";
+const DEFAULT_WIDTH = 256; // w-64
+const MIN_WIDTH = 200;
+const MAX_WIDTH = 380;
 
 export default function Sidebar({ isOpen, onClose }) {
   const { t } = useTranslation("common");
@@ -35,6 +39,16 @@ export default function Sidebar({ isOpen, onClose }) {
     });
   };
 
+  // Genişletilmişken sağ kenardan sürükleyerek genişlik ayarlanabiliyor —
+  // daraltılmışken (sabit ikon genişliği) sürüklemenin bir anlamı yok.
+  const { width: sidebarWidth, isResizing, handleMouseDown } = useResizableWidth({
+    storageKey: "sidebarWidth",
+    defaultWidth: DEFAULT_WIDTH,
+    min: MIN_WIDTH,
+    max: MAX_WIDTH,
+    edge: "right"
+  });
+
   const handleLogout = async () => {
     onClose();
     await logout();
@@ -57,12 +71,25 @@ export default function Sidebar({ isOpen, onClose }) {
       />
 
       {/* Panel — mobilde kayan tam genişlik overlay, lg+'da sayfa akışının
-          parçası (static) kalıcı rail; genişliği isCollapsed'e göre değişiyor */}
+          parçası (static) kalıcı rail; genişliği isCollapsed'e ve (genişken)
+          sürükleyerek ayarlanan sidebarWidth'e göre değişiyor. Genişlik
+          lg:w-[var(--sidebar-w)] ile CSS değişkeninden okunuyor — böylece
+          mobildeki sabit w-72 bu değişkenden etkilenmiyor, sadece lg+'da geçerli. */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-none flex-col justify-between bg-brand-800 p-4 shadow-xl transition-all duration-300 lg:static lg:inset-auto lg:z-auto lg:translate-x-0 lg:p-3 lg:shadow-none ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        } ${isCollapsed ? "lg:w-16" : "lg:w-64"}`}
+        style={{ "--sidebar-w": isCollapsed ? "4rem" : `${sidebarWidth}px` }}
+        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-none flex-col justify-between bg-brand-800 p-4 shadow-xl lg:relative lg:inset-auto lg:z-auto lg:translate-x-0 lg:w-[var(--sidebar-w)] lg:p-3 lg:shadow-none ${
+          isResizing ? "" : "transition-all duration-300"
+        } ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
+        {!isCollapsed && (
+          <div
+            onMouseDown={handleMouseDown}
+            role="separator"
+            aria-orientation="vertical"
+            aria-label={t("nav.resizeSidebar")}
+            className="absolute inset-y-0 right-0 z-10 hidden w-1.5 cursor-col-resize select-none hover:bg-accent-gold/50 lg:block"
+          />
+        )}
         <div className="flex flex-col gap-2">
           <button
             onClick={toggleCollapsed}

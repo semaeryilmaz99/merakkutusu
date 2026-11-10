@@ -8,5 +8,7 @@
     "chat": "Chat"
   },
   "expandAria": "Panel erweitern",
-  "collapseAria": "Panel einklappen"
+  "collapseAria": "Panel einklappen",
+  "resizeAria": "Ziehen, um die Breite des Panels anzupassen",
+  "removeAria": "Aus der Bibliothek entfernen"
 }
