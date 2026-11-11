@@ -6,6 +6,7 @@ import Input from "../components/UI/Input";
 import Button from "../components/UI/Button";
 import AuthStatusPanel from "../components/UI/AuthStatusPanel";
 import LanguageSwitcher from "../components/LanguageSwitcher";
+import AuthBrandPanel from "../components/UI/AuthBrandPanel";
 
 export default function ResetPassword() {
   const { t } = useTranslation("auth");
@@ -39,53 +40,64 @@ export default function ResetPassword() {
 
   if (isDone) {
     return (
-      <div className="relative flex min-h-screen items-center justify-center bg-brand-500 p-4">
+      <div className="relative flex min-h-screen flex-col lg:flex-row">
         <div className="absolute right-4 top-4 z-10 lg:right-6 lg:top-6">
           <LanguageSwitcher />
         </div>
 
-        <div className="w-full max-w-sm rounded-2xl bg-gray-50 p-6 shadow-xl">
-          <AuthStatusPanel variant="success" linkLabel={t("resetPassword.successLinkLabel")}>
-            {t("resetPassword.successMessage")}
-          </AuthStatusPanel>
+        <AuthBrandPanel />
+
+        <div className="flex flex-1 items-center justify-center bg-gray-50 p-4">
+          <div className="w-full max-w-sm">
+            <h2 className="mb-8 text-center text-xl font-bold text-brand-900 lg:hidden">merakkutusu</h2>
+            <AuthStatusPanel variant="success" linkLabel={t("resetPassword.successLinkLabel")}>
+              {t("resetPassword.successMessage")}
+            </AuthStatusPanel>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-brand-500 p-4">
+    <div className="relative flex min-h-screen flex-col lg:flex-row">
       <div className="absolute right-4 top-4 z-10 lg:right-6 lg:top-6">
         <LanguageSwitcher />
       </div>
 
-      <div className="w-full max-w-sm rounded-2xl bg-gray-50 p-6 shadow-xl">
-        <form onSubmit={handleSubmit}>
-          <Input
-            label={t("resetPassword.newPasswordLabel")}
-            type="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="new-password"
-          />
-          <Input
-            label={t("resetPassword.confirmPasswordLabel")}
-            type="password"
-            required
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            autoComplete="new-password"
-          />
-          {error && <p className="mb-4 text-center text-sm text-accent-coral">{error}</p>}
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? t("resetPassword.submitting") : t("resetPassword.submit")}
-          </Button>
-        </form>
+      <AuthBrandPanel />
 
-        <Link to="/login" className="mt-4 block text-center text-sm font-semibold text-brand-700 hover:underline">
-          {t("backToLogin")}
-        </Link>
+      <div className="flex flex-1 items-center justify-center bg-gray-50 p-4">
+        <div className="w-full max-w-sm">
+          <h2 className="mb-8 text-center text-xl font-bold text-brand-900 lg:hidden">merakkutusu</h2>
+
+          <form onSubmit={handleSubmit}>
+            <Input
+              label={t("resetPassword.newPasswordLabel")}
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
+            />
+            <Input
+              label={t("resetPassword.confirmPasswordLabel")}
+              type="password"
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
+            />
+            {error && <p className="mb-4 text-center text-sm text-accent-coral">{error}</p>}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? t("resetPassword.submitting") : t("resetPassword.submit")}
+            </Button>
+          </form>
+
+          <Link to="/login" className="mt-4 block text-center text-sm font-semibold text-brand-700 hover:underline">
+            {t("backToLogin")}
+          </Link>
+        </div>
       </div>
     </div>
   );

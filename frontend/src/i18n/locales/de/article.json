@@ -44,5 +44,8 @@
     "deleteAria": "Kommentar löschen",
     "saveEdit": "Speichern",
     "cancelEdit": "Abbrechen"
+  },
+  "similar": {
+    "heading": "Ähnliche Artikel"
   }
 }

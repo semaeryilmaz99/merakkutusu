@@ -6,6 +6,7 @@ import { getMe } from "../services/authService";
 import Input from "../components/UI/Input";
 import Button from "../components/UI/Button";
 import LanguageSwitcher from "../components/LanguageSwitcher";
+import AuthBrandPanel from "../components/UI/AuthBrandPanel";
 
 export default function Login() {
   const { t } = useTranslation("auth");
@@ -40,17 +41,7 @@ export default function Login() {
         <LanguageSwitcher />
       </div>
 
-      {/* Marka paneli — sadece masaüstünde görünür, giriş bu uygulamanın "ön
-          kapısı" olduğu için ilk izlenim burada. Mobilde 50/50 bölünme sığmadığı
-          için tamamen kalkıyor, form tam genişlik alıyor (aşağıda merakkutusu
-          başlığı orada kalıyor). */}
-      <div className="relative hidden overflow-hidden bg-brand-900 lg:flex lg:w-1/2 lg:flex-col lg:justify-center lg:p-16">
-        <div className="pointer-events-none absolute -left-16 top-20 h-64 w-64 rounded-full border-2 border-accent-gold/30" />
-        <div className="pointer-events-none absolute -right-12 top-8 h-56 w-56 rounded-full bg-teal-700/30" />
-        <div className="pointer-events-none absolute bottom-0 left-1/4 h-72 w-72 rounded-full bg-accent-gold/10" />
-        <h1 className="relative text-4xl font-bold text-white">merakkutusu</h1>
-        <p className="relative mt-3 max-w-xs text-sm text-white/70">{t("tagline")}</p>
-      </div>
+      <AuthBrandPanel />
 
       <div className="flex flex-1 items-center justify-center bg-gray-50 p-4">
         <div className="w-full max-w-sm">

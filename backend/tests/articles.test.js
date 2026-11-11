@@ -3,6 +3,7 @@ import request from "supertest";
 import app from "../app.js";
 import User from "../models/User.js";
 import Article from "../models/Article.js";
+import Tag from "../models/Tag.js";
 import generateToken from "../utils/generateToken.js";
 import { connect, clearDatabase, closeDatabase } from "./dbHandler.js";
 
@@ -133,5 +134,66 @@ describe("GET /api/articles (pagination)", () => {
 
     expect(res.status).toBe(200);
     expect(res.body.length).toBe(5);
+  });
+});
+
+describe("GET /api/articles/:id/similar", () => {
+  it("ortak etiketi en çok olan makaleleri en önde döner", async () => {
+    const { user } = await createVerifiedUser("etiketli");
+    const [tagA, tagB, tagC] = await Tag.create([{ name: "ai" }, { name: "yazilim" }, { name: "spor" }]);
+
+    const current = await Article.create({
+      title: "Ana Makale",
+      content: "İçerik",
+      author: user._id,
+      tags: [tagA._id, tagB._id]
+    });
+    // İki ortak etiket — en alakalı olmalı
+    const twoShared = await Article.create({
+      title: "İki Ortak Etiket",
+      content: "İçerik",
+      author: user._id,
+      tags: [tagA._id, tagB._id]
+    });
+    // Tek ortak etiket
+    await Article.create({
+      title: "Tek Ortak Etiket",
+      content: "İçerik",
+      author: user._id,
+      tags: [tagA._id, tagC._id]
+    });
+    // Hiç ortak etiketi yok — dolgu olarak kullanılmamalı (ilk ikisi zaten yeterli)
+    await Article.create({
+      title: "Alakasız Makale",
+      content: "İçerik",
+      author: user._id,
+      tags: [tagC._id]
+    });
+
+    const res = await request(app).get(`/api/articles/${current._id}/similar`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.length).toBe(3);
+    expect(res.body[0].title).toBe("İki Ortak Etiket");
+    expect(res.body.some((a) => a.title === "Ana Makale")).toBe(false);
+  });
+
+  it("ortak etiketli makale yetersizse en yeni makalelerle tamamlar", async () => {
+    const { user } = await createVerifiedUser("etiketsiz");
+    const current = await Article.create({ title: "Etiketsiz Ana Makale", content: "İçerik", author: user._id });
+    await Article.insertMany(
+      Array.from({ length: 3 }, (_, i) => ({ title: `Diğer Makale ${i}`, content: "İçerik", author: user._id }))
+    );
+
+    const res = await request(app).get(`/api/articles/${current._id}/similar`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.length).toBe(3);
+    expect(res.body.some((a) => a.title === "Etiketsiz Ana Makale")).toBe(false);
+  });
+
+  it("olmayan makale id'si için 404 döner", async () => {
+    const res = await request(app).get("/api/articles/507f1f77bcf86cd799439011/similar");
+    expect(res.status).toBe(404);
   });
 });

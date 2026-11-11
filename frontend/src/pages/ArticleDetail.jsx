@@ -14,11 +14,14 @@ import {
   deleteComment,
   getMyLibrary,
   deleteArticle,
+  getSimilarArticles,
 } from "../services/articleService";
 import { followUser } from "../services/userService";
 import { formatFullDate } from "../utils/formatDate";
 import ArticleFormModal from "../components/ArticleFormModal";
 import UserListModal from "../components/UI/UserListModal";
+import ArticleCard from "../components/ArticleCard";
+import ArticleGrid from "../components/UI/ArticleGrid";
 
 export default function ArticleDetail() {
   const { t } = useTranslation("article");
@@ -41,6 +44,23 @@ export default function ArticleDetail() {
   const [editingCommentText, setEditingCommentText] = useState("");
   const [shareCopied, setShareCopied] = useState(false);
   const [isFavoritesModalOpen, setIsFavoritesModalOpen] = useState(false);
+  const [similarArticles, setSimilarArticles] = useState([]);
+
+  // Ayrı, bağımsız bir istek — ana makale yüklenmesini beklemiyor/engellemiyor,
+  // başarısız olursa bölüm sessizce görünmez (kritik bir özellik değil).
+  useEffect(() => {
+    let ignore = false;
+    getSimilarArticles(id)
+      .then((data) => {
+        if (!ignore) setSimilarArticles(data);
+      })
+      .catch(() => {
+        if (!ignore) setSimilarArticles([]);
+      });
+    return () => {
+      ignore = true;
+    };
+  }, [id]);
 
   useEffect(() => {
     // PublicProfile.jsx'teki aynı race: id hızlıca değişirse (başka bir
@@ -488,6 +508,17 @@ export default function ArticleDetail() {
           </div>
         </div>
       </div>
+
+      {similarArticles.length > 0 && (
+        <div className="mt-6">
+          <h2 className="mb-3 text-sm font-semibold text-brand-900">{t("similar.heading")}</h2>
+          <ArticleGrid>
+            {similarArticles.map((similar) => (
+              <ArticleCard key={similar._id} article={similar} />
+            ))}
+          </ArticleGrid>
+        </div>
+      )}
 
       {isEditingArticle && (
         <ArticleFormModal

@@ -19,7 +19,8 @@ import {
     getPersonalizedFeed,
     getExploreFeed,
     getExploreCategories,
-    getArticlesByAuthor
+    getArticlesByAuthor,
+    getSimilarArticles
 } from "../controllers/articleController.js";
 import {protect, optionalAuth} from "../middlewares/authMiddleware.js";
 import { createArticleValidator, addCommentValidator, handleValidationErrors } from "../middlewares/validators.js";
@@ -48,6 +49,7 @@ router.put("/favorite/:id", protect, toggleFavorite);
 router.post("/:id/comment", protect, addCommentValidator, handleValidationErrors, addComment);
 router.put("/:id/comment/:commentId", protect, addCommentValidator, handleValidationErrors, updateComment);
 router.delete("/:id/comment/:commentId", protect, deleteComment);
+router.get("/:id/similar", getSimilarArticles);
 router.get("/:id", optionalAuth, getArticleById);
 
 export default router;

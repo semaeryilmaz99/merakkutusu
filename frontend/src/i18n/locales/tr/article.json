@@ -44,5 +44,8 @@
     "deleteAria": "Yorumu sil",
     "saveEdit": "Kaydet",
     "cancelEdit": "Vazgeç"
+  },
+  "similar": {
+    "heading": "Benzer Makaleler"
   }
 }

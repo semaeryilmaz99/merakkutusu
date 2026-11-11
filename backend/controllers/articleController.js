@@ -565,3 +565,49 @@ export const getArticlesByAuthor = asyncHandler(async (req, res) => {
 
     res.json(articles.map(toArticleSummary));
 });
+
+const SIMILAR_ARTICLES_LIMIT = 3;
+const SIMILAR_CANDIDATE_POOL = 30; // ortak etiket sayısına göre sıralamak için yeterli bir havuz, tüm eşleşeni çekmeye gerek yok
+
+// Makale sayfasının altında gösterilen "benzer makaleler" — embedding/vector
+// search gerektirmeyen, ucuz ve hızlı bir yaklaşım: ortak etiket sayısına göre
+// sıralama (zaten Explore/trending akışlarında kullanılan tag tabanlı mantıkla
+// tutarlı). Ortak etiketli makale yetersizse en yeni makalelerle tamamlanıyor,
+// böylece az etiketli/yeni makalelerde de her zaman 3 öneri gösterilebiliyor.
+export const getSimilarArticles = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const current = await Article.findById(id).select("tags");
+    if (!current) return res.status(404).json({ message: "Makale bulunamadı." });
+
+    const tagIds = current.tags.map((t) => t.toString());
+    let similar = [];
+
+    if (tagIds.length > 0) {
+      const candidates = await Article.find({ _id: { $ne: id }, tags: { $in: tagIds } })
+        .populate("author", "username avatar")
+        .populate("tags", "name")
+        .sort({ createdAt: -1 })
+        .limit(SIMILAR_CANDIDATE_POOL)
+        .lean();
+
+      candidates.sort((a, b) => {
+        const sharedCount = (article) => article.tags.filter((t) => tagIds.includes(t._id.toString())).length;
+        return sharedCount(b) - sharedCount(a);
+      });
+
+      similar = candidates.slice(0, SIMILAR_ARTICLES_LIMIT);
+    }
+
+    if (similar.length < SIMILAR_ARTICLES_LIMIT) {
+      const excludeIds = [id, ...similar.map((a) => a._id.toString())];
+      const filler = await Article.find({ _id: { $nin: excludeIds } })
+        .populate("author", "username avatar")
+        .populate("tags", "name")
+        .sort({ createdAt: -1 })
+        .limit(SIMILAR_ARTICLES_LIMIT - similar.length)
+        .lean();
+      similar = [...similar, ...filler];
+    }
+
+    res.json(similar.map(toArticleSummary));
+});

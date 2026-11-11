@@ -17,6 +17,9 @@ export const getMyLibrary = () =>
 export const getArticleById = (id) =>
   api.get(`/articles/${id}`).then((res) => res.data);
 
+export const getSimilarArticles = (id) =>
+  api.get(`/articles/${id}/similar`).then((res) => res.data);
+
 export const toggleFavorite = (id) =>
   api.put(`/articles/favorite/${id}`).then((res) => res.data);
 
