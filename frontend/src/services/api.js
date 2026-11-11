@@ -25,7 +25,15 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status !== 401 || originalRequest._retry || originalRequest.url?.includes("/auth/refresh")) {
+    // /auth/login kendi 401'i "yanlış şifre" anlamına geliyor, "oturum süresi
+    // doldu" değil — bunu da refresh/redirect akışına sokarsak yanlış şifre
+    // girildiğinde sayfa tam olarak yenilenir (ve tüm form state'i silinir).
+    if (
+      error.response?.status !== 401 ||
+      originalRequest._retry ||
+      originalRequest.url?.includes("/auth/refresh") ||
+      originalRequest.url?.includes("/auth/login")
+    ) {
       return Promise.reject(error);
     }
 
