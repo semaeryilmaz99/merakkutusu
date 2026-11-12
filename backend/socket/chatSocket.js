@@ -4,6 +4,8 @@ import User from "../models/User.js";
 import Blacklist from "../models/Blacklist.js";
 import ChatRoom from "../models/ChatRoom.js";
 import ChatMessage from "../models/ChatMessage.js";
+import Article from "../models/Article.js";
+import Notification from "../models/Notification.js";
 import resolveChatRoom from "../utils/resolveChatRoom.js";
 import authorizeChatRoomAccess from "../utils/authorizeChatRoomAccess.js";
 import allowedOrigins from "../config/allowedOrigins.js";
@@ -129,6 +131,28 @@ export default function initChatSocket(httpServer) {
         const recipientId = room.members.find((m) => m.toString() !== socket.user._id.toString());
         if (recipientId) {
           io.to(`user:${recipientId}`).emit("direct_message", payload);
+
+          // Canlı toast'tan ayrı olarak, bildirim zilinde kalıcı bir kayıt da
+          // oluşturuyoruz — alıcı o an çevrimdışıysa/başka sayfadaysa bile
+          // sonradan görebilsin diye.
+          await Notification.create({
+            user: recipientId,
+            type: "chat_message",
+            fromUser: socket.user._id
+          });
+          io.to(`user:${recipientId}`).emit("notification:new");
+        }
+      } else if (room.type === "article" && room.article) {
+        // Makalenin kendi sohbetine biri yazınca, yazar (kendisi değilse) bildirim alır.
+        const article = await Article.findById(room.article).select("author");
+        if (article && article.author.toString() !== socket.user._id.toString()) {
+          await Notification.create({
+            user: article.author,
+            type: "article_chat",
+            fromUser: socket.user._id,
+            article: article._id
+          });
+          io.to(`user:${article.author}`).emit("notification:new");
         }
       }
 

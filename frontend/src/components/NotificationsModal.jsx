@@ -10,6 +10,8 @@ const ICONS = {
   follow: UserPlus,
   favorite: Heart,
   comment: MessageCircle,
+  chat_message: MessageCircle,
+  article_chat: MessageCircle,
 };
 
 function buildMessage(notification) {
@@ -22,6 +24,10 @@ function buildMessage(notification) {
       return t("messages.favorite", { name, title: notification.article?.title || t("defaultArticle") });
     case "comment":
       return t("messages.comment", { name, title: notification.article?.title || t("defaultArticle") });
+    case "chat_message":
+      return t("messages.chatMessage", { name });
+    case "article_chat":
+      return t("messages.articleChat", { name, title: notification.article?.title || t("defaultArticle") });
     default:
       return t("messages.default", { name });
   }

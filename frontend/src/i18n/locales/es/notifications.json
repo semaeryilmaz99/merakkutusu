@@ -5,6 +5,8 @@
     "follow": "{{name}} empezó a seguirte.",
     "favorite": "{{name}} marcó como favorito tu artículo \"{{title}}\".",
     "comment": "{{name}} comentó tu artículo \"{{title}}\".",
+    "chatMessage": "{{name}} te envió un mensaje.",
+    "articleChat": "{{name}} escribió en el chat de tu artículo \"{{title}}\".",
     "default": "{{name}} interactuó con tu contenido."
   },
   "title": "Notificaciones",

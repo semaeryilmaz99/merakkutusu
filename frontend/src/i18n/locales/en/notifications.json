@@ -5,6 +5,8 @@
     "follow": "{{name}} started following you.",
     "favorite": "{{name}} favorited your article \"{{title}}\".",
     "comment": "{{name}} commented on your article \"{{title}}\".",
+    "chatMessage": "{{name}} sent you a message.",
+    "articleChat": "{{name}} wrote in the chat for your article \"{{title}}\".",
     "default": "{{name}} interacted with your content."
   },
   "title": "Notifications",

@@ -5,6 +5,8 @@
     "follow": "{{name}} seni takip etmeye başladı.",
     "favorite": "{{name}} \"{{title}}\" makaleni favoriledi.",
     "comment": "{{name}} \"{{title}}\" makalene yorum yaptı.",
+    "chatMessage": "{{name}} sana bir mesaj gönderdi.",
+    "articleChat": "{{name}} \"{{title}}\" makalenin sohbetine yazdı.",
     "default": "{{name}} bir etkileşimde bulundu."
   },
   "title": "Bildirimler",

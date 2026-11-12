@@ -23,6 +23,15 @@ import allowedOrigins from "./config/allowedOrigins.js";
 // gerçek bir sunucu ayağa kalkmadan ve gerçek veritabanına dokunmadan.
 const app = express();
 
+// Render/Railway gibi platformlarda uygulama bir reverse proxy arkasında
+// çalışıyor — bu ayar olmadan Express, req.ip'yi proxy'nin kendi iç adresi
+// sanıyor ve rate limiter (aşağıda) TÜM kullanıcıları aynı kişi gibi
+// sayıp paylaşımlı bir limite sokuyordu (bu yüzden tek bir kullanıcı birkaç
+// kez giriş denediğinde bile "çok fazla istek" hatası alınabiliyordu).
+// "1" değeri: sadece bir kademe proxy'ye (platformun kendi proxy'si) güven,
+// X-Forwarded-For header'ının ilk değerini gerçek istemci IP'si olarak kullan.
+app.set("trust proxy", 1);
+
 // Standart güvenlik header'ları (X-Frame-Options, X-Content-Type-Options, HSTS vb.) —
 // biz HTML değil sadece JSON döndüğümüz için varsayılan ayarları değiştirmeye gerek yok.
 app.use(helmet());
